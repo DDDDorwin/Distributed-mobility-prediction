@@ -13,7 +13,7 @@ def load_data(data_path):
                'SMS_out', 'Call_in', 'Call_out', 'Internet_traffic']
 
     raw = pd.DataFrame()
-    for file in data_files:
+    for file in data_files[:5]:
         read = pd.read_csv(data_path + file, sep='\t', header=None, names=columns, parse_dates=True)
         raw = pd.concat([raw, read], ignore_index=True)
 

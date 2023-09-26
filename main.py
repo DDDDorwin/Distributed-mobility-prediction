@@ -18,9 +18,9 @@ if __name__ == '__main__':
     norm_data = scaler.fit_transform(sum_data['Internet_traffic'].values.reshape(-1, 1))
 
     torch_data = torch.FloatTensor(norm_data).view(-1)
-    test_size = int(len(sum_data) * 0.2)
-    train_set = torch_data[:test_size]
-    test_set = torch_data[test_size:]
+    train_size = int(len(sum_data) * 0.8)
+    train_set = torch_data[:train_size]
+    test_set = torch_data[train_size:]
 
     train_input = input_data(train_set, 6)
 
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     # optimizer
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 
-    epochs = 300
+    epochs = 100
 
     # set train mode
     model.train()
