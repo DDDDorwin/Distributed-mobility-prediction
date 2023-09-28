@@ -19,6 +19,13 @@ if __name__ == '__main__':
         else "cpu"
     )
 
+    # set hyper parameters
+    hyp = {
+        'lr': 1e-4,
+        'epochs': 10,
+        'period': 3  # numbers of data points used for training: 6 as one hour, 240 as one day
+    }
+
     # Load data
     raw_data = load_data(parse_dates=True, input_dir="D:\Project_cs\data\\")
     sum_data = raw_data.groupby('Time_interval').sum()
@@ -27,6 +34,7 @@ if __name__ == '__main__':
     scaler = MinMaxScaler(feature_range=(-1, 1))
     norm_data = scaler.fit_transform(sum_data['Internet_traffic'].values.reshape(-1, 1))
 
+    # split data for training and testing
     torch_data = torch.FloatTensor(norm_data).view(-1)
     train_size = int(len(sum_data) * 0.8)
     train_set = torch_data[:train_size]
@@ -34,14 +42,10 @@ if __name__ == '__main__':
 
     # Resize the input to fit the model
     # Set input size as one hour
-    train_input = resize_input_data(train_set, 6)
+    train_input = resize_input_data(train_set, hyp['period'])
 
-    model = OneDimensionalCNN(1, 1)
-    # set hyper parameters
-    hyp = {
-        'lr': 1e-4,
-        'epochs': 10
-    }
+    model = OneDimensionalCNN(1, hyp['period'], 1)
+
     loss_fn = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=hyp['lr'])
 
@@ -69,13 +73,13 @@ if __name__ == '__main__':
     # set eval mode
     model.eval()
     # loop for sliding window
-    for i in range(len(test_set) - 6):
-        seq = torch.FloatTensor(test_set[i:i + 6])
+    for i in range(len(test_set) - hyp['period']):
+        seq = torch.FloatTensor(test_set[i:i + hyp['period']])
         with torch.no_grad():
             pred = model(seq.reshape(1, 1, -1)).item()
             preds.append(pred)
 
-    MSE = ((torch.pow((torch.FloatTensor(preds)-test_set[:-6]), 2)).sum()) / len(test_set)
+    MSE = ((torch.pow((torch.FloatTensor(preds)-test_set[:-hyp['period']]), 2)).sum()) / len(test_set)
     print(f"Accuracy: {MSE*100}%")
 
     # reverse the normalization
