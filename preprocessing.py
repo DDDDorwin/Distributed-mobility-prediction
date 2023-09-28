@@ -51,14 +51,18 @@ def raw_tsv_to_sqlite(input_dir=RAW_DIR, output_dir=PREPROCESSED_DIR, output_fil
     con.close()
 
 def load_data(
+        # columns = [
+        #     'square_id',
+        #     'time_interval',
+        #     'country_code',
+        #     'sms_in', 'sms_out',
+        #     'call_in', 'call_out',
+        #     'internet_traffic'
+        # ],
         columns = [
-            'square_id',
-            'time_interval',
-            'country_code',
-            'sms_in', 'sms_out',
-            'call_in', 'call_out',
-            'internet_traffic'
-        ],
+                    'time_interval',
+                    'internet_traffic'
+                ],
         parse_dates = False,
         input_dir = PREPROCESSED_DIR,
         input_file ='raw_merged.tsv'
@@ -103,11 +107,12 @@ def load_data(
 
     df = pd.read_csv(
         join(input_dir, input_file),
-        sep='\t', header=None, dtype=dtypes, usecols=usecols
+        sep='\t', header=None, dtype=dtypes, names=['Square_id', 'Time_interval', 'Country_code', 'SMS_in',
+           'SMS_out', 'Call_in','Call_out', 'Internet_traffic'], usecols=usecols
     )
 
     if parse_dates:
-        df['time_interval'] = pd.to_datetime(df['time_interval'], unit='ms', utc=True) \
+        df['Time_interval'] = pd.to_datetime(df['Time_interval'], unit='ms', utc=True) \
                                 .dt.tz_convert('CET') \
                                 .dt.tz_localize(None)
         
