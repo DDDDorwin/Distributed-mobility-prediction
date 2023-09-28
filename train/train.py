@@ -37,11 +37,12 @@ if __name__ == '__main__':
     train_input = resize_input_data(train_set, 6)
 
     model = OneDimensionalCNN(1, 1)
+    # set hyper parameters
     hyp = {
         'lr': 1e-4,
-        'epochs': 100
+        'epochs': 10
     }
-    loss_fn = nn.CrossEntropyLoss()
+    loss_fn = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=hyp['lr'])
 
     # Start training
@@ -55,7 +56,7 @@ if __name__ == '__main__':
 
             # input shape: (batch_size, channel, series_length): (1, 1, -1)
             y_pred = model(seq.reshape(1, 1, -1))
-            loss = loss_fn(y_pred, y_train)
+            loss = loss_fn(y_train, y_pred)
             loss.backward()
             optimizer.step()
 
@@ -69,13 +70,21 @@ if __name__ == '__main__':
     model.eval()
     # loop for sliding window
     for i in range(len(test_set) - 6):
-        seq = torch.FloatTensor(torch_data[i:i + 6])
+        seq = torch.FloatTensor(test_set[i:i + 6])
         with torch.no_grad():
             pred = model(seq.reshape(1, 1, -1)).item()
             preds.append(pred)
 
+    MSE = ((torch.pow((torch.FloatTensor(preds)-test_set[:-6]), 2)).sum()) / len(test_set)
+    print(f"Accuracy: {MSE*100}%")
+
     # reverse the normalization
     true_predictions = scaler.inverse_transform(np.array(preds).reshape(-1, 1))
+
+    # compute accuracy
+    # test set of true data
+    test_true_data = sum_data['Internet_traffic'][len(sum_data) - len(true_predictions):]
+
 
     # plot the data
     plt.grid(True)
