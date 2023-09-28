@@ -3,6 +3,9 @@ import torch.nn as nn
 
 
 def resize_input_data(x, input_size):
+    """
+    resize the input data to fit the input shape of the network
+    """
     output = []
     length = len(x)
     for i in range(length - input_size):
