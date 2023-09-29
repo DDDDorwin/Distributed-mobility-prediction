@@ -105,6 +105,7 @@ def load_data(
     
     usecols = [column_indices[c] for c in columns]
 
+    # assign column names while reading the inputs
     df = pd.read_csv(
         join(input_dir, input_file),
         sep='\t', header=None, dtype=dtypes, names=['Square_id', 'Time_interval', 'Country_code', 'SMS_in',
