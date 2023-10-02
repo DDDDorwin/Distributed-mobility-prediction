@@ -103,8 +103,12 @@ if __name__ == '__main__':
 
     # plot the data
     plt.grid(True)
-    plt.plot(sum_data.index[len(sum_data) - len(true_predictions):],
-             sum_data['Internet_traffic'][len(sum_data) - len(true_predictions):])
-    plt.plot(sum_data.index[len(sum_data) - len(true_predictions):], true_predictions)
+    test_length = len(sum_data) - len(true_predictions)
+    # plt.plot(sum_data.index[len(sum_data) - len(true_predictions):],
+    #          sum_data['Internet_traffic'][len(sum_data) - len(true_predictions):])
+    # plt.plot(sum_data.index[len(sum_data) - len(true_predictions):], true_predictions)
+    plt.plot(sum_data.index[test_length:test_length+20],
+             sum_data['Internet_traffic'][test_length: test_length+20])
+    plt.plot(sum_data.index[test_length:test_length+20], true_predictions[:20])
     plt.show()
     plt.savefig("prediction_with_test_set.jpg")

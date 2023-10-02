@@ -2,21 +2,6 @@ import torch
 import torch.nn as nn
 
 
-def resize_input_data(x, input_size):
-    """
-    resize the input data to fit the input shape of the network
-    """
-    output = []
-    length = len(x)
-    for i in range(length - input_size):
-        window = x[i: i + input_size]
-        pred = x[i+input_size: i+input_size + 1]
-
-        output.append((window, pred))
-
-    return output
-
-
 class OneDimensionalCNN(nn.Module):
     def __init__(self, channel, input_size, nc):
         """
@@ -38,6 +23,7 @@ class OneDimensionalCNN(nn.Module):
             nn.ReLU(inplace=True),
             nn.Linear(64, nc)
         )
+
     def forward(self, x):
         output = self.model(x)
         return output
