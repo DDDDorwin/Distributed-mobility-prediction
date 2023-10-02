@@ -31,8 +31,11 @@ if __name__ == '__main__':
     device = (
         "cuda"
         if torch.cuda.is_available()
-        else "mps"
-        if torch.backends.mps.is_available()
+        # uncomment following 2 rows if you want to run
+        # the training on Macos with pytorch >= 2.0
+
+        # else "mps"
+        # if torch.backends.mps.is_available()
         else "cpu"
     )
 
@@ -106,5 +109,4 @@ if __name__ == '__main__':
     plt.plot(sum_data.index[len(sum_data) - len(true_predictions):],
              sum_data['Internet_traffic'][len(sum_data) - len(true_predictions):])
     plt.plot(sum_data.index[len(sum_data) - len(true_predictions):], true_predictions)
-    plt.show()
     plt.savefig("prediction_with_test_set.jpg")
