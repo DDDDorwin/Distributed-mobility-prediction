@@ -209,8 +209,7 @@ if __name__ == '__main__':
            and save to pickle.'''
         if df is None:
             df = load_pickle(Paths.GROUPED_CC_DIR)
-        df = groupby_agg(df, groupby_cols=[Keys.TIME_INTERVAL], agg_cols=[Keys.SMS_IN, Keys.SMS_OUT, Keys.CALL_IN, Keys.CALL_OUT, Keys.INTERNET])
+        df = groupby_agg(df, groupby_cols=[Keys.TIME_INTERVAL], agg_cols=[Keys.SMS_IN, Keys.SMS_OUT, Keys.CALL_IN, Keys.CALL_OUT, Keys.INTERNET], agg_method='sum')
         dump_pickle(df, Paths.GROUPED_TIME_F)
         return df
-    
-    group_only_time_to_pickle(group_country_codes_to_pickle())
+    group_country_codes_to_pickle()
