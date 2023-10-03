@@ -6,22 +6,12 @@ import csv
 from threading import Thread
 import pickle
 import numpy as np
+from constants import *
 
 pickle_path = "data/"
 pickle_name = "temp_pickle"
 raw_data_path = "data/raw_test/"
 
-
-__DTYPES = {
-    'sq_id': 'int16',
-    'time': 'int64',
-    'cc': 'int8',
-    'sms_in': 'float64',
-    'sms_out': 'float64',
-    'call_in': 'float64',
-    'call_out': 'float64',
-    'internet': 'float64'
-}
 
 __is_loading = False
 __loaded_chunk = pd.DataFrame()
@@ -53,11 +43,11 @@ def __merge_and_pickle_csvs():
     li = []
     #Merge all data from txt, tsv and csv's into a list
     for input_file in sorted(input_files):
-        li.append(pd.read_csv(input_file, header=None, sep='\t', dtype=__DTYPES))
+        li.append(pd.read_csv(input_file, header=None, sep='\t', dtype=TableData.DTYPES))
     #Make list into a dataframe
     df = pd.concat(li, axis=0, ignore_index=True)
     #Add column headers and sort by time
-    df.columns = __DTYPES.keys()
+    df.columns = TableData.DTYPES.keys()
     df.sort_values(by='time')
     #Split dataframe into n_chunks and pickle each chunk
     chunks = np.array_split(df, __n_pkl_files)
