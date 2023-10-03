@@ -45,9 +45,7 @@ def fetch_preload():
 def is_ready():
     return not __is_loading
 
-def test_pkl():
-    df = pd.read_pickle(join(pickle_path,pickle_name))
-    print(df)
+
 
 def __merge_and_pickle_csvs():
     #Fetch paths of all txt, tsv and csv's into a list
@@ -60,18 +58,17 @@ def __merge_and_pickle_csvs():
     df = pd.concat(li, axis=0, ignore_index=True)
     #Add column headers and sort by time
     df.columns = __DTYPES.keys()
-    df.sort_values(by="time")
+    df.sort_values(by='time')
     #Split dataframe into n_chunks and pickle each chunk
     chunks = np.array_split(df, __n_pkl_files)
-    i = 0
     for chunk in chunks:
         df_ch = pd.DataFrame(chunk)
-        df_ch.to_pickle(join(pickle_path, "%s%s.pkl" % (pickle_name,str(i))))
-        i = i + 1
-        
+        #Save pkl with name corresponding to start and end timestep in file
+        df_ch.to_pickle(join(pickle_path, "%s_%s.pkl" % (df_ch['time'].iloc[1],df_ch['time'].iloc[-1])))
 
-    #Convert and save dataframe to pickle
-   # df.to_pickle(join(pickle_path,pickle_name,".pkl"))
+def test_pkl():
+    df = pd.read_pickle(join(pickle_path,pickle_name))
+    print(df)
 
 #Used only for creation of database, do not call normally
 def __prep_db():
@@ -86,4 +83,4 @@ def __del_db():
 
 __del_db()
 __merge_and_pickle_csvs()
-#test_pkl()
+#test_pkls()
