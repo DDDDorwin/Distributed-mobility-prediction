@@ -11,8 +11,6 @@ from constants import *
 __is_loading = False
 __loaded_chunk = pd.DataFrame()
 
-__n_pkl_files = 10
-
 def __prefetch(first_elem_time):
     #Prefetch data, once done isLoading = false
     __isLoading = False
@@ -27,39 +25,29 @@ def fetch_preload():
     None
 
 def is_ready():
+    '''Returns true if preloaded chunk is ready for fetching'''
     return not __is_loading
 
-
-
-def __merge_and_pickle_csvs():
-    #Fetch paths of all txt, tsv and csv's into a list
+def __ferment_pickles():
+    '''Create pickle files for each raw data file, name = firstTimeStamp_lastTimeStamp.pkl'''
+    #For all data files ending with .txt, .tsv or .csv, reformat them into pickles, adding corresponding headers in the process
     input_files = [join(Paths.RAW_DIR, f) for f in os.listdir(Paths.RAW_DIR) if f.endswith(".txt") or f.endswith(".tsv") or f.endswith(".csv")]
-    li = []
-    #Merge all data from txt, tsv and csv's into a list
     for input_file in sorted(input_files):
-        li.append(pd.read_csv(input_file, header=None, sep='\t', dtype=TableData.DTYPES))
-    #Make list into a dataframe
-    df = pd.concat(li, axis=0, ignore_index=True)
-    #Add column headers and sort by time
-    df.columns = TableData.DTYPES.keys()
-    df.sort_values(by='time')
-    #Split dataframe into n_chunks and pickle each chunk
-    chunks = np.array_split(df, __n_pkl_files)
-    for chunk in chunks:
-        df_ch = pd.DataFrame(chunk)
-        #Save pkl with name corresponding to start and end timestep in file
-        df_ch.to_pickle(join(Paths.PICKLE_DIR, "%s_%s.pkl" % (df_ch['time'].iloc[1],df_ch['time'].iloc[-1])))
-
-#Used only for creation of database, do not call normally
-def __prep_db():
-    #if no merged file exists, merge csvs
-    #load into pickle file
-    None
+        df = pd.read_csv(input_file, header=None, sep='\t', dtype=TableData.DTYPES)
+        #Fetches keys for dtypes, to use as names for headers
+        df.columns = TableData.DTYPES.keys()
+        df.to_pickle(join(Paths.PICKLE_DIR, "%s_%s.pkl" % (df[Keys.TIME_INTERVAL].iloc[1],df[Keys.TIME_INTERVAL].iloc[-1])))
 
 def __del_db():
+    '''Deletes all pickles from pickles directory'''
     for file in os.listdir(Paths.PICKLE_DIR):
         if os.fsdecode(file).endswith(".pkl"):
             os.remove(join(Paths.PICKLE_DIR, file))
 
-__del_db()
-__merge_and_pickle_csvs()
+def __prep_db():
+    '''Recreates database from scratch using all raw .txt files'''
+    __del_db()
+    __ferment_pickles()
+
+
+__prep_db()
