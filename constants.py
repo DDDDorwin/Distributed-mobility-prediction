@@ -36,7 +36,7 @@ class Paths(object):
     MERGED_TO_SIZE_DIR = pjoin(PREPROCESSED_DIR, 'merged_to_size')
     
     # files
-    MERGED_RAW_F = pjoin(PREPROCESSED_DIR, 'merged_raw.tsv')
+    MERGED_RAW_F = pjoin(PREPROCESSED_DIR, 'raw_merged.tsv')
     GROUPED_CC_F = pjoin(PREPROCESSED_DIR, 'grouped_cc.pkl')
     GROUPED_TIME_F = pjoin(PREPROCESSED_DIR, 'grouped_time.pkl')
 
