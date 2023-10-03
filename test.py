@@ -8,14 +8,8 @@ import pickle
 import numpy as np
 from constants import *
 
-pickle_path = "data/"
-pickle_name = "temp_pickle"
-raw_data_path = "data/raw_test/"
-
-
 __is_loading = False
 __loaded_chunk = pd.DataFrame()
-__chunk_size = 2000
 
 __n_pkl_files = 10
 
@@ -39,7 +33,7 @@ def is_ready():
 
 def __merge_and_pickle_csvs():
     #Fetch paths of all txt, tsv and csv's into a list
-    input_files = [join(raw_data_path, f) for f in os.listdir(raw_data_path) if f.endswith(".txt") or f.endswith(".tsv") or f.endswith(".csv")]
+    input_files = [join(Paths.RAW_DIR, f) for f in os.listdir(Paths.RAW_DIR) if f.endswith(".txt") or f.endswith(".tsv") or f.endswith(".csv")]
     li = []
     #Merge all data from txt, tsv and csv's into a list
     for input_file in sorted(input_files):
@@ -54,11 +48,7 @@ def __merge_and_pickle_csvs():
     for chunk in chunks:
         df_ch = pd.DataFrame(chunk)
         #Save pkl with name corresponding to start and end timestep in file
-        df_ch.to_pickle(join(pickle_path, "%s_%s.pkl" % (df_ch['time'].iloc[1],df_ch['time'].iloc[-1])))
-
-def test_pkl():
-    df = pd.read_pickle(join(pickle_path,pickle_name))
-    print(df)
+        df_ch.to_pickle(join(Paths.PICKLE_DIR, "%s_%s.pkl" % (df_ch['time'].iloc[1],df_ch['time'].iloc[-1])))
 
 #Used only for creation of database, do not call normally
 def __prep_db():
@@ -67,10 +57,9 @@ def __prep_db():
     None
 
 def __del_db():
-    for file in os.listdir(pickle_path):
+    for file in os.listdir(Paths.PICKLE_DIR):
         if os.fsdecode(file).endswith(".pkl"):
-            os.remove(join(pickle_path, file))
+            os.remove(join(Paths.PICKLE_DIR, file))
 
 __del_db()
 __merge_and_pickle_csvs()
-#test_pkls()
