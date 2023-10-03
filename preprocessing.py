@@ -6,47 +6,31 @@ from typing import Iterable
 
 import pandas as pd
 
-PROJ_DIR = '/proj/uppmax2023-2-33/nobackup/data'
-RAW_DIR = join(PROJ_DIR, 'raw')
-PREPROCESSED_DIR = join(PROJ_DIR, 'preprocessed')
-MERGED_RAW_F = join(PREPROCESSED_DIR, 'merged_raw.tsv')
-GROUPED_CC_F = join(PREPROCESSED_DIR, 'grouped_cc.pkl')
-GROUPED_TIME_F = join(PREPROCESSED_DIR, 'grouped_time.pkl')
+from constants import Paths, Keys, TableData
 
 
-DTYPES = {
-    'square_id': 'int16',
-    'time_interval': 'int64',
-    'country_code': 'int8',
-    'sms_in': 'float64',
-    'sms_out': 'float64',
-    'call_in': 'float64',
-    'call_out': 'float64',
-    'internet_traffic': 'float64'
-}
-
-
-def raw_tsv_to_sqlite(input_dir: str = RAW_DIR, output_dir: str = PREPROCESSED_DIR, output_file: str = 'raw.sqlite3'):
+def raw_tsv_to_sqlite(input_dir: str = Paths.RAW_DIR, output_dir: str = Paths.PREPROCESSED_DIR, output_file: str = 'raw.sqlite3'):
     '''Merge all tsv files into a single sqlite3 database file.'''
     
     import sqlite3
 
     # read tsv
-    columns = ['square_id', 'time_interval', 'country_code', 'sms_in',
-               'sms_out', 'call_in', 'call_out', 'internet_traffic']
+    columns = [Keys.SQUARE_ID, Keys.TIME_INTERVAL, Keys.COUNTRY_CODE,
+               Keys.SMS_IN, Keys.SMS_OUT, Keys.CALL_IN, Keys.CALL_OUT,
+               Keys.INTERNET]
     
     # create data base file if it doesn't exist yet
     con = sqlite3.connect(join(output_dir, output_file))
     cur = con.cursor()
-    cur.execute('''CREATE TABLE IF NOT EXISTS cdr (
-        square_id int,
-        time_interval int,
-        country_code int,
-        sms_in real,
-        sms_out real,
-        call_in real,
-        call_out real,
-        internet_traffic real
+    cur.execute(f'''CREATE TABLE IF NOT EXISTS cdr (
+        {Keys.SQUARE_ID} int,
+        {Keys.TIME_INTERVAL} int,
+        {Keys.COUNTRY_CODE} int,
+        {Keys.SMS_IN} real,
+        {Keys.SMS_OUT} real,
+        {Keys.CALL_IN} real,
+        {Keys.CALL_OUT} real,
+        {Keys.INTERNET} real
     )''')
     con.commit()
 
@@ -124,8 +108,8 @@ def groupby_agg(df: pd.DataFrame, groupby_cols: Iterable[str], agg_cols: Iterabl
 
 def group_by_country_code(
         df: pd.DataFrame,
-        groupby_cols: Iterable[str] = ['square_id', 'time_interval', 'country_code'],
-        agg_cols: Iterable[str] = ['sms_in', 'sms_out', 'call_in', 'call_out', 'internet_traffic'],
+        groupby_cols: Iterable[str] = [Keys.SQUARE_ID, Keys.TIME_INTERVAL, Keys.COUNTRY_CODE],
+        agg_cols: Iterable[str] = [Keys.SMS_IN, Keys.SMS_OUT, Keys.CALL_IN, Keys.CALL_OUT, Keys.INTERNET],
         agg_method: str = 'sum'
     ) -> pd.DataFrame:
     '''
@@ -135,7 +119,7 @@ def group_by_country_code(
     '''
 
     # cannot group by non-existing key
-    if 'country_code' not in df:
+    if Keys.COUNTRY_CODE not in df:
         return df
 
     # country code mapping
@@ -143,20 +127,17 @@ def group_by_country_code(
     # 1 -> foreign
     def country_code_mapping(x):
         return 0 if x in [0, 39] else 1
-    df['country_code'] = df['country_code'].apply(country_code_mapping)
+    df[Keys.COUNTRY_CODE] = df[Keys.COUNTRY_CODE].apply(country_code_mapping)
 
     return groupby_agg(df, groupby_cols, agg_cols, agg_method)
 
 
 def load_tsv(
-        input_file: str = MERGED_RAW_F,
+        input_file: str = Paths.MERGED_RAW_F,
         columns: Iterable[str] = [
-            'square_id',
-            'time_interval',
-            'country_code',
-            'sms_in', 'sms_out',
-            'call_in', 'call_out',
-            'internet_traffic'
+            Keys.SQUARE_ID, Keys.TIME_INTERVAL, Keys.COUNTRY_CODE,
+            Keys.SMS_IN, Keys.SMS_OUT, Keys.CALL_IN, Keys.CALL_OUT,
+            Keys.INTERNET
         ],
         parse_dates: bool = False
     ):
@@ -172,34 +153,23 @@ def load_tsv(
     columns: Iterable[str] -- iterable containing the names of columns to load
     parse_dates: bool -- convert unix timestamp to pandas datetime
     '''
-
-    column_indices = {
-        'square_id': 0,
-        'time_interval': 1,
-        'country_code': 2,
-        'sms_in': 3,              
-        'sms_out': 4,
-        'call_in': 5,
-        'call_out': 6,
-        'internet_traffic': 7,
-    }
     
     # columns to be included in the final dataframe
     # should probably always contain square_id, time_interval,
     # and at least one CDR
-    usecols = [column_indices[c] for c in columns]
+    usecols = [TableData.INDICES[c] for c in columns]
 
     df = pd.read_csv(
         input_file,
-        sep='\t', header=None, dtype=DTYPES, usecols=usecols
+        sep='\t', header=None, dtype=TableData.DTYPES, usecols=usecols
     )
     df.columns = list(columns)
 
     # convert times if desired and time_intervals were loaded
-    if parse_dates and 'time_interval' not in df.columns:
-        raise AttributeError('You need to include "time_interval" in "columns" to convert it to datetime!')
+    if parse_dates and Keys.TIME_INTERVAL not in df.columns:
+        raise AttributeError(f'You need to include "{Keys.TIME_INTERVAL}" in "columns" to convert it to datetime!')
     elif parse_dates:
-        df['time_interval'] = pd.to_datetime(df['time_interval'], unit='ms', utc=True) \
+        df[Keys.TIME_INTERVAL] = pd.to_datetime(df[Keys.TIME_INTERVAL], unit='ms', utc=True) \
                                 .dt.tz_convert('CET') \
                                 .dt.tz_localize(None)
     return df
@@ -220,14 +190,27 @@ if __name__ == '__main__':
     def merge_all_raw_to_tsv():
         '''Merge all 61 raw data files into a single tsv file.'''
         merge_text_files(
-            input_files = [join(RAW_DIR, f) for f in listdir(RAW_DIR)],
-            output_file = MERGED_RAW_F
+            input_files = [join(Paths.RAW_DIR, f) for f in listdir(Paths.RAW_DIR)],
+            output_file = Paths.MERGED_RAW_F
         )
     # merge_all_raw_to_tsv()
 
-    def group_country_codes_to_pickle():
+    def group_country_codes_to_pickle(df=None):
         '''Reduce country codes to 0 -> local, 1 -> foreign and save as pickle'''
-        df = load_tsv(input_file = MERGED_RAW_F)
+        if df is None:
+            df = load_tsv(input_file = Paths.MERGED_RAW_F)
         df = group_by_country_code(df)
-        dump_pickle(df, output_file=GROUPED_CC_F)
+        dump_pickle(df, output_file= Paths.GROUPED_CC_F)
+        return df
     # group_country_codes_to_pickle()
+
+    def group_only_time_to_pickle(df=None):
+        '''Reduce square id, time interval and country code to only time interval
+           and save to pickle.'''
+        if df is None:
+            df = load_pickle(Paths.GROUPED_CC_DIR)
+        df = groupby_agg(df, groupby_cols=[Keys.TIME_INTERVAL], agg_cols=[Keys.SMS_IN, Keys.SMS_OUT, Keys.CALL_IN, Keys.CALL_OUT, Keys.INTERNET])
+        dump_pickle(df, Paths.GROUPED_TIME_F)
+        return df
+    
+    group_only_time_to_pickle(group_country_codes_to_pickle())
