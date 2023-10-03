@@ -29,7 +29,7 @@ class Paths(object):
     '''File and directory paths on uppmax'''
 
     # directories
-    DATA_DIR = pjoin('proj', 'uppmax2023-2-33', 'nobackup', 'data')
+    DATA_DIR = pjoin('/', 'proj', 'uppmax2023-2-33', 'nobackup', 'data')
     RAW_DIR = pjoin(DATA_DIR, 'raw')
     PREPROCESSED_DIR = pjoin(DATA_DIR, 'preprocessed')
     GROUPED_CC_DIR = pjoin(PREPROCESSED_DIR, 'grouped_country_codes')
