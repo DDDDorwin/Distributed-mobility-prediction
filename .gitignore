@@ -1,4 +1,3 @@
-data/.DS_Store
-data/*.db
-data/*.txt
+data/
 .DS_Store
+*.dat

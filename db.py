@@ -4,11 +4,11 @@ import os
 import sys
 import csv
 
-db_name = "raw_db"
+db_name = "sqlite_db"
 db_path = "data/"
-raw_path = "data/"
+raw_path = "data/raw_nov_10/"
 
-class DataBase:
+class _DataBase:
 
     def __init__(self, setup_new):
         self.connection = sqlite3.connect("%s%s.db" % (db_path, db_name))
@@ -30,16 +30,21 @@ class DataBase:
                     self.cursor.executemany("INSERT INTO raw_data (sq_id, time, cc, sms_in, sms_out, call_in, call_out, internet) VALUES (?, ?, ?, ?, ?, ?, ?, ?);", dir)
         self.connection.commit()
 
-    def list_db_all(self):
+    def print_all(self):
         self.cursor.execute("SELECT * FROM raw_data")
         print(self.cursor.fetchall())
 
-    def list_db(self, num):
-        self.cursor.execute("SELECT * FROM raw_data LIMIT {numbr}".format(numbr = num))
-        print(self.cursor.fetchall())
+    def fetch_all(self):
+        return pd.read_sql_query("SELECT * FROM raw_data", self.connection)
 
-    def fetch(self, time_from, time_to):
+    def fetch_all_col(self, col):
+        return pd.read_sql_query("SELECT sq_id, time, %s FROM raw_data" % (col), self.connection)
+
+    def fetch_chunk(self, time_from, time_to):
         return pd.read_sql_query("SELECT * FROM raw_data WHERE time >= %s AND time <= %s" % (time_from, time_to), self.connection)
+
+    def fetch_chunk_col(self, time_from, time_to, col):
+        return pd.read_sql_query("SELECT sq_id, time, %s FROM raw_data WHERE time >= %s AND time <= %s" % (col, time_from, time_to), self.connection)
 
     def setup_new_db(self):
         #Delete old DB if exists
@@ -57,12 +62,7 @@ class DataBase:
         #Populate DB with data from tsv
         self.insert_data_from_files()
 
-class CSVBase:
-    def __init__(self, setup_new):
-        None
-
-
-db = DataBase(False)
-print(db.fetch(1383260400000, 1383280400000))
+db = _DataBase(False)
+db.fetch_all()
 del db
 
