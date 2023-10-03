@@ -8,7 +8,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 import time
 import argparse
-from preprocessing import load_data
+from preprocessing import load_pickle, Paths, Keys
 from models.models import OneDimensionalCNN
 from data.data import SequenceDataset, resize_input_data
 from utils.plot import plot_test_graph
@@ -45,12 +45,13 @@ if __name__ == '__main__':
     )
 
     # Load data
-    raw_data = load_data(parse_dates=True, input_dir=data_path)
-    sum_data = raw_data.groupby('Time_interval').sum()
+    raw_data = load_pickle(data_path)
+    sum_data = raw_data.groupby(Keys.TIME_INTERVAL).sum()
+    print(sum_data.head())
 
     # Apply MinMaxScaler normalization
-    scaler = MinMaxScaler(feature_range=(0, 1))
-    norm_data = scaler.fit_transform(sum_data['Internet_traffic'].values.reshape(-1, 1))
+    scaler = MinMaxScaler(feature_range=(-1, 1))
+    norm_data = scaler.fit_transform(sum_data[Keys.INTERNET].values.reshape(-1, 1))
 
     # make custom dataset
     resize_data = resize_input_data(norm_data, period, output_size)

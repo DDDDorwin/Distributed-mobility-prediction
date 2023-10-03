@@ -1,4 +1,5 @@
 from matplotlib import pyplot as plt
+from preprocessing import Keys
 
 
 def plot_test_graph(dataset, pred):
@@ -13,7 +14,7 @@ def plot_test_graph(dataset, pred):
     # plot the data
     plt.grid(True)
     plt.plot(dataset.index[len(dataset) - len(pred):],
-             dataset['Internet_traffic'][len(dataset) - len(pred):])
+             dataset[Keys.INTERNET][len(dataset) - len(pred):])
     plt.plot(dataset.index[len(dataset) - len(pred):], pred)
 
     plt.savefig("prediction_with_test_set.jpg")
@@ -22,7 +23,7 @@ def plot_test_graph(dataset, pred):
 
     test_start_index = len(dataset) - len(pred)
     plt.plot(dataset.index[test_start_index: test_start_index + 10],
-             dataset['Internet_traffic'][test_start_index: test_start_index + 10])
+             dataset[Keys.INTERNET][test_start_index: test_start_index + 10])
     plt.plot(dataset.index[test_start_index: test_start_index + 10], pred[:10])
 
     plt.savefig("test_subset_10_points.jpg")
@@ -30,7 +31,7 @@ def plot_test_graph(dataset, pred):
     plt.clf()
 
     plt.plot(dataset.index[test_start_index: test_start_index + 100],
-             dataset['Internet_traffic'][test_start_index: test_start_index + 100])
+             dataset[Keys.INTERNET][test_start_index: test_start_index + 100])
     plt.plot(dataset.index[test_start_index: test_start_index + 100], pred[:100])
 
     plt.savefig("test_subset_100_points.jpg")
