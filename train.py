@@ -3,7 +3,6 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import random_split, DataLoader, Subset
 import numpy as np
-import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
@@ -12,6 +11,7 @@ import argparse
 from preprocessing import load_data
 from models.models import OneDimensionalCNN
 from data.data import SequenceDataset, resize_input_data
+from utils.plot import plot_test_graph
 
 if __name__ == '__main__':
     # parse the input from the commandline
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     device = (
         "cuda"
         if torch.cuda.is_available()
-        # uncomment following 2 rows if you want to run
+        # uncomment following 2 lines if you want to run
         # the training on Macos with pytorch >= 2.0
 
         # else "mps"
@@ -75,7 +75,7 @@ if __name__ == '__main__':
     # Set input size as one hour
     # train_input = resize_input_data(train_set, period)
 
-    model = OneDimensionalCNN( period, 1)
+    model = OneDimensionalCNN(period, output_size)
 
     loss_fn = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
@@ -103,6 +103,7 @@ if __name__ == '__main__':
     # evaluation
     preds = []
     test_loss, correct = 0, 0
+    running_mae, running_mse = 0.0, 0.0
     # set eval mode
     model.eval()
     # loop for sliding window
@@ -111,27 +112,18 @@ if __name__ == '__main__':
             x, y = x.to(device), y.to(device)
             pred = model(x)
             preds.append(pred)
+            error = torch.abs(pred-y).sum().data
+            squared_error = ((pred-y)*(pred-y)).sum().data
+            running_mae += error
+            running_mse += squared_error
 
-    # TODO: Manually implement MSE computation
-    # MSE = mean_squared_error(preds, test_set[:len(preds)])  # MSE
-    # print(f"Accuracy: {MSE:.5f}")
+    # accuracy evaluation with MSE method, the lower value the better result we get
+    mae = running_mae / len(test_loader)
+    mse = running_mse / len(test_loader)
+
+    print(f"MAE value: {mae:.5f}, MSE value: {mse:.5f}")
 
     # reverse the normalization
     true_predictions = scaler.inverse_transform(np.array(preds).reshape(-1, 1))
 
-    # compute accuracy
-    # test set of true data
-    test_true_data = sum_data['Internet_traffic'][len(sum_data) - len(true_predictions):]
-
-    # plot the data
-    plt.grid(True)
-    plt.plot(sum_data.index[len(sum_data) - len(true_predictions):],
-             sum_data['Internet_traffic'][len(sum_data) - len(true_predictions):])
-    plt.plot(sum_data.index[len(sum_data) - len(true_predictions):], true_predictions)
-
-    plt.savefig("prediction_with_test_set.jpg")
-
-    plt.clf()
-
-    plt.plot(sum_data.index[:10], true_predictions[:10])
-    plt.plot(sum_data.index[:10], sum_data['Internet_traffic'][:10])
+    plot_test_graph(sum_data, true_predictions)
