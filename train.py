@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import random_split, DataLoader, Subset
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
@@ -9,7 +10,8 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error
 import time
 import argparse
 from preprocessing import load_data
-from models.models import resize_input_data, OneDimensionalCNN
+from models.models import OneDimensionalCNN
+from data.data import SequenceDataset, resize_input_data
 
 if __name__ == '__main__':
     # parse the input from the commandline
@@ -19,20 +21,26 @@ if __name__ == '__main__':
     parser.add_argument('--data', type=str, help='path of input data')
     parser.add_argument('--period', type=int, default=6, help='numbers of data points used for training: 6 as one '
                                                               'hour, 240 as one day')
+    parser.add_argument('--output_size', type=int, default=1, help='numbers of prediction')
     parser.add_argument('--batch', type=int, default=1, help='batch size, 1 by default as it is time series prediction')
 
     args = parser.parse_args()
     data_path = args.data
     lr = args.lr
     epochs = args.epochs
+    batch_size = args.batch
+    output_size = args.output_size
     period = args.period  # numbers of data points used for training: 6 as one hour, 240 as one day
 
     # Set device: cpu, mps(macos), cuda
     device = (
         "cuda"
         if torch.cuda.is_available()
-        else "mps"
-        if torch.backends.mps.is_available()
+        # uncomment following 2 rows if you want to run
+        # the training on Macos with pytorch >= 2.0
+
+        # else "mps"
+        # if torch.backends.mps.is_available()
         else "cpu"
     )
 
@@ -44,33 +52,46 @@ if __name__ == '__main__':
     scaler = MinMaxScaler(feature_range=(0, 1))
     norm_data = scaler.fit_transform(sum_data['Internet_traffic'].values.reshape(-1, 1))
 
+    # make custom dataset
+    resize_data = resize_input_data(norm_data, period, output_size)
+    dataset = SequenceDataset(resize_data)
+
     # split data for training and testing
     torch_data = torch.FloatTensor(norm_data).view(-1)
     train_size = int(len(sum_data) * 0.8)
-    train_set = torch_data[:train_size]
-    test_set = torch_data[train_size:]
+    test_size = len(dataset) - train_size
+    train_split_ratio = [train_size, len(dataset)-train_size]
+
+    # train_set, test_set = random_split(dataset, train_split_ratio)
+    train_set = Subset(dataset, range(train_size))
+    test_set = Subset(dataset, range(train_size, len(dataset)))
+
+
+    # Add dataloader
+    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
+    test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False)
 
     # Resize the input to fit the model
     # Set input size as one hour
-    train_input = resize_input_data(train_set, period)
+    # train_input = resize_input_data(train_set, period)
 
-    model = OneDimensionalCNN(1, period, 1)
+    model = OneDimensionalCNN( period, 1)
 
     loss_fn = nn.MSELoss()
-    optimizer = optim.SGD(model.parameters(), lr=lr)
+    optimizer = optim.Adam(model.parameters(), lr=lr)
 
     # Start training
     print("start training")
 
     for epoch in range(epochs):
         start_time = time.time()
-        for seq, y_label in train_input:
+        for batch, (seq, y_label) in enumerate(train_loader):
             seq, y_label = seq.to(device), y_label.to(device)
             # resize the label shape from (1, 1) to (1) so that it is the same shape with the input
-            y_label = y_label.unsqueeze(1)
+            y_label = y_label.squeeze(1)
 
             # input shape: (batch_size, channel, series_length): (1, 1, -1)
-            y_pred = model(seq.reshape(1, 1, -1))
+            y_pred = model(seq)
             loss = loss_fn(y_label, y_pred)
             optimizer.zero_grad()
             loss.backward()
@@ -85,14 +106,15 @@ if __name__ == '__main__':
     # set eval mode
     model.eval()
     # loop for sliding window
-    for i in range(len(test_set) - period):
-        seq = torch.FloatTensor(test_set[i:i + period])
-        with torch.no_grad():
-            pred = model(seq.reshape(1, 1, -1)).item()
+    with torch.no_grad():
+        for x, y in test_loader:
+            x, y = x.to(device), y.to(device)
+            pred = model(x)
             preds.append(pred)
 
-    MSE = mean_squared_error(preds, test_set[:len(preds)])  # MSE
-    print(f"Accuracy: {MSE:.5f}")
+    # TODO: Manually implement MSE computation
+    # MSE = mean_squared_error(preds, test_set[:len(preds)])  # MSE
+    # print(f"Accuracy: {MSE:.5f}")
 
     # reverse the normalization
     true_predictions = scaler.inverse_transform(np.array(preds).reshape(-1, 1))
@@ -103,12 +125,13 @@ if __name__ == '__main__':
 
     # plot the data
     plt.grid(True)
-    test_length = len(sum_data) - len(true_predictions)
-    # plt.plot(sum_data.index[len(sum_data) - len(true_predictions):],
-    #          sum_data['Internet_traffic'][len(sum_data) - len(true_predictions):])
-    # plt.plot(sum_data.index[len(sum_data) - len(true_predictions):], true_predictions)
-    plt.plot(sum_data.index[test_length:test_length+20],
-             sum_data['Internet_traffic'][test_length: test_length+20])
-    plt.plot(sum_data.index[test_length:test_length+20], true_predictions[:20])
-    plt.show()
+    plt.plot(sum_data.index[len(sum_data) - len(true_predictions):],
+             sum_data['Internet_traffic'][len(sum_data) - len(true_predictions):])
+    plt.plot(sum_data.index[len(sum_data) - len(true_predictions):], true_predictions)
+
     plt.savefig("prediction_with_test_set.jpg")
+
+    plt.clf()
+
+    plt.plot(sum_data.index[:10], true_predictions[:10])
+    plt.plot(sum_data.index[:10], sum_data['Internet_traffic'][:10])
