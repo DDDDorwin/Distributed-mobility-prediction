@@ -50,15 +50,14 @@ if __name__ == '__main__':
     print(sum_data.head())
 
     # Apply MinMaxScaler normalization
-    scaler = MinMaxScaler(feature_range=(-1, 1))
-    norm_data = scaler.fit_transform(sum_data[Keys.INTERNET].values.reshape(-1, 1))
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    norm_data = scaler.fit_transform(sum_data.values)
 
     # make custom dataset
     resize_data = resize_input_data(norm_data, period, output_size)
     dataset = SequenceDataset(resize_data)
 
     # split data for training and testing
-    torch_data = torch.FloatTensor(norm_data).view(-1)
     train_size = int(len(sum_data) * 0.8)
     test_size = len(dataset) - train_size
     train_split_ratio = [train_size, len(dataset)-train_size]
@@ -67,14 +66,12 @@ if __name__ == '__main__':
     train_set = Subset(dataset, range(train_size))
     test_set = Subset(dataset, range(train_size, len(dataset)))
 
-
     # Add dataloader
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
     test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False)
 
     # Resize the input to fit the model
     # Set input size as one hour
-    # train_input = resize_input_data(train_set, period)
 
     model = OneDimensionalCNN(period, output_size)
 
