@@ -11,7 +11,6 @@ import pickle
 class __Data:
     is_loading = False
     loaded_chunk = pd.DataFrame()
-    loading_chunk = pd.DataFrame()
 
 def fetch_chunk(from_time, to_time):
     '''Returns a dataframe with headers, containing rows from from_time to to_time'''
@@ -83,8 +82,9 @@ def __prep_db():
 
 #__prep_db()
 #print(is_ready())
-print(fetch_chunk(1383346000000, 1383346000000))
 print(fetch_chunk(1383349000000, 1383349000000))
+print(fetch_chunk(1383349000000, 1383349000000))
+
 
 
 
