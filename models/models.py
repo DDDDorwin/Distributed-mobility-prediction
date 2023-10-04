@@ -13,10 +13,11 @@ class OneDimensionalCNN(nn.Module):
         """
         super().__init__()
         # self.channel = channel
+        self.feature_number = 0 # number of features used for training
         self.input_size = input_size
         self.nc = nc
         self.model = nn.Sequential(
-            nn.Conv1d(input_size, 128, kernel_size=1),
+            nn.Conv1d(input_size, 128, kernel_size=5),
             nn.ReLU(inplace=True),
             nn.Flatten(),
             nn.Linear(128, 64),

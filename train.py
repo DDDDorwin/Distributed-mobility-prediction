@@ -52,6 +52,8 @@ if __name__ == '__main__':
     # Apply MinMaxScaler normalization
     scaler = MinMaxScaler(feature_range=(0, 1))
     norm_data = scaler.fit_transform(sum_data.values)
+    scaler_y = MinMaxScaler(feature_range=(0, 1))
+    norm_y = scaler_y.fit_transform(sum_data.values[:, -1].reshape(-1, 1))
 
     # make custom dataset
     resize_data = resize_input_data(norm_data, period, output_size)
@@ -73,7 +75,7 @@ if __name__ == '__main__':
     # Resize the input to fit the model
     # Set input size as one hour
 
-    model = OneDimensionalCNN(period, output_size)
+    model = OneDimensionalCNN(period, output_size).double()
 
     loss_fn = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
@@ -86,10 +88,10 @@ if __name__ == '__main__':
         for batch, (seq, y_label) in enumerate(train_loader):
             seq, y_label = seq.to(device), y_label.to(device)
             # resize the label shape from (1, 1) to (1) so that it is the same shape with the input
-            y_label = y_label.squeeze(1)
+            y_label = y_label.squeeze().double()
 
             # input shape: (batch_size, channel, series_length): (1, 1, -1)
-            y_pred = model(seq)
+            y_pred = model(seq.double())
             loss = loss_fn(y_label, y_pred)
             optimizer.zero_grad()
             loss.backward()
@@ -109,7 +111,7 @@ if __name__ == '__main__':
         for x, y in test_loader:
             x, y = x.to(device), y.to(device)
             pred = model(x)
-            preds.append(pred)
+            preds.append(pred.squeeze())
             error = torch.abs(pred-y).sum().data
             squared_error = ((pred-y)*(pred-y)).sum().data
             running_mae += error
@@ -122,6 +124,7 @@ if __name__ == '__main__':
     print(f"MAE value: {mae:.5f}, MSE value: {mse:.5f}")
 
     # reverse the normalization
-    true_predictions = scaler.inverse_transform(np.array(preds).reshape(-1, 1))
+    true_predictions = scaler_y.inverse_transform(np.array(preds).reshape(-1, 1))
+    # true_predictions = scaler.inverse_transform(np.array(preds).reshape(-1, 1))
 
     plot_test_graph(sum_data, true_predictions)

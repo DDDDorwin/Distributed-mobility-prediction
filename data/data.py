@@ -7,6 +7,7 @@ import torch
 def resize_input_data(x, input_size, prediction_size):
     """
     resize the input data to fit the input shape of the network
+    using 'internet_traffic' as output
     :param x training input
     :param input_size Integer defining how many steps to look back
     :param prediction_size Integer defining how many steps forward to predict
@@ -16,10 +17,8 @@ def resize_input_data(x, input_size, prediction_size):
     length = len(x)
     for i in range(length - input_size):
         window = x[i: i + input_size]
-        # pred = x[i + input_size: i + input_size + prediction_size][-1]
+        pred = x[i + input_size: i + input_size + prediction_size, -1]
 
-        # using 'internet_traffic' as output
-        pred = x[i][-1]
         output.append((window, pred))
 
     return output
@@ -50,4 +49,5 @@ class SequenceDataset(Dataset):
         returns sample[0] the look back window, sample[1] the prediction window
         """
         sample = self.data[idx]
-        return torch.Tensor(sample[0]), torch.Tensor(sample[1])
+        return torch.from_numpy(sample[0]), torch.from_numpy(sample[1])
+        # return torch.Tensor(sample[0]), torch.Tensor(sample[1])
