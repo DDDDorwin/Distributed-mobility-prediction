@@ -8,12 +8,18 @@ import sys
 import csv
 import pickle
 
-__is_loading = False
-__loaded_chunk = pd.DataFrame()
-__loading_chunk = pd.DataFrame()
+class __Data:
+    is_loading = False
+    loaded_chunk = pd.DataFrame()
+    loading_chunk = pd.DataFrame()
 
 def fetch_chunk(from_time, to_time):
     '''Returns a dataframe with headers, containing rows from from_time to to_time'''
+    #Check if dataframe is already loaded for requested timeframe
+    if(__loaded_contains_range(from_time, to_time)):
+        print("Timeframe already loaded, returning...")
+        return __Data.loaded_chunk
+    print("Timeframe not loaded, fetching...")
     #Return None if input is faulty
     if to_time < from_time or from_time < 0 or to_time < 0:
         return None
@@ -27,11 +33,12 @@ def fetch_chunk(from_time, to_time):
             #Append to return dataframe
             to_load.append(pd.read_pickle(join(Paths.PICKLE_DIR, p)))
             print("Range contained in pickle: %s" % (p))
-    return pd.concat(to_load)
+    __Data.loaded_chunk = pd.concat(to_load)
+    return __Data.loaded_chunk
 
 def preload_chunk(from_time, to_time):
-    __isLoading = True
-    prefetch_thread = Thread(target = __prefetch, args = (from_time, to_time, ))
+    isLoading = True
+    prefetch_thread = Thread(target = prefetch, args = (from_time, to_time, ))
     prefetch_thread.start()
 
 def fetch_preload():
@@ -40,11 +47,16 @@ def fetch_preload():
 
 def is_ready():
     '''Returns true if chunk is ready for fetching'''
-    return not __is_loading
+    return not __Data.is_loading
+
+def __loaded_contains_range(from_time, to_time):
+    if(not __Data.loaded_chunk.empty and (int(__Data.loaded_chunk[Keys.TIME_INTERVAL].iloc[-1]) >= from_time and int(__Data.loaded_chunk[Keys.TIME_INTERVAL].iloc[1]) <= to_time)):
+        return True
+    return False
 
 def __prefetch(from_time, to_time):
     #Prefetch data, once done isLoading = false
-    __isLoading = False
+    __Data.isLoading = False
 
 def __make_pickles():
     '''Create pickle files for each raw data file, name = firstTimeStamp_lastTimeStamp.pkl'''
@@ -71,5 +83,9 @@ def __prep_db():
 
 #__prep_db()
 #print(is_ready())
-print(fetch_chunk(1383346000000, 1383346600000))
+print(fetch_chunk(1383346000000, 1383346000000))
+print(fetch_chunk(1383349000000, 1383349000000))
+
+
+
 
