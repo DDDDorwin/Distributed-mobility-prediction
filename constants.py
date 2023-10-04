@@ -39,6 +39,7 @@ class Paths(object):
     MERGED_RAW_F = pjoin(PREPROCESSED_DIR, 'raw_merged.tsv')
     GROUPED_CC_F = pjoin(PREPROCESSED_DIR, 'grouped_cc.pkl')
     GROUPED_TIME_F = pjoin(PREPROCESSED_DIR, 'grouped_time.pkl')
+    GROUPED_DATETIME_F = pjoin(PREPROCESSED_DIR, 'grouped_datetime.pkl')
 
 
 class Keys(object):

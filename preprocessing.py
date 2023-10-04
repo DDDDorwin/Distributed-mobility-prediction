@@ -132,6 +132,18 @@ def group_by_country_code(
     return groupby_agg(df, groupby_cols, agg_cols, agg_method)
 
 
+def timestamp_to_datetime(df: pd.DataFrame) -> pd.DataFrame:
+    '''Converts the unix timestamp (ms) into a readable datetime format.'''
+    
+    if Keys.TIME_INTERVAL not in df.columns:
+        raise AttributeError(f'You need to include "{Keys.TIME_INTERVAL}" in "columns" to convert it to datetime!')
+
+    df[Keys.TIME_INTERVAL] = pd.to_datetime(df[Keys.TIME_INTERVAL], unit='ms', utc=True) \
+                               .dt.tz_convert('CET') \
+                               .dt.tz_localize(None)
+    return df
+
+
 def load_tsv(
         input_file: str = Paths.MERGED_RAW_F,
         columns: Iterable[str] = [
@@ -166,12 +178,9 @@ def load_tsv(
     df.columns = list(columns)
 
     # convert times if desired and time_intervals were loaded
-    if parse_dates and Keys.TIME_INTERVAL not in df.columns:
-        raise AttributeError(f'You need to include "{Keys.TIME_INTERVAL}" in "columns" to convert it to datetime!')
-    elif parse_dates:
-        df[Keys.TIME_INTERVAL] = pd.to_datetime(df[Keys.TIME_INTERVAL], unit='ms', utc=True) \
-                                .dt.tz_convert('CET') \
-                                .dt.tz_localize(None)
+    if parse_dates:
+        df = timestamp_to_datetime(df)
+
     return df
 
 
@@ -213,3 +222,12 @@ if __name__ == '__main__':
         dump_pickle(df, Paths.GROUPED_TIME_F)
         return df
     # group_only_time_to_pickle()
+
+    def readable_timestamp(df=None):
+        '''Convert unix timestamp to datetime and save it again.'''
+        if df is None:
+            df = load_pickle(Paths.GROUPED_TIME_F)
+        df = timestamp_to_datetime(df)
+        dump_pickle(df, Paths.GROUPED_DATETIME_F)
+        return df
+    # readable_timestamp()
