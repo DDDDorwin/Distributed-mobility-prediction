@@ -14,14 +14,14 @@ class __Data:
 
 def fetch_chunk(from_time, to_time):
     '''Returns a dataframe with headers, containing rows from from_time to to_time'''
+    #Return None if input is faulty
+    if to_time < from_time or from_time < 0 or to_time < 0:
+        return None
     #Check if dataframe is already loaded for requested timeframe
     if(__loaded_contains_range(from_time, to_time)):
         print("Timeframe already loaded, returning...")
         return __Data.loaded_chunk
     print("Timeframe not loaded, fetching...")
-    #Return None if input is faulty
-    if to_time < from_time or from_time < 0 or to_time < 0:
-        return None
     #Get all pickles in directory
     pickles = [f for f in os.listdir(Paths.PICKLE_DIR) if f.endswith(".pkl")]
     to_load = []
@@ -36,11 +36,13 @@ def fetch_chunk(from_time, to_time):
     return __Data.loaded_chunk
 
 def preload_chunk(from_time, to_time):
-    isLoading = True
-    prefetch_thread = Thread(target = prefetch, args = (from_time, to_time, ))
+    prefetch_thread = Thread(target = __prefetch, args = (from_time, to_time, ))
     prefetch_thread.start()
 
 def fetch_preload():
+    while(__Data.is_loading):
+        None
+    
     #Loop/ wait in case chunk is not available yet
     None
 
@@ -54,8 +56,9 @@ def __loaded_contains_range(from_time, to_time):
     return False
 
 def __prefetch(from_time, to_time):
+    __Data.is_loading = True
     #Prefetch data, once done isLoading = false
-    __Data.isLoading = False
+    __Data.is_loading = False
 
 def __make_pickles():
     '''Create pickle files for each raw data file, name = firstTimeStamp_lastTimeStamp.pkl'''
@@ -82,7 +85,7 @@ def __prep_db():
 
 #__prep_db()
 #print(is_ready())
-print(fetch_chunk(1383349000000, 1383349000000))
+print(fetch_chunk(1383341000000, 1383349000000))
 print(fetch_chunk(1383349000000, 1383349000000))
 
 
