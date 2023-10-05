@@ -123,7 +123,7 @@ if __name__ == '__main__':
     print(f"MAE value: {mae:.5f}, MSE value: {mse:.5f}")
 
     # reverse the normalization
-    true_predictions = scaler_y.inverse_transform(np.array(preds).reshape(-1, 1))
+    true_predictions = scaler_y.inverse_transform(torch.cat(preds).numpy().reshape(-1, 1))
     # true_predictions = scaler.inverse_transform(np.array(preds).reshape(-1, 1))
 
     plot_test_graph(sum_data, true_predictions)
