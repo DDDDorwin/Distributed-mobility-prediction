@@ -11,11 +11,12 @@ import pickle
 class __Data:
     is_loading = False
     loaded_chunk = pd.DataFrame()
+    loaded_files = []
 
 def fetch_chunk(from_time, to_time):
     '''Returns a dataframe with headers, containing rows from from_time to to_time'''
     #Return None if input is faulty
-    if to_time < from_time or from_time < 0 or to_time < 0:
+    if(to_time < from_time or from_time < 0 or to_time < 0):
         return None
     #Check if dataframe is already loaded for requested timeframe
     if(__loaded_contains_range(from_time, to_time)):
@@ -31,6 +32,7 @@ def fetch_chunk(from_time, to_time):
         if(int(times[1]) >= from_time and int(times[0]) <= to_time):
             #Append to return dataframe
             to_load.append(pd.read_pickle(join(Paths.PICKLE_DIR, p)))
+
             print("Range contained in pickle: %s" % (p))
     __Data.loaded_chunk = pd.concat(to_load)
     return __Data.loaded_chunk
@@ -51,7 +53,8 @@ def is_ready():
     return not __Data.is_loading
 
 def __loaded_contains_range(from_time, to_time):
-    if(not __Data.loaded_chunk.empty and (int(__Data.loaded_chunk[Keys.TIME_INTERVAL].iloc[-1]) >= from_time and int(__Data.loaded_chunk[Keys.TIME_INTERVAL].iloc[1]) <= to_time)):
+    if(not __Data.loaded_chunk.empty and int(__Data.loaded_chunk[Keys.TIME_INTERVAL].iloc[-1]) >= to_time and int(__Data.loaded_chunk[Keys.TIME_INTERVAL].iloc[1]) <= from_time):
+        print(int(__Data.loaded_chunk[Keys.TIME_INTERVAL].iloc[-1]))
         return True
     return False
 
@@ -85,9 +88,8 @@ def __prep_db():
 
 #__prep_db()
 #print(is_ready())
-print(fetch_chunk(1383341000000, 1383349000000))
-print(fetch_chunk(1383349000000, 1383349000000))
-
+print(fetch_chunk(1383260400000, 1383260400000))
+print(fetch_chunk(1383260400000, 1383605400000))
 
 
 
