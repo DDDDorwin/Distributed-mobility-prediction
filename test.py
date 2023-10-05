@@ -12,7 +12,6 @@ import queue
 class __Data:
     is_loading = False
     loaded_chunk = pd.DataFrame()
-    loaded_files = []
 
 def fetch_chunk(from_time, to_time):
     '''Returns a dataframe with headers, containing rows from from_time to to_time'''
@@ -49,6 +48,8 @@ def preload_chunk(from_time, to_time):
         __Data.is_loading = True
         prefetch_thread = Thread(target = __prefetch, args = (from_time, to_time, ))
         prefetch_thread.start()
+        print("Prefetch started.")
+    print("Prefetch failed to start.")
 
 def fetch_preload():
     #Wait untill prefetch is available
@@ -66,7 +67,6 @@ def __loaded_contains_range(from_time, to_time):
         return True
     return False
 
-#TODO IMPLEMENT FUNC
 def __prefetch(from_time, to_time):
     __Data.loaded_chunk = fetch_chunk(from_time, to_time)
     __Data.is_loading = False
@@ -95,12 +95,15 @@ def __prep_db():
 
 
 #__prep_db()
-#print(is_ready())
 print(preload_chunk(1383260400000, 1383605400000))
-print(is_ready())
-print(fetch_chunk(1383260400000, 1383260400000))
-print(is_ready())
 print(fetch_preload())
+print(preload_chunk(1383260400000, 1383605400000))
+print(fetch_preload())
+print(preload_chunk(1383260400000, 1383605400000))
+print(fetch_preload())
+print(preload_chunk(1383260400000, 1383605400000))
+print(fetch_preload())
+
 
 
 
