@@ -7,6 +7,7 @@ import os
 import sys
 import csv
 import pickle
+import queue
 
 class __Data:
     is_loading = False
@@ -34,19 +35,23 @@ def fetch_chunk(from_time, to_time):
             to_load.append(pd.read_pickle(join(Paths.PICKLE_DIR, p)))
 
             print("Range contained in pickle: %s" % (p))
-    __Data.loaded_chunk = pd.concat(to_load)
-    return __Data.loaded_chunk
+    chnk = pd.concat(to_load)
+    #If nothing is being prefetched, save chunk
+    if(not __Data.is_loading):
+        __Data.loaded_chunk = chnk
+    return chnk
 
 def preload_chunk(from_time, to_time):
-    prefetch_thread = Thread(target = __prefetch, args = (from_time, to_time, ))
-    prefetch_thread.start()
+    #If nothing is being prefetched, start prefetch
+    if(not __Data.is_loading):
+        prefetch_thread = Thread(target = __prefetch, args = (from_time, to_time, ))
+        prefetch_thread.start()
 
 def fetch_preload():
+    #Wait untill prefetch is available
     while(__Data.is_loading):
-        None
-    
-    #Loop/ wait in case chunk is not available yet
-    None
+        pass
+    return __Data.loaded_chunk
 
 def is_ready():
     '''Returns true if chunk is ready for fetching'''
@@ -58,6 +63,7 @@ def __loaded_contains_range(from_time, to_time):
         return True
     return False
 
+#TODO IMPLEMENT FUNC
 def __prefetch(from_time, to_time):
     __Data.is_loading = True
     #Prefetch data, once done isLoading = false
