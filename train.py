@@ -37,7 +37,7 @@ if __name__ == '__main__':
         "cuda"
         if torch.cuda.is_available()
         # uncomment following 2 lines if you want to run
-        # the training on Macos with pytorch >= 2.0
+        # the training on Apple silicon with pytorch >= 2.0
 
         # else "mps"
         # if torch.backends.mps.is_available()
@@ -64,7 +64,6 @@ if __name__ == '__main__':
     test_size = len(dataset) - train_size
     train_split_ratio = [train_size, len(dataset)-train_size]
 
-    # train_set, test_set = random_split(dataset, train_split_ratio)
     train_set = Subset(dataset, range(train_size))
     test_set = Subset(dataset, range(train_size, len(dataset)))
 
