@@ -11,7 +11,7 @@ import argparse
 from preprocessing import load_pickle, Paths, Keys
 from models.models import OneDimensionalCNN
 from data.data import SequenceDataset, resize_input_data
-from utils.plot import plot_test_graph
+from utils.plot import plot_test_graph, plot_loss
 
 if __name__ == '__main__':
     # parse the input from the commandline
@@ -81,7 +81,7 @@ if __name__ == '__main__':
 
     # Start training
     print("start training")
-
+    losses = []
     for epoch in range(epochs):
         start_time = time.time()
         for batch, (seq, y_label) in enumerate(train_loader):
@@ -96,8 +96,12 @@ if __name__ == '__main__':
             loss.backward()
             optimizer.step()
 
+        losses.append(loss.item())
         print(f'Epoch: {epoch + 1:2} Loss: {loss.item():10.8f}')
         print(f'\nDuration: {time.time() - start_time:.5f} seconds')
+
+    # plot loss
+    plot_loss(losses)
 
     # evaluation
     preds = []

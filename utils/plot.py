@@ -1,6 +1,17 @@
 from matplotlib import pyplot as plt
 from preprocessing import Keys
 
+def plot_loss(loss: list):
+    """
+    plot the loss of training
+    :param loss list of loss in each epoch
+    """
+
+    plt.figure()
+
+    plt.plot(loss)
+
+    plt.savefig("loss.jpg")
 
 def plot_test_graph(dataset, pred):
     """
@@ -10,6 +21,8 @@ def plot_test_graph(dataset, pred):
     :param dataset: the original data frame
     :param pred: the predictions
     """
+
+    plt.clf()
 
     # plot the data
     f, ax = plt.subplots()
