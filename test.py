@@ -36,6 +36,7 @@ def fetch_chunk(from_time, to_time):
 
             print("Range contained in pickle: %s" % (p))
     chnk = pd.concat(to_load)
+
     #If nothing is being prefetched, save chunk
     if(not __Data.is_loading):
         __Data.loaded_chunk = chnk
@@ -44,6 +45,8 @@ def fetch_chunk(from_time, to_time):
 def preload_chunk(from_time, to_time):
     #If nothing is being prefetched, start prefetch
     if(not __Data.is_loading):
+        #Set status to loading as fast as possible
+        __Data.is_loading = True
         prefetch_thread = Thread(target = __prefetch, args = (from_time, to_time, ))
         prefetch_thread.start()
 
@@ -65,8 +68,7 @@ def __loaded_contains_range(from_time, to_time):
 
 #TODO IMPLEMENT FUNC
 def __prefetch(from_time, to_time):
-    __Data.is_loading = True
-    #Prefetch data, once done isLoading = false
+    __Data.loaded_chunk = fetch_chunk(from_time, to_time)
     __Data.is_loading = False
 
 def __make_pickles():
@@ -94,8 +96,11 @@ def __prep_db():
 
 #__prep_db()
 #print(is_ready())
+print(preload_chunk(1383260400000, 1383605400000))
+print(is_ready())
 print(fetch_chunk(1383260400000, 1383260400000))
-print(fetch_chunk(1383260400000, 1383605400000))
+print(is_ready())
+print(fetch_preload())
 
 
 
