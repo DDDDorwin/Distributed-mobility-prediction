@@ -1,9 +1,6 @@
 from torch.utils.data import Dataset
 import torch
 
-
-# TODO: make a method for multi variant input
-
 def resize_input_data(x, input_size, prediction_size):
     """
     resize the input data to fit the input shape of the network
