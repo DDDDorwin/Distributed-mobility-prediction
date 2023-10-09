@@ -87,7 +87,7 @@ if __name__ == '__main__':
         for batch, (seq, y_label) in enumerate(train_loader):
             seq, y_label = seq.to(device), y_label.to(device)
             # resize the label shape from (1, 1) to (1) so that it is the same shape with the input
-            y_label = y_label.squeeze().double()
+            y_label = y_label.double()
 
             # input shape: (batch_size, channel, series_length): (1, 1, -1)
             y_pred = model(seq.double())
@@ -114,7 +114,7 @@ if __name__ == '__main__':
         for x, y in test_loader:
             x, y = x.to(device), y.to(device)
             pred = model(x)
-            preds.append(pred.squeeze())
+            preds.append(pred)
             error = torch.abs(pred-y).sum().data
             squared_error = ((pred-y)*(pred-y)).sum().data
             running_mae += error
@@ -128,6 +128,6 @@ if __name__ == '__main__':
 
     # reverse the normalization
     true_predictions = scaler_y.inverse_transform(torch.cat(preds).numpy().reshape(-1, 1))
-    # true_predictions = scaler.inverse_transform(np.array(preds).reshape(-1, 1))
+    # true_predictions = scaler_y.inverse_transform(np.array(preds).reshape(-1, 1))
 
     plot_test_graph(sum_data, true_predictions)
