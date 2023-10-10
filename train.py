@@ -10,7 +10,7 @@ import time
 import argparse
 from preprocessing import load_pickle, Paths, Keys
 from models.models import OneDimensionalCNN
-from data.data import SequenceDataset, resize_input_data
+from data.data import SequenceDataset, resize_input_data, make_test_set
 from utils.plot import plot_test_graph, plot_loss
 
 if __name__ == '__main__':
@@ -55,17 +55,22 @@ if __name__ == '__main__':
     scaler_y = MinMaxScaler(feature_range=(0, 1))
     norm_y = scaler_y.fit_transform(sum_data.values[:, -1].reshape(-1, 1))
 
+    # Get subset of the ouput
+    real_y = sum_data.values[:, -1]
+
     # make custom dataset
-    resize_data = resize_input_data(norm_data, period, output_size)
+    resize_data = resize_input_data(norm_data, real_y, period, output_size)
     dataset = SequenceDataset(resize_data)
 
     # split data for training and testing
     train_size = int(len(sum_data) * 0.8)
     test_size = len(dataset) - train_size
-    train_split_ratio = [train_size, len(dataset)-train_size]
+    train_split_ratio = [train_size, test_size]
 
     train_set = Subset(dataset, range(train_size))
-    test_set = Subset(dataset, range(train_size, len(dataset)))
+    # test_set = Subset(dataset, range(train_size, len(dataset)))
+    test_data = make_test_set(norm_data[train_size:], real_y[train_size:], period, output_size)
+    test_set = SequenceDataset(test_data)
 
     # Add dataloader
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
@@ -127,7 +132,8 @@ if __name__ == '__main__':
     print(f"MAE value: {mae:.5f}, MSE value: {mse:.5f}")
 
     # reverse the normalization
-    true_predictions = scaler_y.inverse_transform(torch.cat(preds).numpy().reshape(-1, 1))
+    # true_predictions = scaler_y.inverse_transform(torch.cat(preds).numpy().reshape(-1, 1))
     # true_predictions = scaler_y.inverse_transform(np.array(preds).reshape(-1, 1))
+    true_predictions = (torch.cat(preds).numpy().reshape(-1, 1))
 
     plot_test_graph(sum_data, true_predictions)
