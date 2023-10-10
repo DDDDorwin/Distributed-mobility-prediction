@@ -1,7 +1,8 @@
 from torch.utils.data import Dataset
 import torch
 
-def resize_input_data(x, input_size, prediction_size):
+
+def resize_input_data(x, y, input_size, prediction_size):
     """
     resize the input data to fit the input shape of the network
     using 'internet_traffic' as output
@@ -13,9 +14,30 @@ def resize_input_data(x, input_size, prediction_size):
     output = []
     length = len(x)
     for i in range(length - input_size):
-        window = x[i: i + input_size]
-        pred = x[i + input_size: i + input_size + prediction_size, -1]
+        window = x[i: i + input_size, :4]
+        pred = y[i + input_size: i + input_size + prediction_size]
 
+        output.append((window, pred))
+
+    return output
+
+
+def make_test_set(x, y, input_size, prediction_size):
+    """
+    make the test set with an input_size given
+    :param x: test data
+    :param y: test label
+    :param input_size: the size of the sliding window
+    :param prediction_size: should be not useful
+    :return: list of (window, output)
+    """
+    output = []
+    idx = 0
+    length = int(len(x) / input_size)
+    for i in range(length):
+        window = x[idx: idx + input_size, :4]
+        pred = y[idx: idx + input_size]
+        idx += 6
         output.append((window, pred))
 
     return output
