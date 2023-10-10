@@ -1,6 +1,7 @@
 from torch.utils.data import Dataset
 import torch
 
+
 def resize_input_data(x, y, input_size, prediction_size):
     """
     resize the input data to fit the input shape of the network
@@ -20,10 +21,19 @@ def resize_input_data(x, y, input_size, prediction_size):
 
     return output
 
+
 def make_test_set(x, y, input_size, prediction_size):
+    """
+    make the test set with an input_size given
+    :param x: test data
+    :param y: test label
+    :param input_size: the size of the sliding window
+    :param prediction_size: should be not useful
+    :return: list of (window, output)
+    """
     output = []
     idx = 0
-    length = int(len(x)/input_size)
+    length = int(len(x) / input_size)
     for i in range(length):
         window = x[idx: idx + input_size, :4]
         pred = y[idx: idx + input_size]
@@ -31,7 +41,6 @@ def make_test_set(x, y, input_size, prediction_size):
         output.append((window, pred))
 
     return output
-
 
 
 class SequenceDataset(Dataset):
