@@ -23,6 +23,7 @@ def plot_test_graph(dataset, pred):
     :param dataset: the original data frame
     :param pred: the predictions
     """
+    plt.clf()
 
     # plot the data
     plt.grid(True)

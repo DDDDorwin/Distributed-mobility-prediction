@@ -11,7 +11,7 @@ import argparse
 from preprocessing import load_pickle, Paths, Keys
 from models.models import OneDimensionalCNN, LSTM
 from data.data import SequenceDataset, resize_input_data
-from utils.plot import plot_test_graph
+from utils.plot import plot_test_graph, plot_loss
 
 if __name__ == '__main__':
     # parse the input from the commandline
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     print(sum_data.head())
 
     # Apply MinMaxScaler normalization
-    scaler = MinMaxScaler(feature_range=(-1, 1))
+    scaler = MinMaxScaler(feature_range=(0, 1))
     norm_data = scaler.fit_transform(sum_data[Keys.INTERNET].values.reshape(-1, 1))
 
     # make custom dataset
@@ -68,22 +68,22 @@ if __name__ == '__main__':
     test_set = Subset(dataset, range(train_size, len(dataset)))
 
     # Add dataloader
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
-    test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, drop_last=True)
+    test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, drop_last=True)
 
     # Resize the input to fit the model
     # Set input size as one hour
     # train_input = resize_input_data(train_set, period)
 
     model = OneDimensionalCNN(period, output_size)
-    lstm = LSTM(1, 32, 1, True, batch_size, 1).double()
+    lstm = LSTM(1, 128, 10                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     , True, batch_size, 1).double()
 
     loss_fn = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=lr)
+    optimizer = optim.SGD(model.parameters(), lr=lr)
 
     # Start training
     print("start training")
-
+    losses = []
     for epoch in range(epochs):
         start_time = time.time()
         for batch, (seq, y_label) in enumerate(train_loader):
@@ -100,6 +100,7 @@ if __name__ == '__main__':
 
         print(f'Epoch: {epoch + 1:2} Loss: {loss.item():10.8f}')
         print(f'\nDuration: {time.time() - start_time:.5f} seconds')
+        losses.append(loss.item())
 
     # evaluation
     preds = []
@@ -127,4 +128,5 @@ if __name__ == '__main__':
     # reverse the normalization
     true_predictions = scaler.inverse_transform(np.array(preds).reshape(-1, 1))
 
+    plot_loss(losses)
     plot_test_graph(sum_data, true_predictions)
