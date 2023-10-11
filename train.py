@@ -9,7 +9,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error
 import time
 import argparse
 from preprocessing import load_pickle, Paths, Keys
-from models.models import OneDimensionalCNN
+from models.models import OneDimensionalCNN, LSTM
 from data.data import SequenceDataset, resize_input_data
 from utils.plot import plot_test_graph
 
@@ -67,7 +67,6 @@ if __name__ == '__main__':
     train_set = Subset(dataset, range(train_size))
     test_set = Subset(dataset, range(train_size, len(dataset)))
 
-
     # Add dataloader
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
     test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False)
@@ -77,6 +76,7 @@ if __name__ == '__main__':
     # train_input = resize_input_data(train_set, period)
 
     model = OneDimensionalCNN(period, output_size)
+    lstm = LSTM(1, 32, 1, True, batch_size, 1).double()
 
     loss_fn = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
@@ -89,10 +89,10 @@ if __name__ == '__main__':
         for batch, (seq, y_label) in enumerate(train_loader):
             seq, y_label = seq.to(device), y_label.to(device)
             # resize the label shape from (1, 1) to (1) so that it is the same shape with the input
-            y_label = y_label.squeeze(1)
+            y_label = y_label.squeeze(1).double()
 
             # input shape: (batch_size, channel, series_length): (1, 1, -1)
-            y_pred = model(seq)
+            y_pred = lstm(seq.double())
             loss = loss_fn(y_label, y_pred)
             optimizer.zero_grad()
             loss.backward()
@@ -111,7 +111,7 @@ if __name__ == '__main__':
     with torch.no_grad():
         for x, y in test_loader:
             x, y = x.to(device), y.to(device)
-            pred = model(x)
+            pred = lstm(x.double())
             preds.append(pred)
             error = torch.abs(pred-y).sum().data
             squared_error = ((pred-y)*(pred-y)).sum().data
