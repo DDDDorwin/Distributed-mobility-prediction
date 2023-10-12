@@ -50,12 +50,12 @@ if __name__ == '__main__':
     print(sum_data.head())
 
     # Apply MinMaxScaler normalization
-    scaler = MinMaxScaler()
+    scaler = MinMaxScaler(feature_range=(0, 1))
     norm_data = scaler.fit_transform(sum_data[Keys.INTERNET].values.reshape(-1, 1))
 
     # make custom dataset
-    resize_data = resize_input_data(norm_data, period, output_size)
-    dataset = SequenceDataset(resize_data)
+    resize_data_x, resize_data_y = resize_input_data(norm_data, period, output_size)
+    dataset = SequenceDataset(resize_data_x, resize_data_y)
 
     # split data for training and testing
     torch_data = torch.FloatTensor(norm_data).view(-1)
@@ -76,24 +76,38 @@ if __name__ == '__main__':
     # train_input = resize_input_data(train_set, period)
 
     model = OneDimensionalCNN(period, output_size)
-    lstm = LSTM(1, 32, 2, True, batch_size, 1).double()
-    rnn = RNN(1, 32, 2, True, batch_size, 1).double()
+    lstm = LSTM(1, 2, 1, False, batch_size, 1, 1).double()
+    rnn = RNN(1, 2, 1, True, batch_size, 1).double()
     loss_fn = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
 
     # Start training
     print("start training")
     losses = []
+    # for epoch in range(epochs):
+    #     start_time = time.time()
+    #     for batch, (seq, y_label) in enumerate(train_loader):
+    #         seq, y_label = seq.to(device), y_label.to(device)
+    #         # resize the label shape from (1, 1) to (1) so that it is the same shape with the input
+    #         y_label = y_label.double()
+    #
+    #         # input shape: (batch_size, channel, series_length): (1, 1, -1)
+    #         y_pred = lstm(seq.double())
+    #         loss = loss_fn(y_label.squeeze(1), y_pred)
+    #         optimizer.zero_grad()
+    #         loss.backward()
+    #         optimizer.step()
+
     for epoch in range(epochs):
         start_time = time.time()
-        for batch, (seq, y_label) in enumerate(train_loader):
+        for (seq, y_label) in np.array(resize_data_x, resize_data_y):
             seq, y_label = seq.to(device), y_label.to(device)
             # resize the label shape from (1, 1) to (1) so that it is the same shape with the input
             y_label = y_label.double()
 
             # input shape: (batch_size, channel, series_length): (1, 1, -1)
-            y_pred = rnn(seq.double())
-            loss = loss_fn(y_label.view(-1), y_pred)
+            y_pred = lstm(seq.double())
+            loss = loss_fn(y_label.squeeze(1), y_pred)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -112,7 +126,7 @@ if __name__ == '__main__':
     with torch.no_grad():
         for x, y in test_loader:
             x, y = x.to(device), y.to(device)
-            pred = rnn(x.double())
+            pred = lstm(x.double())
             preds.append(pred)
             error = torch.abs(pred-y).sum().data
             squared_error = ((pred-y)*(pred-y)).sum().data

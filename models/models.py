@@ -30,16 +30,17 @@ class OneDimensionalCNN(nn.Module):
 
 
 class LSTM(nn.Module):
-    def __init__(self, input_size, hidden_size, num_layers, batch_first, batch_size, nc):
+    def __init__(self, input_size, hidden_size, num_layers, batch_first, batch_size, dimension, nc):
         super().__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.num_layers = num_layers
         self.batch_first = batch_first
         self.batch_size = batch_size
+        self.dimension = dimension
 
         # self.lstm = nn.LSTM(self.input_size, self.hidden_size, num_layers, batch_first=True)
-        self.lstm = nn.LSTM(self.input_size, self.hidden_size, num_layers, batch_first=True, dropout=0.2)
+        self.lstm = nn.LSTM(self.input_size, self.hidden_size, num_layers, batch_first=True)
         self.relu = nn.ReLU()
         self.fc1 = nn.Linear(in_features=hidden_size, out_features=input_size)
         self.fc2 = nn.Linear(in_features=self.hidden_size, out_features=1)
@@ -49,12 +50,12 @@ class LSTM(nn.Module):
         self.dropout = nn.Dropout(0.2)
 
     def forward(self, x):
-        h_0 = torch.randn(self.num_layers, self.batch_size, self.hidden_size, dtype=torch.float64)
-        c_0 = torch.randn(self.num_layers, self.batch_size, self.hidden_size, dtype=torch.float64)
-        lstm_output, hn = self.lstm(x, (h_0, c_0))
+        h_0 = torch.randn(self.num_layers * self.dimension, self.batch_size, self.hidden_size, dtype=torch.float64)
+        c_0 = torch.randn(self.num_layers * self.dimension, self.batch_size, self.hidden_size, dtype=torch.float64)
+        lstm_output, hn = self.lstm(x)
         # lstm_output, _ = self.lstm(x, None)
-        # ac = self.activation(lstm_output)
-        output = self.fc2(lstm_output[:, -1, :])
+        ac = self.relu(lstm_output[:, -1, :])
+        output = self.fc2(ac)
 
         # output = self.activation(output)
         # output = self.fc2(output)
@@ -74,7 +75,7 @@ class RNN(nn.Module):
         # self.lstm = nn.LSTM(self.input_size, self.hidden_size, num_layers, batch_first=True)
         self.rnn = nn.RNN(self.input_size, self.hidden_size, num_layers, batch_first=True, dropout=0.2)
         self.relu = nn.ReLU()
-        self.fc1 = nn.Linear(in_features=hidden_size, out_features=input_size)
+        self.fc1 = nn.Linear(in_features=hidden_size, out_features=1)
         self.fc2 = nn.Linear(in_features=self.hidden_size, out_features=1)
 
         self.linear_1 = nn.Linear(input_size, hidden_size)

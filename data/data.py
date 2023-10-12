@@ -1,8 +1,6 @@
 from torch.utils.data import Dataset
 import torch
-
-
-# TODO: make a method for multi variant input
+import numpy as np
 
 def resize_input_data(x, input_size, prediction_size):
     """
@@ -13,14 +11,19 @@ def resize_input_data(x, input_size, prediction_size):
     """
 
     output = []
+    data_x = []
+    data_y = []
     length = len(x)
     for i in range(length - input_size):
         window = x[i: i + input_size]
         pred = x[i + input_size: i + input_size + prediction_size]
 
-        output.append((window, pred))
+        data_x.append(window)
+        data_y.append(pred)
 
-    return output
+        output.append((np.array(window), np.array(pred)))
+
+    return np.array(data_x), np.array(data_y)
 
 
 class SequenceDataset(Dataset):
@@ -28,17 +31,19 @@ class SequenceDataset(Dataset):
     Custom dataset class for creating our own dataset with time series data points
     """
 
-    def __init__(self, data):
+    def __init__(self, data_x, data_y):
         """
         :param data dataset input (list)
         """
-        self.data = data
+        self.data_x = data_x
+        self.data_y = data_y
+        self.len = data_x.shape[0]
 
     def __len__(self):
         """
         returns the number of samples in our dataset
         """
-        return len(self.data)
+        return self.len
 
     def __getitem__(self, idx):
         """
@@ -47,5 +52,5 @@ class SequenceDataset(Dataset):
 
         returns sample[0] the look back window, sample[1] the prediction window
         """
-        sample = self.data[idx]
-        return torch.Tensor(sample[0]), torch.Tensor(sample[1])
+        # sample = self.data[idx]
+        return torch.Tensor(self.data_x[idx]), torch.Tensor(self.data_y[idx])
