@@ -47,6 +47,7 @@ class Keys(object):
     '''Column names for dataframes'''
 
     # raw data set
+    INDEX = 'index'
     SQUARE_ID = 'square_id'
     TIME_INTERVAL = 'time_interval'
     COUNTRY_CODE = 'country_code'

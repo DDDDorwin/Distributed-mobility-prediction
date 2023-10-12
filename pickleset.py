@@ -22,8 +22,6 @@ class PickleDataset(Dataset):
         self.__loaded_chunks = [pd.DataFrame] * max_saved_chunks
         self.__loaded_chunks_next = 0
 
-
-
         #FIFO queue for saving chunks, queue size = max_saved_chunks
         self.loaded_chunkz = queue.Queue(max_saved_chunks)
         print("%s pickled rows of data" % self.size)
@@ -46,7 +44,7 @@ class PickleDataset(Dataset):
 
 #CREATION/DELETION OF PICKLES
     def __make_pickles__(self, destroy_old):
-        '''Create pickle files for each raw data file, name = firstTimeStamp_lastTimeStamp.pkl'''
+        '''Create pickle files for each raw data file, name = startIndex_endIndex.pkl'''
         if destroy_old:
             #Delete existing pickle files
             self.__del_db__()
@@ -54,11 +52,18 @@ class PickleDataset(Dataset):
         input_files = [join(Paths.RAW_DIR, f) for f in os.listdir(Paths.RAW_DIR) if f.endswith(".txt") or f.endswith(".tsv") or f.endswith(".csv")]
         size = 0
         for input_file in sorted(input_files):
+            #Read csv
             df = pd.read_csv(input_file, header=None, sep='\t', dtype=TableData.DTYPES)
-            size += len(df)
+            length = len(df)
+            #Add corresponding indexes to rows
+            df[Keys.INDEX] = [i for i in range(size, size + length)]
+            df = df.set_index(Keys.INDEX)
             #Fetches keys for dtypes, to use as names for headers
             df.columns = TableData.DTYPES.keys()
-            df.to_pickle(join(Paths.PICKLE_DIR, "%s_%s.pkl" % (df[Keys.TIME_INTERVAL].iloc[1],df[Keys.TIME_INTERVAL].iloc[-1])))
+            #Make pickles with name: startIndex_endIndex.pkl 
+            df.to_pickle(join(Paths.PICKLE_DIR, "%s_%s.pkl" % (size,size + length - 1)))
+            #Increment size
+            size += length
             print("Successfully pickled %s" % (input_file))
         self.__update_size__(size)
 
@@ -76,8 +81,11 @@ class PickleDataset(Dataset):
     
     def __get_saved_index__(self, index) -> pd.DataFrame:
         for df in self.__loaded_chunks:
-            if not df.empty and int(df[Keys.TIME_INTERVAL].iloc[-1]) >= index and int(df[Keys.TIME_INTERVAL].iloc[0]) <= index:
+            if not df.empty and index in df.index:
                 return df
+
+           # if not df.empty and int(df[Keys.INDEX].iloc[-1]) >= index and int(df[Keys.TIME_INTERVAL].iloc[0]) <= index:
+            #    return df
         return pd.DataFrame()
 
     def __add_chunk_to_saved__(self, chunk, index):
@@ -101,19 +109,19 @@ class PickleDataset(Dataset):
         chunk = self.__get_saved_index__(index)
         #Check if dataframe is already loaded for requested timeframe
         if(len(chunk) > 0):
-            print("Index already loaded, no fetch needed.")
+            print("Index found in loaded, no fetch needed.")
             return chunk
         loaded = pd.DataFrame()
-        print("Timeframe not loaded, fetching...")
+        print("Index was not found in loaded, fetching...")
         #Get missing pickle file in directory
         pickles = [f for f in os.listdir(Paths.PICKLE_DIR) if f.endswith(".pkl")]
         for p in pickles:
-            times = p.replace(".pkl",'').split("_", 1)
+            indexes = p.replace(".pkl",'').split("_", 1)
             #Check if file contains data in range
-            if(int(times[1]) >= index and int(times[0]) <= index):
+            if(int(indexes[1]) >= index and int(indexes[0]) <= index):
                 #Append to return dataframe
                 loaded = pd.read_pickle(join(Paths.PICKLE_DIR, p))
-                print("Range contained in pickle: %s" % (p))
+                print("Index contained in pickle: %s" % (p))
 
         #If nothing is being prefetched, save chunk
         self.__add_chunk_to_saved__(loaded, index)
@@ -124,28 +132,29 @@ class PickleDataset(Dataset):
 
 
 pklst = PickleDataset(max_saved_chunks=2)
+#pklst.__make_pickles__(True)
 #pklst.__del_db__()
+print(pklst.__len__())
 
-pklst.__fetch_chunk__(1383260400000)
-pklst.__fetch_chunk__(1383260400000)
-pklst.__fetch_chunk__(1383260400000)
-pklst.__fetch_chunk__(1383260400000)
 
-pklst.__fetch_chunk__(1383865800000)
-pklst.__fetch_chunk__(1383865800000)
-pklst.__fetch_chunk__(1383865800000)
-pklst.__fetch_chunk__(1383865800000)
 
-pklst.__fetch_chunk__(1383260400000)
-pklst.__fetch_chunk__(1383260400000)
-pklst.__fetch_chunk__(1383260400000)
-pklst.__fetch_chunk__(1383260400000)
-pklst.__fetch_chunk__(1383260400000)
-pklst.__fetch_chunk__(1383260400000)
-pklst.__fetch_chunk__(1383260400000)
-pklst.__fetch_chunk__(1383260400000)
 
-pklst.__fetch_chunk__(1383865800000)
-pklst.__fetch_chunk__(1383865800000)
-pklst.__fetch_chunk__(1383865800000)
-pklst.__fetch_chunk__(1383865800000)
+pklst.__fetch_chunk__(0)
+pklst.__fetch_chunk__(0)
+pklst.__fetch_chunk__(0)
+pklst.__fetch_chunk__(0)
+
+pklst.__fetch_chunk__(4842625)
+pklst.__fetch_chunk__(4842625)
+pklst.__fetch_chunk__(4842625)
+pklst.__fetch_chunk__(4842625)
+
+pklst.__fetch_chunk__(0)
+pklst.__fetch_chunk__(0)
+pklst.__fetch_chunk__(0)
+pklst.__fetch_chunk__(0)
+
+pklst.__fetch_chunk__(4842625)
+pklst.__fetch_chunk__(4842625)
+pklst.__fetch_chunk__(4842625)
+pklst.__fetch_chunk__(4842625)
