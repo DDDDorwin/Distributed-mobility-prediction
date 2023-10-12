@@ -76,7 +76,7 @@ if __name__ == '__main__':
     # train_input = resize_input_data(train_set, period)
 
     model = OneDimensionalCNN(period, output_size)
-    lstm = LSTM(1, 128, 1, True, batch_size, 1).double()
+    lstm = LSTM(1, 32, 2, True, batch_size, 1).double()
     loss_fn = nn.MSELoss()
     optimizer = optim.SGD(model.parameters(), lr=lr)
 
@@ -88,11 +88,11 @@ if __name__ == '__main__':
         for batch, (seq, y_label) in enumerate(train_loader):
             seq, y_label = seq.to(device), y_label.to(device)
             # resize the label shape from (1, 1) to (1) so that it is the same shape with the input
-            y_label = y_label.squeeze(1).double()
+            y_label = y_label.double()
 
             # input shape: (batch_size, channel, series_length): (1, 1, -1)
             y_pred = lstm(seq.double())
-            loss = loss_fn(y_label, y_pred)
+            loss = loss_fn(y_label.view(-1), y_pred)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
