@@ -54,8 +54,8 @@ class LSTM(nn.Module):
         c_0 = torch.randn(self.num_layers * self.dimension, self.batch_size, self.hidden_size, dtype=torch.float64)
         lstm_output, hn = self.lstm(x)
         # lstm_output, _ = self.lstm(x, None)
-        ac = self.relu(lstm_output[:, -1, :])
-        output = self.fc2(ac)
+        # ac = self.relu(lstm_output[:, -1, :])
+        output = self.fc2(lstm_output[:, -1, :])
 
         # output = self.activation(output)
         # output = self.fc2(output)

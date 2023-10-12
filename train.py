@@ -54,21 +54,22 @@ if __name__ == '__main__':
     norm_data = scaler.fit_transform(sum_data[Keys.INTERNET].values.reshape(-1, 1))
 
     # make custom dataset
-    resize_data_x, resize_data_y = resize_input_data(norm_data, period, output_size)
-    dataset = SequenceDataset(resize_data_x, resize_data_y)
+    resize_data = resize_input_data(norm_data, period, output_size)
 
     # split data for training and testing
     torch_data = torch.FloatTensor(norm_data).view(-1)
     train_size = int(len(sum_data) * 0.8)
-    test_size = len(dataset) - train_size
-    train_split_ratio = [train_size, len(dataset)-train_size]
+    test_size = len(resize_data) - train_size
+    train_split_ratio = [train_size, len(resize_data)-train_size]
+
+    dataset = SequenceDataset(resize_data)
 
     # train_set, test_set = random_split(dataset, train_split_ratio)
     train_set = Subset(dataset, range(train_size))
     test_set = Subset(dataset, range(train_size, len(dataset)))
 
     # Add dataloader
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, drop_last=True)
+    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=False, drop_last=True)
     test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, drop_last=True)
 
     # Resize the input to fit the model
@@ -76,7 +77,7 @@ if __name__ == '__main__':
     # train_input = resize_input_data(train_set, period)
 
     model = OneDimensionalCNN(period, output_size)
-    lstm = LSTM(1, 2, 1, False, batch_size, 1, 1).double()
+    lstm = LSTM(1, 4, 1, False, batch_size, 1, 1).double()
     rnn = RNN(1, 2, 1, True, batch_size, 1).double()
     loss_fn = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
@@ -84,23 +85,9 @@ if __name__ == '__main__':
     # Start training
     print("start training")
     losses = []
-    # for epoch in range(epochs):
-    #     start_time = time.time()
-    #     for batch, (seq, y_label) in enumerate(train_loader):
-    #         seq, y_label = seq.to(device), y_label.to(device)
-    #         # resize the label shape from (1, 1) to (1) so that it is the same shape with the input
-    #         y_label = y_label.double()
-    #
-    #         # input shape: (batch_size, channel, series_length): (1, 1, -1)
-    #         y_pred = lstm(seq.double())
-    #         loss = loss_fn(y_label.squeeze(1), y_pred)
-    #         optimizer.zero_grad()
-    #         loss.backward()
-    #         optimizer.step()
-
     for epoch in range(epochs):
         start_time = time.time()
-        for (seq, y_label) in np.array(resize_data_x, resize_data_y):
+        for batch, (seq, y_label) in enumerate(train_loader):
             seq, y_label = seq.to(device), y_label.to(device)
             # resize the label shape from (1, 1) to (1) so that it is the same shape with the input
             y_label = y_label.double()
