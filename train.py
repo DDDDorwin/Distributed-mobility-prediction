@@ -3,13 +3,13 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import random_split, DataLoader, Subset
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 import time
 import argparse
 from preprocessing import load_pickle, Paths, Keys
-from models.models import OneDimensionalCNN, LSTM
+from models.models import OneDimensionalCNN, LSTM, RNN
 from data.data import SequenceDataset, resize_input_data
 from utils.plot import plot_test_graph, plot_loss
 
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     print(sum_data.head())
 
     # Apply MinMaxScaler normalization
-    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaler = MinMaxScaler()
     norm_data = scaler.fit_transform(sum_data[Keys.INTERNET].values.reshape(-1, 1))
 
     # make custom dataset
@@ -77,8 +77,9 @@ if __name__ == '__main__':
 
     model = OneDimensionalCNN(period, output_size)
     lstm = LSTM(1, 32, 2, True, batch_size, 1).double()
+    rnn = RNN(1, 32, 2, True, batch_size, 1).double()
     loss_fn = nn.MSELoss()
-    optimizer = optim.SGD(model.parameters(), lr=lr)
+    optimizer = optim.Adam(model.parameters(), lr=lr)
 
     # Start training
     print("start training")
@@ -91,7 +92,7 @@ if __name__ == '__main__':
             y_label = y_label.double()
 
             # input shape: (batch_size, channel, series_length): (1, 1, -1)
-            y_pred = lstm(seq.double())
+            y_pred = rnn(seq.double())
             loss = loss_fn(y_label.view(-1), y_pred)
             optimizer.zero_grad()
             loss.backward()
@@ -111,7 +112,7 @@ if __name__ == '__main__':
     with torch.no_grad():
         for x, y in test_loader:
             x, y = x.to(device), y.to(device)
-            pred = lstm(x.double())
+            pred = rnn(x.double())
             preds.append(pred)
             error = torch.abs(pred-y).sum().data
             squared_error = ((pred-y)*(pred-y)).sum().data
@@ -125,7 +126,8 @@ if __name__ == '__main__':
     print(f"MAE value: {mae:.5f}, MSE value: {mse:.5f}")
 
     # reverse the normalization
-    true_predictions = scaler.inverse_transform(np.array(preds).reshape(-1, 1))
+    # true_predictions = scaler.inverse_transform(np.array(preds).reshape(-1, 1))
+    true_predictions = scaler.inverse_transform(torch.cat(preds).numpy().reshape(-1, 1))
 
     plot_loss(losses)
     plot_test_graph(sum_data, true_predictions)
