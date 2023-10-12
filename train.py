@@ -90,10 +90,12 @@ if __name__ == '__main__':
     losses = []
     for epoch in range(epochs):
         start_time = time.time()
-        for batch, (seq, y_label) in enumerate(train_loader):
+        for (seq, y_label) in (resize_data):
+            seq, y_label = torch.FloatTensor(seq), torch.FloatTensor(y_label)
             seq, y_label = seq.to(device), y_label.to(device)
             # resize the label shape from (1, 1) to (1) so that it is the same shape with the input
-            y_label = y_label
+            y_label = y_label.double()
+            seq = seq.double()
 
             # input shape: (batch_size, channel, series_length): (1, 1, -1)
             y_pred = lstm(seq)

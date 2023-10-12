@@ -47,9 +47,9 @@ class LSTM(nn.Module):
     def forward(self, x):
         h_0 = torch.zeros(self.num_layers, self.batch_size, self.hidden_size, dtype=torch.float64)
         c_0 = torch.zeros(self.num_layers, self.batch_size, self.hidden_size, dtype=torch.float64)
-        lstm_output, _ = self.lstm(x, (h_0, c_0))
+        lstm_output, _ = self.lstm(x, None)
         # ac = self.activation(lstm_output)
-        output = self.fc1(lstm_output[:, -1, :])
+        output = self.fc1(lstm_output[-1, :])
         relu = self.activation(output)
         output = self.fc2(relu)
 
