@@ -131,4 +131,4 @@ if __name__ == '__main__':
     true_predictions = scaler.inverse_transform(torch.cat(preds).numpy().reshape(-1, 1))
 
     plot_loss(losses)
-    plot_test_graph(sum_data, true_predictions)
+    plot_test_graph(norm_data, true_predictions)
