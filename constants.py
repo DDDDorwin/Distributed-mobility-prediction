@@ -42,6 +42,9 @@ class Paths(object):
     GROUPED_CC_F = pjoin(PREPROCESSED_DIR, 'grouped_cc.pkl')
     GROUPED_TIME_F = pjoin(PREPROCESSED_DIR, 'grouped_time.pkl')
 
+    # test
+    TEST_DIR = pjoin('./test')
+
 
 class Keys(object):
     '''Column names for dataframes'''

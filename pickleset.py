@@ -1,5 +1,6 @@
 import os 
 import pandas as pd
+import numpy as np
 import queue
 from data.data import Dataset
 from typing import TypeVar
@@ -13,14 +14,15 @@ T = TypeVar('T')
 class PickleDataset(Dataset):
     is_loading = False
 
-
-    def __init__(self, max_saved_chunks):
+    def __init__(self, train_size, test_size, max_saved_chunks):
         self.__get_size__()
         if max_saved_chunks < 1:
             max_saved_chunks = 1
         self.max_chunks = max_saved_chunks
         self.__loaded_chunks = [pd.DataFrame] * max_saved_chunks
         self.__loaded_chunks_next = 0
+        self.train_size = train_size
+        self.test_size = test_size
 
         #FIFO queue for saving chunks, queue size = max_saved_chunks
         self.loaded_chunkz = queue.Queue(max_saved_chunks)
@@ -38,6 +40,7 @@ class PickleDataset(Dataset):
             self.size = int(f.readline())
         else:
             self.__update_size__(0)
+        return self.size
 
     def __len__(self):
         return self.size
@@ -76,16 +79,25 @@ class PickleDataset(Dataset):
     
 #ITEM FETCHING
     #TODO: IMPLEMENT
-    def __getitem__(self, index) -> T_co:
-        raise NotImplementedError("Subclasses of Dataset should implement __getitem__.")
+    def __getitem__(self, index) -> pd.DataFrame:
+        chunk = self.__fetch_chunk__(index)
+        return chunk.loc[[index]]
+    
+    def __sliding_window__(self, index):
+         # Lists to store DataFrames
+        train_window = []
+        for train_offset in range(self.train_size):
+            train_window.append(self.__getitem__(index + train_offset))
+        test_window = []
+        for test_offset in range(self.test_size):
+            test_window.append(self.__getitem__(index + self.train_size + test_offset))
+
+        return {'train': pd.concat(train_window, ignore_index=True), 'test': pd.concat(test_window, ignore_index=True)}
     
     def __get_saved_index__(self, index) -> pd.DataFrame:
         for df in self.__loaded_chunks:
             if not df.empty and index in df.index:
                 return df
-
-           # if not df.empty and int(df[Keys.INDEX].iloc[-1]) >= index and int(df[Keys.TIME_INTERVAL].iloc[0]) <= index:
-            #    return df
         return pd.DataFrame()
 
     def __add_chunk_to_saved__(self, chunk, index):
@@ -129,32 +141,31 @@ class PickleDataset(Dataset):
 
 
 
+'''
 
-
-pklst = PickleDataset(max_saved_chunks=2)
+pklst = PickleDataset(train_size=5,test_size=5,max_saved_chunks=2)
 #pklst.__make_pickles__(True)
 #pklst.__del_db__()
 print(pklst.__len__())
 
+pklst.__getitem__(0)
+pklst.__getitem__(0)
+pklst.__getitem__(0)
+pklst.__getitem__(0)
+pklst.__getitem__(0)
+
+pklst.__getitem__(37622898)
+pklst.__getitem__(37622898)
+pklst.__getitem__(37622900)
+pklst.__getitem__(43541753)
+pklst.__getitem__(43541754)
 
 
+pklst.__getitem__(37622898)
 
-pklst.__fetch_chunk__(0)
-pklst.__fetch_chunk__(0)
-pklst.__fetch_chunk__(0)
-pklst.__fetch_chunk__(0)
+print(pklst.__getitem__(0))
 
-pklst.__fetch_chunk__(4842625)
-pklst.__fetch_chunk__(4842625)
-pklst.__fetch_chunk__(4842625)
-pklst.__fetch_chunk__(4842625)
+print(pklst.__sliding_window__(0))
+'''
 
-pklst.__fetch_chunk__(0)
-pklst.__fetch_chunk__(0)
-pklst.__fetch_chunk__(0)
-pklst.__fetch_chunk__(0)
 
-pklst.__fetch_chunk__(4842625)
-pklst.__fetch_chunk__(4842625)
-pklst.__fetch_chunk__(4842625)
-pklst.__fetch_chunk__(4842625)
