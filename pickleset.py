@@ -30,13 +30,13 @@ class PickleDataset(Dataset):
 
 #SIZE RELATED FUNCTIONS
     def __update_size__(self, size):
-        f = open("SIZE_DATA.txt", "w+")
+        f = open(join(Paths.PICKLE_DIR, "SIZE_DATA.txt"), "w+")
         f.write('%d' % size)
         self.size = size
 
     def __get_size__(self):
-        if(not os.stat("SIZE_DATA.txt").st_size == 0):       
-            f = open("SIZE_DATA.txt", "r")
+        if(not os.stat(join(Paths.PICKLE_DIR, "SIZE_DATA.txt")).st_size == 0):       
+            f = open(join(Paths.PICKLE_DIR, "SIZE_DATA.txt"), "r")
             self.size = int(f.readline())
         else:
             self.__update_size__(0)
@@ -139,33 +139,13 @@ class PickleDataset(Dataset):
         self.__add_chunk_to_saved__(loaded, index)
         return loaded
 
-
-
 '''
-
 pklst = PickleDataset(train_size=5,test_size=5,max_saved_chunks=2)
 #pklst.__make_pickles__(True)
 #pklst.__del_db__()
 print(pklst.__len__())
 
-pklst.__getitem__(0)
-pklst.__getitem__(0)
-pklst.__getitem__(0)
-pklst.__getitem__(0)
-pklst.__getitem__(0)
-
-pklst.__getitem__(37622898)
-pklst.__getitem__(37622898)
-pklst.__getitem__(37622900)
-pklst.__getitem__(43541753)
-pklst.__getitem__(43541754)
-
-
-pklst.__getitem__(37622898)
-
-print(pklst.__getitem__(0))
-
-print(pklst.__sliding_window__(0))
+print(pklst.__sliding_window__(9587710))
 '''
 
 
