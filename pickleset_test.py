@@ -1,6 +1,8 @@
 import unittest
 from constants import *
 from pickleset import *
+from random import seed
+from random import randint
 
 '''
 This file contains tests to ensure function of the pickleset dataset.
@@ -12,6 +14,9 @@ The tests are testing all functions of the dataset, including the following:
     TestPickleBuildFuncs
         - deletion and creation
         - makes sure dataset is initialized propperly
+    TestFetching
+        - test getitem consistency
+        - test getitem returns a dataframe of size 1
 '''
 
 class TestPickleSetFuncs(unittest.TestCase):
@@ -50,6 +55,7 @@ class TestPickleSetFuncs(unittest.TestCase):
 
 
 class TestPickleBuildFuncs(unittest.TestCase):
+
     def __get_actuall_size(self):
         pickles = [f for f in os.listdir(Paths.PICKLE_DIR) if f.endswith(".pkl")]
         length = 0
@@ -64,14 +70,32 @@ class TestPickleBuildFuncs(unittest.TestCase):
         pds.__del_db__()
         no_files = len([f for f in os.listdir(Paths.PICKLE_DIR) if f.endswith(".pkl")])
         self.assertEqual(0, no_files)
-        self.assertEquals(0, pds.__len__())
+        self.assertEqual(0, pds.__len__())
 
         #Create phase
         pds.__make_pickles__(False)
         self.assertEqual(n_files, len([f for f in os.listdir(Paths.PICKLE_DIR) if f.endswith(".pkl")]))
-        self.assertEquals(pds.__len__(), self.__get_actuall_size())
+        self.assertEqual(pds.__len__(), self.__get_actuall_size())
 
-    class 
+class TestFetching(unittest.TestCase):
+
+    def test_get_consistent(self):
+        '''Test that __getitem__() returns consistent values'''
+        pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=10)
+        seed(1)
+        for i in range(100):
+            rand_index = randint(0, pds.__len__())
+            self.assertTrue(pds.__getitem__(rand_index).equals(pds.__getitem__(rand_index)))
+
+    def test_get_check_length(self):
+        '''Tests that the items returned from __getitem__() are of length one (one row)'''
+        pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=10)
+        seed(2)
+        for i in range(100):
+            rand_index = randint(0, pds.__len__())
+            self.assertEqual(len(pds.__getitem__(rand_index)), 1)
+    
+
 #TODO: MAKE TESTS FOR EDGE CASES!!! ESP FOR SLIDING WINDOW
 # ALSO DO TESTS FOR CHUNKS
 
