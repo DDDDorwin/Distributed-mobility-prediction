@@ -147,5 +147,3 @@ print(pklst.__len__())
 
 print(pklst.__sliding_window__(9587710))
 '''
-
-

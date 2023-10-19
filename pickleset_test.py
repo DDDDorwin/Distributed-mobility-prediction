@@ -1,12 +1,24 @@
 import unittest
-import sys
 from constants import *
 from pickleset import *
 
-
+'''
+This file contains tests to ensure function of the pickleset dataset.
+The tests are testing all functions of the dataset, including the following:
+    TestPickleSetFuncs
+        - size correctness / in bounds
+        - I/O of size file "SIZE_DATA.txt"
+        - size changes
+    TestPickleBuildFuncs
+        - deletion and creation
+        - makes sure dataset is initialized propperly
+'''
 
 class TestPickleSetFuncs(unittest.TestCase):
+    '''Test cases for size functions of dataset.'''
+
     def __get_actuall_size(self):
+        '''Helper function for getting the actual number of rows in the database.'''
         pickles = [f for f in os.listdir(Paths.PICKLE_DIR) if f.endswith(".pkl")]
         length = 0
         for p in pickles:
@@ -14,13 +26,14 @@ class TestPickleSetFuncs(unittest.TestCase):
         return length
 
     def test_size(self):
+        '''Testing of the ___len__() function, and the ___get_size___() function.'''
         pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=2)
         size = pds.__len__()
         self.assertEqual(pds.__get_size__(), size)
         self.assertEqual(pds.__get_size__(), self.__get_actuall_size())
 
     def test_change_size(self):
-        '''Test to increase the size and then decrease it'''
+        '''Test to increase the size and then decrease it.'''
         pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=2)
         offset = 1932
         size = pds.__len__()
@@ -30,6 +43,7 @@ class TestPickleSetFuncs(unittest.TestCase):
         self.assertEqual(pds.__get_size__(), self.__get_actuall_size())
 
     def test_assert_size_in_bounds(self):
+        '''Test that the size is not negative, or bigger than the actual number of rows in the pickle directory.'''
         pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=2)
         self.assertGreaterEqual(pds.__len__(), 0)
         self.assertLessEqual(pds.__len__(), self.__get_actuall_size())
@@ -57,9 +71,9 @@ class TestPickleBuildFuncs(unittest.TestCase):
         self.assertEqual(n_files, len([f for f in os.listdir(Paths.PICKLE_DIR) if f.endswith(".pkl")]))
         self.assertEquals(pds.__len__(), self.__get_actuall_size())
 
-
-
+    class 
 #TODO: MAKE TESTS FOR EDGE CASES!!! ESP FOR SLIDING WINDOW
+# ALSO DO TESTS FOR CHUNKS
 
 
 if __name__ == '__main__':
