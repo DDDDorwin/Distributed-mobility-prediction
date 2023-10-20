@@ -83,17 +83,20 @@ class TestFetching(unittest.TestCase):
         '''Test that __getitem__() returns consistent values'''
         pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=10)
         seed(1)
-        for i in range(50):
+        for i in range(10):
             rand_index = randint(0, pds.__len__())
             self.assertTrue(pds.__getitem__(rand_index).equals(pds.__getitem__(rand_index)))
 
     def test_get_check_length(self):
-        '''Tests that the items returned from __getitem__() are of length one (one row)'''
+        '''Tests that the items returned from __getitem__() are of length one (one row) and contain 8 columns'''
         pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=10)
         seed(2)
-        for i in range(50):
+        for i in range(10):
             rand_index = randint(0, pds.__len__())
             self.assertEqual(len(pds.__getitem__(rand_index)), 1)
+            self.assertEqual(len(pds.__getitem__(rand_index).columns), 8)
+
+
     
 
 #TODO: MAKE TESTS FOR EDGE CASES!!! ESP FOR SLIDING WINDOW

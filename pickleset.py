@@ -32,12 +32,14 @@ class PickleDataset(Dataset):
     def __update_size__(self, size):
         f = open(join(Paths.PICKLE_DIR, "SIZE_DATA.txt"), "w+")
         f.write('%d' % size)
+        f.close()
         self.size = size
 
     def __get_size__(self):
         if(not os.stat(join(Paths.PICKLE_DIR, "SIZE_DATA.txt")).st_size == 0):       
             f = open(join(Paths.PICKLE_DIR, "SIZE_DATA.txt"), "r")
             self.size = int(f.readline())
+            f.close()
         else:
             self.__update_size__(0)
         return self.size
@@ -138,9 +140,9 @@ class PickleDataset(Dataset):
                 loaded = pd.read_pickle(join(Paths.PICKLE_DIR, p))
                 print("Index contained in pickle: %s" % (p))
 
-        #If nothing is being prefetched, save chunk
         self.__add_chunk_to_saved__(loaded, index)
         return loaded
+    
 
 '''
 pklst = PickleDataset(train_size=5,test_size=2,max_saved_chunks=2)
@@ -157,13 +159,13 @@ n = pklst.__sliding_window__(9587710)
 
 
 
-
+'''
 ###BENCHMARK CODE:::::::::::::::###
 from datetime import datetime
 from random import seed
 from random import randint
 
-pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=8)
+pds = PickleDataset(train_size=5,test_size=2,max_saved_chunks=8)
 seed(1)
 now = datetime.now()
 for i in range(200):
@@ -171,7 +173,7 @@ for i in range(200):
     pds.__sliding_window__(rand_index)
 then = datetime.now()
 print("Time taken = ", then-now)
-
+'''
 
 
 
