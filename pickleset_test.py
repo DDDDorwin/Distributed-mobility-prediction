@@ -19,6 +19,8 @@ The tests are testing all functions of the dataset, including the following:
         - test getitem returns a dataframe of size 1
 '''
 
+nChunks = 8
+
 class TestPickleSetFuncs(unittest.TestCase):
     '''Test cases for size functions of dataset.'''
 
@@ -32,14 +34,14 @@ class TestPickleSetFuncs(unittest.TestCase):
 
     def test_size(self):
         '''Testing of the ___len__() function, and the ___get_size___() function.'''
-        pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=2)
+        pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=nChunks)
         size = pds.__len__()
         self.assertEqual(pds.__get_size__(), size)
         self.assertEqual(pds.__get_size__(), self.__get_actuall_size())
 
     def test_change_size(self):
         '''Test to increase the size and then decrease it.'''
-        pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=2)
+        pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=nChunks)
         offset = 1932
         size = pds.__len__()
         pds.__update_size__(size+offset)
@@ -49,7 +51,7 @@ class TestPickleSetFuncs(unittest.TestCase):
 
     def test_assert_size_in_bounds(self):
         '''Test that the size is not negative, or bigger than the actual number of rows in the pickle directory.'''
-        pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=2)
+        pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=nChunks)
         self.assertGreaterEqual(pds.__len__(), 0)
         self.assertLessEqual(pds.__len__(), self.__get_actuall_size())
 
@@ -66,7 +68,7 @@ class TestPickleBuildFuncs(unittest.TestCase):
     def test_deletion_creation(self):
         #Delete phase
         n_files = len([f for f in os.listdir(Paths.PICKLE_DIR) if f.endswith(".pkl")])
-        pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=2)
+        pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=nChunks)
         pds.__del_db__()
         no_files = len([f for f in os.listdir(Paths.PICKLE_DIR) if f.endswith(".pkl")])
         self.assertEqual(0, no_files)
@@ -81,22 +83,36 @@ class TestFetching(unittest.TestCase):
 
     def test_get_consistent(self):
         '''Test that __getitem__() returns consistent values'''
-        pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=10)
+        pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=nChunks)
         seed(1)
-        for i in range(10):
+        for i in range(100):
             rand_index = randint(0, pds.__len__())
             self.assertTrue(pds.__getitem__(rand_index).equals(pds.__getitem__(rand_index)))
 
     def test_get_check_length(self):
         '''Tests that the items returned from __getitem__() are of length one (one row) and contain 8 columns'''
-        pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=10)
+        pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=nChunks)
         seed(2)
-        for i in range(10):
+        for i in range(100):
             rand_index = randint(0, pds.__len__())
             self.assertEqual(len(pds.__getitem__(rand_index)), 1)
             self.assertEqual(len(pds.__getitem__(rand_index).columns), 8)
 
-
+    def test_sliding_window(self):
+        '''Tests that the sliding window algorithm returns train/test sets of correct size and type.'''
+        nTr = 4
+        nTe = 2
+        pds = PickleDataset(train_size=nTr,test_size=nTe,max_saved_chunks=nChunks)
+        seed(3)
+        for i in range(100):
+            rand_index = randint(0, pds.__len__())
+            arr = pds.__sliding_window__(rand_index)
+            self.assertEqual(len(arr), 2)
+            self.assertIsInstance(arr[0], np.ndarray)
+            self.assertIsInstance(arr[1], np.ndarray)
+            self.assertEqual(len(arr[0]), nTr)
+            self.assertEqual(len(arr[1]), nTe)
+      
     
 
 #TODO: MAKE TESTS FOR EDGE CASES!!! ESP FOR SLIDING WINDOW
