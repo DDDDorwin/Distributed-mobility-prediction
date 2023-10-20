@@ -80,10 +80,12 @@ class PickleDataset(Dataset):
 #ITEM FETCHING
     #TODO: IMPLEMENT
     def __getitem__(self, index) -> pd.DataFrame:
+        '''Returns a dataframe with one row containing the found item.'''
         chunk = self.__fetch_chunk__(index)
         return chunk.loc[[index]]
     
     def __sliding_window__(self, index):
+        '''Returns an array containing a train [0] and a test [1] set as numpy arrays, created from the index given.'''
          # Lists to store DataFrames
         train_window = []
         for train_offset in range(self.train_size):
@@ -92,8 +94,9 @@ class PickleDataset(Dataset):
         for test_offset in range(self.test_size):
             test_window.append(self.__getitem__(index + self.train_size + test_offset))
 
-        return {'train': pd.concat(train_window, ignore_index=True), 'test': pd.concat(test_window, ignore_index=True)}
+        return [pd.concat(train_window, ignore_index=False).to_numpy(), pd.concat(test_window, ignore_index=False).to_numpy()]
     
+
     def __get_saved_index__(self, index) -> pd.DataFrame:
         for df in self.__loaded_chunks:
             if not df.empty and index in df.index:
@@ -140,32 +143,44 @@ class PickleDataset(Dataset):
         return loaded
 
 '''
-pklst = PickleDataset(train_size=5,test_size=5,max_saved_chunks=2)
+pklst = PickleDataset(train_size=5,test_size=2,max_saved_chunks=2)
 #pklst.__make_pickles__(True)
 #pklst.__del_db__()
 print(pklst.__len__())
 
-print(pklst.__sliding_window__(9587710))
-'''
-
-
+n = pklst.__sliding_window__(9587710)
 
 '''
+
+
+
+
+
+
+
 ###BENCHMARK CODE:::::::::::::::###
 from datetime import datetime
 from random import seed
 from random import randint
 
-pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=16)
+pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=8)
 seed(1)
 now = datetime.now()
 for i in range(200):
     rand_index = randint(0, pds.__len__())
-    pds.__getitem__(rand_index)
+    pds.__sliding_window__(rand_index)
 then = datetime.now()
 print("Time taken = ", then-now)
 
+
+
+
+
+
+'''
 ###BENCHMARK RESULTS:::::::::::::::###
+
+GET ITEM
 
 BENCHMARKING @200 iterations of __getitem__(), random indexes, 16 pickles, total 86,351,806 rows
 nCHUNKS,    RAM USED (peak),    RUN TIME (s)
