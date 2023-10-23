@@ -23,7 +23,7 @@ class PickleDataset(Dataset):
         self.__loaded_chunks_next = 0
         self.train_size = train_size
         self.test_size = test_size
-        print("%s pickled rows of data" % self.size)
+        print("%s pickled rows of data exist!" % self.size)
 
 #SIZE RELATED FUNCTIONS
     def __update_size(self, size):
