@@ -15,7 +15,7 @@ class PickleDataset(Dataset):
     is_loading = False
 
     def __init__(self, train_size, test_size, max_saved_chunks):
-        self.__get_size__()
+        self.__get_size()
         if max_saved_chunks < 1:
             max_saved_chunks = 1
         self.max_chunks = max_saved_chunks
@@ -23,41 +23,43 @@ class PickleDataset(Dataset):
         self.__loaded_chunks_next = 0
         self.train_size = train_size
         self.test_size = test_size
-
-        #FIFO queue for saving chunks, queue size = max_saved_chunks
-        self.loaded_chunkz = queue.Queue(max_saved_chunks)
         print("%s pickled rows of data" % self.size)
 
 #SIZE RELATED FUNCTIONS
-    def __update_size__(self, size):
+    def __update_size(self, size):
+        '''Update size in SIZE_DATA.txt and update self.size'''
         f = open(join(Paths.PICKLE_DIR, "SIZE_DATA.txt"), "w+")
         f.write('%d' % size)
         f.close()
         self.size = size
 
-    def __get_size__(self):
+    def __get_size(self):
+        '''Fetch the current size from SIZE_DATA.txt and set to self.size'''
+        #If SIZE_DATA.txt exists, get size and set to self.size
         if(not os.stat(join(Paths.PICKLE_DIR, "SIZE_DATA.txt")).st_size == 0):       
             f = open(join(Paths.PICKLE_DIR, "SIZE_DATA.txt"), "r")
             self.size = int(f.readline())
             f.close()
+        #If there is no file SIZE_DATA.txt, we create one and set size to 0
         else:
-            self.__update_size__(0)
+            self.__update_size(0)
         return self.size
 
     def __len__(self):
+        '''Returns the length of the pickleset'''
         return self.size
 
 #CREATION/DELETION OF PICKLES
-    def __make_pickles__(self, destroy_old):
+    def __make_pickles(self, destroy_old):
         '''Create pickle files for each raw data file, name = startIndex_endIndex.pkl'''
         if destroy_old:
             #Delete existing pickle files
-            self.__del_db__()
+            self.__del_db()
         #For all data files ending with .txt, .tsv or .csv, reformat them into pickles, adding corresponding headers in the process
         input_files = [join(Paths.RAW_DIR, f) for f in os.listdir(Paths.RAW_DIR) if f.endswith(".txt") or f.endswith(".tsv") or f.endswith(".csv")]
         size = 0
         for input_file in sorted(input_files):
-            #Read csv
+            #Read "input file" as csv
             df = pd.read_csv(input_file, header=None, sep='\t', dtype=TableData.DTYPES)
             length = len(df)
             #Add corresponding indexes to rows
@@ -70,23 +72,23 @@ class PickleDataset(Dataset):
             #Increment size
             size += length
             print("Successfully pickled %s" % (input_file))
-        self.__update_size__(size)
+        self.__update_size(size)
 
-    def __del_db__(self):
+    def __del_db(self):
         '''Deletes all pickles from pickles directory'''
         for file in os.listdir(Paths.PICKLE_DIR):
             if os.fsdecode(file).endswith(".pkl"):
                 os.remove(join(Paths.PICKLE_DIR, file))
-        self.__update_size__(0)
+        self.__update_size(0)
     
 #ITEM FETCHING
     #TODO: IMPLEMENT
     def __getitem__(self, index) -> pd.DataFrame:
         '''Returns a dataframe with one row containing the found item.'''
-        chunk = self.__fetch_chunk__(index)
+        chunk = self.__fetch_chunk(index)
         return chunk.loc[[index]]
     
-    def __sliding_window__(self, index):
+    def sliding_window(self, index):
         '''Returns an array containing a train [0] and a test [1] set as numpy arrays, created from the index given.'''
          # Lists to store DataFrames
         train_window = []
@@ -99,31 +101,32 @@ class PickleDataset(Dataset):
         return [pd.concat(train_window, ignore_index=False).to_numpy(), pd.concat(test_window, ignore_index=False).to_numpy()]
     
 
-    def __get_saved_index__(self, index) -> pd.DataFrame:
+    def __get_saved_index(self, index) -> pd.DataFrame:
+        '''Get the dataframe that contains the provided index. Empty DF if index does not exist.'''
         for df in self.__loaded_chunks:
             if not df.empty and index in df.index:
                 return df
         return pd.DataFrame()
 
-    def __add_chunk_to_saved__(self, chunk, index):
-        if  not self.__get_saved_index__(index).empty:
+    def __add_chunk_to_saved(self, chunk, index):
+        '''Adds the given chunk to the saved chunks FIFO queue.'''
+        #Check if element exists already.
+        if  not self.__get_saved_index(index).empty:
             print("Element already loaded!")
             return
-    
-        #Add chunk to queue/ replace lastly added element if max_chunks size is reached
+        
         print("Element not in loaded, adding...")
-
         self.__loaded_chunks[self.__loaded_chunks_next] = chunk
         #Update next in "queue"
         self.__loaded_chunks_next += 1
         if(self.__loaded_chunks_next >= self.max_chunks):
             self.__loaded_chunks_next = 0
 
-    def __fetch_chunk__(self, index):
-        '''Returns a dataframe with headers, containing data from picklefile that contains the given index'''
+    def __fetch_chunk(self, index):
+        '''Returns a dataframe with headers, containing data from picklefile that contains the given index.'''
         if index < 0:
             return
-        chunk = self.__get_saved_index__(index)
+        chunk = self.__get_saved_index(index)
         #Check if dataframe is already loaded for requested timeframe
         if(len(chunk) > 0):
             print("Index found in loaded, no fetch needed.")
@@ -140,24 +143,8 @@ class PickleDataset(Dataset):
                 loaded = pd.read_pickle(join(Paths.PICKLE_DIR, p))
                 print("Index contained in pickle: %s" % (p))
 
-        self.__add_chunk_to_saved__(loaded, index)
+        self.__add_chunk_to_saved(loaded, index)
         return loaded
-    
-
-'''
-pklst = PickleDataset(train_size=5,test_size=2,max_saved_chunks=2)
-#pklst.__make_pickles__(True)
-#pklst.__del_db__()
-print(pklst.__len__())
-
-n = pklst.__sliding_window__(9587710)
-
-'''
-
-
-
-
-
 
 '''
 ###BENCHMARK CODE:::::::::::::::###
@@ -174,10 +161,6 @@ for i in range(200):
 then = datetime.now()
 print("Time taken = ", then-now)
 '''
-
-
-
-
 
 '''
 ###BENCHMARK RESULTS:::::::::::::::###

@@ -36,18 +36,18 @@ class TestPickleSetFuncs(unittest.TestCase):
         '''Testing of the ___len__() function, and the ___get_size___() function.'''
         pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=nChunks)
         size = pds.__len__()
-        self.assertEqual(pds.__get_size__(), size)
-        self.assertEqual(pds.__get_size__(), self.__get_actuall_size())
+        self.assertEqual(pds._PickleDataset__get_size(), size)
+        self.assertEqual(pds._PickleDataset__get_size(), self.__get_actuall_size())
 
     def test_change_size(self):
         '''Test to increase the size and then decrease it.'''
         pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=nChunks)
         offset = 1932
         size = pds.__len__()
-        pds.__update_size__(size+offset)
-        self.assertEqual(pds.__get_size__(), size+offset)
-        pds.__update_size__(size)
-        self.assertEqual(pds.__get_size__(), self.__get_actuall_size())
+        pds._PickleDataset__update_size(size+offset)
+        self.assertEqual(pds._PickleDataset__get_size(), size+offset)
+        pds._PickleDataset__update_size(size)
+        self.assertEqual(pds._PickleDataset__get_size(), self.__get_actuall_size())
 
     def test_assert_size_in_bounds(self):
         '''Test that the size is not negative, or bigger than the actual number of rows in the pickle directory.'''
@@ -69,13 +69,13 @@ class TestPickleBuildFuncs(unittest.TestCase):
         #Delete phase
         n_files = len([f for f in os.listdir(Paths.PICKLE_DIR) if f.endswith(".pkl")])
         pds = PickleDataset(train_size=4,test_size=2,max_saved_chunks=nChunks)
-        pds.__del_db__()
+        pds._PickleDataset__del_db()
         no_files = len([f for f in os.listdir(Paths.PICKLE_DIR) if f.endswith(".pkl")])
         self.assertEqual(0, no_files)
         self.assertEqual(0, pds.__len__())
 
         #Create phase
-        pds.__make_pickles__(False)
+        pds._PickleDataset__make_pickles(False)
         self.assertEqual(n_files, len([f for f in os.listdir(Paths.PICKLE_DIR) if f.endswith(".pkl")]))
         self.assertEqual(pds.__len__(), self.__get_actuall_size())
 
@@ -106,7 +106,7 @@ class TestFetching(unittest.TestCase):
         seed(3)
         for i in range(100):
             rand_index = randint(0, pds.__len__())
-            arr = pds.__sliding_window__(rand_index)
+            arr = pds.sliding_window(rand_index)
             self.assertEqual(len(arr), 2)
             self.assertIsInstance(arr[0], np.ndarray)
             self.assertIsInstance(arr[1], np.ndarray)
