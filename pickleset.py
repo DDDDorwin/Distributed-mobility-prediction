@@ -1,10 +1,8 @@
 import os 
 import pandas as pd
-import numpy as np
-import queue
 from data.data import Dataset
 from typing import TypeVar
-from constants import *
+from constants import Paths, Keys, TableData
 from os.path import join
 
 
@@ -12,7 +10,9 @@ T_co = TypeVar('T_co', covariant=True)
 T = TypeVar('T')
 
 class PickleDataset(Dataset):
+
     is_loading = False
+
 
     def __init__(self, train_size, test_size, max_saved_chunks):
         self.__get_size()

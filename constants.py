@@ -21,9 +21,7 @@ etc. Then use them in your code as e.g.
 Keys.SQUARE_ID
 """
 
-
 from os.path import join as pjoin
-
 
 class Paths(object):
     """File and directory paths on uppmax"""
@@ -44,7 +42,6 @@ class Paths(object):
     # test
     TEST_DIR = pjoin('./test')
 
-
 class Keys(object):
     """Column names for dataframes"""
 
@@ -57,8 +54,6 @@ class Keys(object):
     CALL_IN = "call_in"
     CALL_OUT = "call_out"
     INTERNET = "internet"
-
-
 
 class TableData(object):
     """Numpy/Pandas datatypes and other descriptors for columns in dataframes
