@@ -55,7 +55,8 @@ class PickleDataset(Dataset):
         if destroy_old:
             # Delete existing pickle files
             self.__del_db()
-        # For all data files ending with .txt, .tsv or .csv, reformat them into pickles, adding corresponding headers in the process
+        # For all data files ending with .txt, .tsv or .csv
+        # reformat them into pickles, adding corresponding headers in the process
         input_files = [
             join(Paths.RAW_DIR, f)
             for f in os.listdir(Paths.RAW_DIR)

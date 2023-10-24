@@ -17,8 +17,8 @@ def resize_input_data(x, input_size, prediction_size):
     output = []
     length = len(x)
     for i in range(length - input_size):
-        window = x[i : i + input_size]
-        pred = x[i + input_size : i + input_size + prediction_size, -1]
+        window = x[i: i + input_size]
+        pred = x[i + input_size: i + input_size + prediction_size, -1]
 
         output.append((window, pred))
 
