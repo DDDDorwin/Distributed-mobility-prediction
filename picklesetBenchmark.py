@@ -1,6 +1,6 @@
 from pickleset import PickleDataset
 
-###BENCHMARK CODE:::::::::::::::###
+# BENCHMARK CODE
 from datetime import datetime
 from random import seed
 from random import randint

@@ -1,8 +1,13 @@
 import unittest
-from constants import *
-from pickleset import *
+import pandas as pd
+import numpy as np
+import os
+from constants import Paths
+from pickleset import PickleDataset
 from random import seed
 from random import randint
+from os.path import join
+
 
 """
 This file contains tests to ensure function of the pickleset dataset.
