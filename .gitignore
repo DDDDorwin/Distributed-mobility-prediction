@@ -158,3 +158,8 @@ cython_debug/
 # Editors
 .idea/
 .vscode/
+
+#other
+/data/raw
+/data/pickles
+/data/raw-all
