@@ -160,6 +160,4 @@ cython_debug/
 .vscode/
 
 #other
-/data/raw
-/data/pickles
-/data/raw-all
+/data/*
