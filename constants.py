@@ -23,6 +23,7 @@ Keys.SQUARE_ID
 
 from os.path import join as pjoin
 
+
 class Paths(object):
     """File and directory paths on uppmax"""
 
@@ -35,12 +36,13 @@ class Paths(object):
     MERGED_TO_SIZE_DIR = pjoin(PREPROCESSED_DIR, "merged_to_size")
 
     # files
-    MERGED_RAW_F = pjoin(PREPROCESSED_DIR, 'raw_merged.tsv')
-    GROUPED_CC_F = pjoin(PREPROCESSED_DIR, 'grouped_cc.pkl')
-    GROUPED_TIME_F = pjoin(PREPROCESSED_DIR, 'grouped_time.pkl')
+    MERGED_RAW_F = pjoin(PREPROCESSED_DIR, "raw_merged.tsv")
+    GROUPED_CC_F = pjoin(PREPROCESSED_DIR, "grouped_cc.pkl")
+    GROUPED_TIME_F = pjoin(PREPROCESSED_DIR, "grouped_time.pkl")
 
     # test
-    TEST_DIR = pjoin('./test')
+    TEST_DIR = pjoin("./test")
+
 
 class Keys(object):
     """Column names for dataframes"""
@@ -54,6 +56,7 @@ class Keys(object):
     CALL_IN = "call_in"
     CALL_OUT = "call_out"
     INTERNET = "internet"
+
 
 class TableData(object):
     """Numpy/Pandas datatypes and other descriptors for columns in dataframes

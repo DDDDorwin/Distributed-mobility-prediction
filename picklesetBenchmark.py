@@ -5,17 +5,17 @@ from datetime import datetime
 from random import seed
 from random import randint
 
-pds = PickleDataset(train_size=5,test_size=2,max_saved_chunks=8)
+pds = PickleDataset(train_size=5, test_size=2, max_saved_chunks=8)
 seed(1)
 now = datetime.now()
 for i in range(200):
     rand_index = randint(0, pds.__len__())
     pds.sliding_window(rand_index)
 then = datetime.now()
-print("Time taken = ", then-now)
+print("Time taken = ", then - now)
 
 
-'''
+"""
 ###BENCHMARK RESULTS:::::::::::::::###
 
 GET ITEM
@@ -30,4 +30,4 @@ nCHUNKS,    RAM USED (peak),    RUN TIME (s)
 12          5.91GB              14.359443
 14          6.30GB              09.824801
 16          8.07GB              04.012896
-'''
+"""
