@@ -80,7 +80,7 @@ if __name__ == '__main__':
     # Set input size as one hour
 
     model = OneDimensionalCNN(period, output_size).double()
-    lstm = LSTM(4, 10, 2, batch_first=True, batch_size=batch_size, nc=period).double()
+    lstm = LSTM(4, 10, 2, batch_first=True, batch_size=batch_size, embedding_size=32).double()
 
     loss_fn = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
@@ -90,7 +90,7 @@ if __name__ == '__main__':
     losses = []
     for epoch in range(epochs):
         start_time = time.time()
-        for (seq, y_label) in (resize_data):
+        for _, (seq, y_label) in enumerate(train_loader):
             seq, y_label = torch.FloatTensor(seq), torch.FloatTensor(y_label)
             seq, y_label = seq.to(device), y_label.to(device)
             # resize the label shape from (1, 1) to (1) so that it is the same shape with the input
