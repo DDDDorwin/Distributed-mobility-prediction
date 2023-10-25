@@ -31,22 +31,23 @@ class OneDimensionalCNN(nn.Module):
 
 
 class LSTM(nn.Module):
-    def __init__(self, input_size, hidden_size, num_layers, batch_first, batch_size, embedding_size):
+    def __init__(self, input_size, hidden_size, num_layers, batch_first, batch_size):
         super().__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.num_layers = num_layers
         self.batch_first = batch_first
         self.batch_size = batch_size
-        self.embedding_size = embedding_size
+        # self.embedding_size = embedding_size
 
-        # self.embedding = nn.Linear()
+        # self.embedding = nn.Linear(in_features=input_size, out_features=embedding_size)
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
         self.activation = nn.ReLU()
-        self.fc1 = nn.Linear(in_features=hidden_size, out_features=input_size)
+        self.fc1 = nn.Linear(in_features=hidden_size, out_features=1)
         self.fc2 = nn.Linear(in_features=input_size, out_features=1)
 
     def forward(self, x):
+        # out = self.embedding(x.view(-1))
         h_0 = torch.zeros(self.num_layers, self.batch_size, self.hidden_size, dtype=torch.float64)
         c_0 = torch.zeros(self.num_layers, self.batch_size, self.hidden_size, dtype=torch.float64)
         lstm_output, _ = self.lstm(x, (h_0, c_0))

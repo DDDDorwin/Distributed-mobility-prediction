@@ -59,7 +59,7 @@ if __name__ == '__main__':
     real_y = sum_data.values[:, -1]
 
     # make custom dataset
-    resize_data = resize_input_data(norm_data, real_y, period, output_size)
+    resize_data = resize_input_data(norm_data, norm_y, period, output_size)
     dataset = SequenceDataset(resize_data)
 
     # split data for training and testing
@@ -73,36 +73,43 @@ if __name__ == '__main__':
     # test_set = SequenceDataset(test_data)
 
     # Add dataloader
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, drop_last=True)
+    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=False, drop_last=True)
     test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, drop_last=True)
 
     # Resize the input to fit the model
     # Set input size as one hour
 
     model = OneDimensionalCNN(period, output_size).double()
-    lstm = LSTM(4, 10, 2, batch_first=True, batch_size=batch_size, embedding_size=32).double()
+    lstm = LSTM(1, 4, 1, batch_first=True, batch_size=batch_size).double()
 
     loss_fn = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=lr)
+    optimizer = optim.Adam(lstm.parameters(), lr=lr)
 
     # Start training
     print("start training")
     losses = []
     for epoch in range(epochs):
+        running_loss = 0.0
         start_time = time.time()
-        for _, (seq, y_label) in enumerate(train_loader):
-            seq, y_label = torch.FloatTensor(seq), torch.FloatTensor(y_label)
+        for batch, (seq, y_label) in enumerate(train_loader):
             seq, y_label = seq.to(device), y_label.to(device)
             # resize the label shape from (1, 1) to (1) so that it is the same shape with the input
-            y_label = y_label.double()
+            y_label = y_label.reshape(batch_size, 1).double()
             seq = seq.double()
 
             # input shape: (batch_size, channel, series_length): (1, 1, -1)
             y_pred = lstm(seq)
             loss = loss_fn(y_label, y_pred)
+            running_loss += loss.item()
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+
+            # if batch % 100 == 99:  # print every 100 batches
+            #     avg_loss_across_batches = running_loss / 100
+            #     print('Batch {0}, Loss: {1:.3f}'.format(batch + 1,
+            #                                             avg_loss_across_batches))
+            #     running_loss = 0.0
 
         losses.append(loss.item())
         print(f'Epoch: {epoch + 1:2} Loss: {loss.item():10.8f}')
@@ -135,9 +142,9 @@ if __name__ == '__main__':
     print(f"MAE value: {mae:.5f}, MSE value: {mse:.5f}")
 
     # reverse the normalization
-    # true_predictions = scaler_y.inverse_transform(torch.cat(preds).numpy().reshape(-1, 1))
+    true_predictions = scaler_y.inverse_transform(torch.cat(preds).numpy().reshape(-1, 1))
     # true_predictions = scaler_y.inverse_transform(np.array(preds).reshape(-1, 1))
-    true_predictions = (torch.cat(preds).numpy().reshape(-1, 1))
+    # true_predictions = (torch.cat(preds).numpy().reshape(-1, 1))
 
     plot_loss(losses)
     plot_test_graph(sum_data, true_predictions)
