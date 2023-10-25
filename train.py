@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import random_split, DataLoader, Subset
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
@@ -11,7 +12,7 @@ import argparse
 from preprocessing import load_pickle, Paths, Keys
 from models.models import OneDimensionalCNN, LSTM
 from data.data import SequenceDataset, resize_input_data, make_test_set
-from utils.plot import plot_test_graph, plot_loss
+from utils.plot import plot_test_graph, plot_loss, plot_lr
 
 if __name__ == '__main__':
     # parse the input from the commandline
@@ -84,10 +85,13 @@ if __name__ == '__main__':
 
     loss_fn = nn.MSELoss()
     optimizer = optim.Adam(lstm.parameters(), lr=lr)
+    # Learning rate decay
+    scheduler = CosineAnnealingLR(optimizer, T_max=epochs)
 
     # Start training
     print("start training")
     losses = []
+    lrs = []
     for epoch in range(epochs):
         running_loss = 0.0
         start_time = time.time()
@@ -105,12 +109,8 @@ if __name__ == '__main__':
             loss.backward()
             optimizer.step()
 
-            # if batch % 100 == 99:  # print every 100 batches
-            #     avg_loss_across_batches = running_loss / 100
-            #     print('Batch {0}, Loss: {1:.3f}'.format(batch + 1,
-            #                                             avg_loss_across_batches))
-            #     running_loss = 0.0
-
+        scheduler.step()
+        lrs.append(optimizer.param_groups[0]["lr"])
         losses.append(loss.item())
         print(f'Epoch: {epoch + 1:2} Loss: {loss.item():10.8f}')
         print(f'\nDuration: {time.time() - start_time:.5f} seconds')
@@ -146,5 +146,6 @@ if __name__ == '__main__':
     # true_predictions = scaler_y.inverse_transform(np.array(preds).reshape(-1, 1))
     # true_predictions = (torch.cat(preds).numpy().reshape(-1, 1))
 
+    plot_lr(lrs)
     plot_loss(losses)
     plot_test_graph(sum_data, true_predictions)

@@ -7,11 +7,31 @@ def plot_loss(loss: list):
     :param loss list of loss in each epoch
     """
 
+    plt.clf()
     plt.figure()
+    plt.xlabel("epoch")
+    plt.ylabel("loss")
+    plt.title("learning rate curve changes!")
 
     plt.plot(loss)
 
     plt.savefig("loss.jpg")
+
+def plot_lr(lr: list):
+    """
+    plot the learning rate curve
+    :param lr: list of learning rate for each epoch
+    """
+
+    plt.clf()
+    plt.figure()
+    plt.xlabel("epoch")
+    plt.ylabel("lr")
+    plt.title("learning rate curve changes!")
+
+    plt.plot(lr)
+
+    plt.savefig("learning_rate.jpg")
 
 def plot_test_graph(dataset, pred):
     """
