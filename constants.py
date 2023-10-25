@@ -21,24 +21,34 @@ etc. Then use them in your code as e.g.
 Keys.SQUARE_ID
 """
 
-
 from os.path import join as pjoin
 
 
 class Paths(object):
     """File and directory paths on uppmax"""
 
+    # directories
     DATA_DIR = pjoin("proj", "uppmax2023-2-33", "nobackup", "data")
     RAW_DIR = pjoin(DATA_DIR, "raw")
+    PICKLE_DIR = pjoin(DATA_DIR, "pickles")
     PREPROCESSED_DIR = pjoin(DATA_DIR, "preprocessed")
     GROUPED_CC_DIR = pjoin(PREPROCESSED_DIR, "grouped_country_codes")
     MERGED_TO_SIZE_DIR = pjoin(PREPROCESSED_DIR, "merged_to_size")
+
+    # files
+    MERGED_RAW_F = pjoin(PREPROCESSED_DIR, "raw_merged.tsv")
+    GROUPED_CC_F = pjoin(PREPROCESSED_DIR, "grouped_cc.pkl")
+    GROUPED_TIME_F = pjoin(PREPROCESSED_DIR, "grouped_time.pkl")
+
+    # test
+    TEST_DIR = pjoin("./test")
 
 
 class Keys(object):
     """Column names for dataframes"""
 
     # raw data set
+    INDEX = "index"
     SQUARE_ID = "square_id"
     TIME_INTERVAL = "time_interval"
     COUNTRY_CODE = "country_code"
