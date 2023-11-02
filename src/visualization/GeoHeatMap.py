@@ -2,7 +2,6 @@ from datetime import timedelta
 
 import folium
 import pandas as pd
-import geojson
 from folium.plugins import HeatMapWithTime
 from pandas import DataFrame
 from shapely.geometry import Polygon
@@ -11,10 +10,9 @@ from constants import Keys
 
 
 class GeoHeatMapClass:
-    def __init__(self, df: DataFrame):
+    def __init__(self, df: DataFrame, geo_json_data):
         self.df: DataFrame = df
-        with open("/Users/salinastic/Desktop/projecCS/zipped/milano-grid.geojson") as json_files:
-            self.geo_json_data = geojson.load(json_files)
+        self.geo_json_data = geo_json_data
 
     def add_coordinate(self, row):
         """Work with data given, expects a dataframe"""
@@ -35,7 +33,7 @@ class GeoHeatMapClass:
         print("Adding 1 hour to the time interval")
 
     def group_data_by_date(self):
-        """ " Extract the date from the time_interval column, and group the rows by column and date"""
+        """Extract the date from the time_interval column, and group the rows by column and date"""
         self.df[Keys.DATE] = self.df[Keys.TIME_INTERVAL].dt.date
         self.df = (
             self.df.groupby([Keys.SQUARE_ID, Keys.DATE])

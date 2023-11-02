@@ -1,5 +1,6 @@
 import unittest
 
+import geojson
 from pandas import DataFrame
 import pandas as pd
 
@@ -12,6 +13,8 @@ from datetime import datetime, date
 class TestGeoHeatMapClass(unittest.TestCase):
     def setUp(self):
         # Create a sample dataframe for testing
+        with open("assets/milano-grid.geojson") as json_files:
+            self.geo_json_file = geojson.load(json_files)
         self.df = DataFrame(
             {
                 "square_id": [1, 2, 3, 4, 5],
@@ -23,12 +26,12 @@ class TestGeoHeatMapClass(unittest.TestCase):
                     "2022-01-02 01:00:00",
                 ],
                 "cell_traffic": [10, 20, 30, 40, 50],
-            }
+            },
         )
 
     def test_add_coordinate(self):
         # Create an instance of the GeoHeatMapClass
-        geo_heatmap = GeoHeatMapClass(self.df)
+        geo_heatmap = GeoHeatMapClass(self.df, self.geo_json_file)
 
         # Test the add_coordinate method with a sample row
         row = {"square_id": 1}
@@ -38,7 +41,7 @@ class TestGeoHeatMapClass(unittest.TestCase):
 
     def test_add_hour_to_time(self):
         # Create an instance of the GeoHeatMapClass
-        geo_heatmap = GeoHeatMapClass(self.df)
+        geo_heatmap = GeoHeatMapClass(self.df, self.geo_json_file)
 
         # Test the add_hour_to_time method
         geo_heatmap.add_hour_to_time()
@@ -54,7 +57,7 @@ class TestGeoHeatMapClass(unittest.TestCase):
     # Test case 1: Test if the date column is created correctly
     def test_group_data_by_date_create_date_column(self):
         # Create an instance of the GeoHeatMapClass
-        geo_heatmap = GeoHeatMapClass(self.df)
+        geo_heatmap = GeoHeatMapClass(self.df, self.geo_json_file)
 
         # Create a sample dataframe
         data = {
@@ -75,7 +78,7 @@ class TestGeoHeatMapClass(unittest.TestCase):
     # Test case 2: Test if the rows are grouped by square ID and date correctly
     def test_group_data_by_date_group_by_square_id_and_date(self):
         # Create an instance of the GeoHeatMapClass
-        geo_heatmap = GeoHeatMapClass(self.df)
+        geo_heatmap = GeoHeatMapClass(self.df, self.geo_json_file)
 
         # Create a sample dataframe
         data = {
@@ -99,7 +102,7 @@ class TestGeoHeatMapClass(unittest.TestCase):
     # Test case 3: Test if the cell traffic is summed correctly
     def test_group_data_by_date_sum_cell_traffic(self):
         # Create an instance of the GeoHeatMapClass
-        geo_heatmap = GeoHeatMapClass(self.df)
+        geo_heatmap = GeoHeatMapClass(self.df, self.geo_json_file)
 
         # Create a sample dataframe
         data = {
@@ -122,7 +125,7 @@ class TestGeoHeatMapClass(unittest.TestCase):
     # Test case 4: Test if the coordinate is taken from the first row correctly
     def test_group_data_by_date_take_coordinate_from_first_row(self):
         # Create an instance of the GeoHeatMapClass
-        geo_heatmap = GeoHeatMapClass(self.df)
+        geo_heatmap = GeoHeatMapClass(self.df, self.geo_json_file)
 
         # Create a sample dataframe
         data = {
