@@ -1,0 +1,45 @@
+from constants import Keys
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+from torch.utils.data import Subset
+
+from data.data import SequenceDataset, resize_input_data
+
+
+def load_sum_data(data_path):
+    raw_data = pd.read_pickle(data_path, compression=None)
+    sum_data = raw_data.groupby(Keys.TIME_INTERVAL).sum()
+    print(sum_data.head())
+
+    return sum_data
+
+
+def normalization(data):
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    norm_data = scaler.fit_transform(data.values)
+    scaler_y = MinMaxScaler(feature_range=(0, 1))
+    norm_y = scaler_y.fit_transform(data.values[:, -1].reshape(-1, 1))
+
+    return norm_data, norm_y
+
+
+def split_dataset(data):
+    train_size = int(len(data) * 0.6)
+    eval_size = int(len(data)*0.8) - train_size
+    test_size = len(data) - eval_size
+
+    train_set = Subset(data, range(train_size))
+    eval_set = Subset(data, range(eval_size))
+    test_set = Subset(data, range(test_size))
+
+    return train_set, eval_set, test_set
+
+def get_dataset(args):
+    data = load_sum_data(args.data_path)
+    norm_data, norm_label = normalization(data)
+
+    resize_data = resize_input_data(norm_data, norm_label, args.period, args.output_size)
+
+    dataset = SequenceDataset(resize_data)
+
+    return dataset

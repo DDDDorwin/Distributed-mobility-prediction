@@ -1,3 +1,4 @@
+import pandas as pd
 from torch.utils.data import Dataset
 import torch
 
@@ -5,11 +6,12 @@ import torch
 # TODO: make a method for multi variant input
 
 
-def resize_input_data(x, input_size, prediction_size):
+def resize_input_data(x, y, input_size, prediction_size):
     """
     resize the input data to fit the input shape of the network
     using 'internet_traffic' as output
     :param x training input
+    :param y training output
     :param input_size Integer defining how many steps to look back
     :param prediction_size Integer defining how many steps forward to predict
     """
@@ -17,8 +19,8 @@ def resize_input_data(x, input_size, prediction_size):
     output = []
     length = len(x)
     for i in range(length - input_size):
-        window = x[i : i + input_size]  # noqa: E203
-        pred = x[i + input_size : i + input_size + prediction_size, -1]  # noqa: E203
+        window = x[i: i + input_size, :]
+        pred = y[i + input_size: i + input_size + prediction_size]
 
         output.append((window, pred))
 
@@ -51,3 +53,5 @@ class SequenceDataset(Dataset):
         sample = self.data[idx]
         return torch.from_numpy(sample[0]), torch.from_numpy(sample[1])
         # return torch.Tensor(sample[0]), torch.Tensor(sample[1])
+
+
