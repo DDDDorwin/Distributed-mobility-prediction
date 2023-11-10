@@ -11,7 +11,7 @@ def plot_loss(loss: list):
     plt.figure()
     plt.xlabel("epoch")
     plt.ylabel("loss")
-    plt.title("learning rate curve changes!")
+    plt.title("loss")
 
     plt.plot(loss)
 
@@ -27,7 +27,7 @@ def plot_lr(lr: list):
     plt.figure()
     plt.xlabel("epoch")
     plt.ylabel("lr")
-    plt.title("learning rate curve changes!")
+    plt.title("learning rate curve changes")
 
     plt.plot(lr)
 

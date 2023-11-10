@@ -74,14 +74,13 @@ if __name__ == '__main__':
     # test_set = SequenceDataset(test_data)
 
     # Add dataloader
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=False, drop_last=True)
+    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, drop_last=True)
     test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, drop_last=True)
 
     # Resize the input to fit the model
     # Set input size as one hour
 
-    model = OneDimensionalCNN(period, output_size).double()
-    lstm = LSTM(1, 4, 1, batch_first=True, batch_size=batch_size).double()
+    lstm = LSTM(5, 30, 2, batch_first=True, batch_size=batch_size).double()
 
     loss_fn = nn.MSELoss()
     optimizer = optim.Adam(lstm.parameters(), lr=lr)
@@ -90,6 +89,7 @@ if __name__ == '__main__':
 
     # Start training
     print("start training")
+    lstm.train(True)
     losses = []
     lrs = []
     for epoch in range(epochs):
@@ -123,7 +123,7 @@ if __name__ == '__main__':
     test_loss, correct = 0, 0
     running_mae, running_mse = 0.0, 0.0
     # set eval mode
-    model.eval()
+    lstm.eval()
     # loop for sliding window
     with torch.no_grad():
         for x, y in test_loader:
