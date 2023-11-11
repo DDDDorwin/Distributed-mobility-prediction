@@ -20,12 +20,16 @@ def normalization(data):
     scaler_y = MinMaxScaler(feature_range=(0, 1))
     norm_y = scaler_y.fit_transform(data.values[:, -1].reshape(-1, 1))
 
-    return norm_data, norm_y
+    return norm_data, norm_y, scaler_y
+
+
+def inverse_normalization(data, scaler):
+    return scaler.inverse_transform(data)
 
 
 def split_dataset(data):
     train_size = int(len(data) * 0.6)
-    eval_size = int(len(data)*0.8) - train_size
+    eval_size = int(len(data) * 0.8) - train_size
     test_size = len(data) - eval_size
 
     train_set = Subset(data, range(train_size))
@@ -34,9 +38,10 @@ def split_dataset(data):
 
     return train_set, eval_set, test_set
 
+
 def get_dataset(args):
-    data = load_sum_data(args.data_path)
-    norm_data, norm_label = normalization(data)
+    data = load_sum_data(args.data)
+    norm_data, norm_label, _ = normalization(data)
 
     resize_data = resize_input_data(norm_data, norm_label, args.period, args.output_size)
 

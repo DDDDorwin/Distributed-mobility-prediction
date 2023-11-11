@@ -1,4 +1,5 @@
 import time
+import wandb
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -7,6 +8,9 @@ import numpy as np
 
 from models.models import LSTM
 from data.dataloader import get_data_loaders
+from eval import eval_main
+from test import test_main
+
 
 def train(model, train_loader, optimizer, criterion, batch_size, device):
     model.train(True)
@@ -26,11 +30,24 @@ def train(model, train_loader, optimizer, criterion, batch_size, device):
         loss.backward()
         optimizer.step()
 
+    wandb.log({"train loss": running_loss})
+    print(f'\nDuration: {time.time() - start_time:.5f} seconds')
 
-def main(args):
+
+def train_main(args, train_loader, eval_loader):
     lrs = []
-    model = LSTM(5, 30, 2, batch_first=True, batch_size=args.batch_size).double()
-    loss_fn = nn.MSELoss()
+    losses = []
+    model = LSTM(5, 30, 2, batch_first=True, batch_size=args.batch).double()
+    criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
+    scheduler = CosineAnnealingLR(optimizer, T_max=args.epoch)
 
-    train
+    print("start training")
+    for epoch in range(args.epoch):
+        train(model, train_loader, optimizer, criterion, args.batch, args.device)
+        scheduler.step()
+        wandb.log({"learning rate": optimizer.param_groups[0]["lr"]})
+        lrs.append(optimizer.param_groups[0]["lr"])
+        eval_main(model, eval_loader, criterion, args.device)
+
+    return model
