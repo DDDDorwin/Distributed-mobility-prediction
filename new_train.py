@@ -38,6 +38,7 @@ def train(model, train_loader, optimizer, criterion, batch_size, device):
 def train_main(args, train_loader, eval_loader):
     lrs = []
     losses = []
+    best_val_loss = float('inf')
     model = LSTM(5, 30, 2, batch_first=True, batch_size=args.batch).double()
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
@@ -49,8 +50,15 @@ def train_main(args, train_loader, eval_loader):
         scheduler.step()
         wandb.log({"learning rate": optimizer.param_groups[0]["lr"]})
         lrs.append(optimizer.param_groups[0]["lr"])
-        eval_main(model, eval_loader, criterion, args.device)
 
-    save_model(model, "./models/model/model.pt")
+        # validation
+        val_loss = eval_main(model, eval_loader, criterion, args.device)
+
+        # early stopping
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            save_model(model, "./models/model/best.pt")
+
+    save_model(model, "./models/model/last.pt")
 
     return model
