@@ -1,5 +1,6 @@
 from constants import Keys
 import pandas as pd
+import torch
 from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import Subset
 
@@ -48,3 +49,12 @@ def get_dataset(args):
     dataset = SequenceDataset(resize_data)
 
     return dataset
+
+
+def save_model(model, path):
+    torch.save(model, path)
+
+
+def load_model(path):
+    model = torch.load(path)
+    return model

@@ -10,6 +10,7 @@ from models.models import LSTM
 from data.dataloader import get_data_loaders
 from eval import eval_main
 from test import test_main
+from utils.util import save_model, load_model
 
 
 def train(model, train_loader, optimizer, criterion, batch_size, device):
@@ -49,5 +50,7 @@ def train_main(args, train_loader, eval_loader):
         wandb.log({"learning rate": optimizer.param_groups[0]["lr"]})
         lrs.append(optimizer.param_groups[0]["lr"])
         eval_main(model, eval_loader, criterion, args.device)
+
+    save_model(model, "./models/model/model.pt")
 
     return model

@@ -7,7 +7,6 @@ from data.data import resize_input_data, SequenceDataset
 from new_train import train_main
 from test import test_main
 from eval import eval_main
-from utils.plot import plot_test_graph
 
 def run():
     parser = argparse.ArgumentParser()
