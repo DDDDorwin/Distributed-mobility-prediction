@@ -39,6 +39,8 @@ class Paths(object):
     MERGED_RAW_F = pjoin(PREPROCESSED_DIR, "raw_merged.tsv")
     GROUPED_CC_F = pjoin(PREPROCESSED_DIR, "grouped_cc.pkl")
     GROUPED_TIME_F = pjoin(PREPROCESSED_DIR, "grouped_time.pkl")
+    MILANO_GRID_GEOJSON = "assets/milano-grid.geojson"
+    TWO_WEEKS_CELL_ACTIVITY_DATA_PATH = pjoin(DATA_DIR, "two_weeks_cell.csv")
 
     # test
     TEST_DIR = pjoin("./test")
