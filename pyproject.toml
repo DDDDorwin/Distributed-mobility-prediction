@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=42.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
 
 [tool.pytest.ini_options]
 addopts = ["--cov=src"]
@@ -19,3 +19,71 @@ warn_unreachable = true
 #warn_return_any = true
 warn_redundant_casts = true
 no_implicit_reexport = true
+
+[tool.pdm]
+package-dir = "src"
+
+[project]
+name = "General_V_Specific_Learning"
+version = "0.1.0"
+description = "The lightweight PyTorch wrapper for ML researchers. Scale your models. Write less boilerplate."
+authors = [
+    {name = "Salum Nassor", email = "salim.nassor.sn@gmail.com"},
+    {name = "Group B", email = ""},
+]
+dependencies = [
+    "setuptools~=67.8.0",
+    "black",
+    "datasets~=2.12.0",
+    "flake8",
+    "folium~=0.14.0",
+    "geojson~=3.0.1",
+    "numpy~=1.26.0",
+    "pandas>=1.1.5",
+    "pre-commit",
+    "pytest~=7.4.0",
+    "shapely~=2.0.1",
+    "torch>=2.1.0",
+]
+requires-python = ">=3.9,<3.12"
+readme = "README.md"
+license = {text = "MIT"}
+keywords = ["machine learning", "deep learning", "pytorch"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Natural Language :: English",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
+]
+
+[project.optional-dependencies]
+
+[tool.pdm.dev-dependencies]
+lint = [
+    "flake8",
+    "black"
+]
+test = [
+    "flake8>=4.0.0",
+    "mypy>=1.0.0",
+    "pytest-cov>=3.0",
+    "pytest>=7.0",
+    "tox>=4.0.0",
+]
+doc = ["mkdocs"]
