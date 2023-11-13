@@ -8,6 +8,7 @@ from new_train import train_main
 from test import test_main
 from eval import eval_main
 
+
 def run():
     parser = argparse.ArgumentParser()
     parser.add_argument('--epoch', type=int, default=10, help='epochs for training, it will be 10 if not specified.')
@@ -37,19 +38,12 @@ def run():
     train_loader, eval_loader, test_loader = get_data_loaders(dataset, args.batch)
 
     model = train_main(args, train_loader, eval_loader)
-    # eval_main(args, eval_loader)
+
     print("test")
     test_pred = test_main(model, test_loader, args)
-
-    # plot_test_data(args, test_pred)
 
     wandb.finish()
 
 
-
 if __name__ == '__main__':
     run()
-
-
-
-
