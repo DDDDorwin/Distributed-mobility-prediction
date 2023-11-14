@@ -200,7 +200,7 @@ class PickleDataset(Dataset):
         self.__add_chunk_to_saved(loaded, index)
         return loaded
 
-
+"""
 ###BENCHMARK CODE:::::::::::::::###
 from datetime import datetime
 from random import seed
@@ -215,7 +215,7 @@ for i in range(200):
 then = datetime.now()
 print("Time taken = ", then-now)
 
-
+"""
 """
 ###BENCHMARK RESULTS:::::::::::::::###
 
