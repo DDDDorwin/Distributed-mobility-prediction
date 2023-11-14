@@ -23,6 +23,14 @@ def normalization(data):
 
     return norm_data, norm_y, scaler_y
 
+def pickle_normalization(data):
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    norm_data = scaler.fit_transform(data.values[:, 3:])
+    df = pd.DataFrame(norm_data)
+    df[Keys.TIME_INTERVAL] = data.values[:, 1]
+
+    return df
+
 
 def inverse_normalization(data, scaler):
     return scaler.inverse_transform(data)

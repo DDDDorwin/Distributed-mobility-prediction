@@ -1,9 +1,11 @@
 import os
 import pandas as pd
 from data.data import Dataset
+from utils.util import pickle_normalization
 from typing import TypeVar
 from constants import Paths, Keys, TableData
 from os.path import join
+from sklearn.preprocessing import MinMaxScaler
 
 
 T_co = TypeVar("T_co", covariant=True)
@@ -24,6 +26,11 @@ class PickleDataset(Dataset):
         self.train_size = train_size
         self.test_size = test_size
         print("%s pickled rows of data exist!" % self.size)
+
+        self.normalized_data = None
+        self.label_scaler = None
+        self.normalized_label = None
+
 
     # SIZE RELATED FUNCTIONS
     def __update_size(self, size):
@@ -79,6 +86,70 @@ class PickleDataset(Dataset):
             print("Successfully pickled %s" % (input_file))
         self.__update_size(size)
 
+        # CREATION/DELETION OF NORMALIZED PICKLES
+    def __make_normalized_pickles(self, destroy_old):
+        """Create pickle files for each raw data file, name = startIndex_endIndex.pkl"""
+        if destroy_old:
+            # Delete existing pickle files
+            self.__del_db()
+        # For all data files ending with .txt, .tsv or .csv
+        # reformat them into pickles, adding corresponding headers in the process
+        input_files = [
+            join(Paths.RAW_DIR, f)
+            for f in os.listdir(Paths.RAW_DIR)
+            if f.endswith(".txt") or f.endswith(".tsv") or f.endswith(".csv")
+        ]
+        size = 0
+        for input_file in sorted(input_files):
+            # Read "input file" as csv
+            df = pd.read_csv(input_file, header=None, sep="\t", dtype=TableData.DTYPES)
+            length = len(df)
+            df = df.fillna(0)
+            df, norm_label, _ = pickle_normalization(df)
+            # Add corresponding indexes to rows
+            df[Keys.INDEX] = [i for i in range(size, size + length)]
+            df = df.set_index(Keys.INDEX)
+            # Fetches keys for dtypes, to use as names for headers
+            df.columns = TableData.DTYPES.keys()
+            # Make pickles with name: startIndex_endIndex.pkl
+            df.to_pickle(join(Paths.PICKLE_DIR, "%s_%s.pkl" % (size, size + length - 1)))
+            # Increment size
+            size += length
+            print("Successfully pickled %s" % (input_file))
+        self.__update_size(size)
+
+    def __make_summed_pickles(self, destroy_old):
+        """Create pickle files for each raw data file, name = startIndex_endIndex.pkl"""
+        if destroy_old:
+            # Delete existing pickle files
+            self.__del_db()
+        # For all data files ending with .txt, .tsv or .csv
+        # reformat them into pickles, adding corresponding headers in the process
+        input_files = [
+            join(Paths.RAW_DIR, f)
+            for f in os.listdir(Paths.RAW_DIR)
+            if f.endswith(".pkl")
+        ]
+        size = 0
+        for input_file in sorted(input_files):
+            # Read "input file" as csv
+            df = pd.read_pickle(input_file)
+            length = len(df)
+            # Add corresponding indexes to rows
+            df[Keys.INDEX] = [i for i in range(size, size + length)]
+
+            df = df.set_index(Keys.INDEX)
+            # Fetches keys for dtypes, to use as names for headers
+            # df.columns = TableData.DTYPES.keys()
+            # Make pickles with name: startIndex_endIndex.pkl
+            df.to_pickle(join(Paths.PICKLE_DIR, "%s_%s.pkl" % (size, size + length - 1)))
+            # Increment size
+            size += length
+            print("Successfully pickled %s" % (input_file))
+        self.__update_size(size)
+
+
+
     def __del_db(self):
         """Deletes all pickles from pickles directory"""
         for file in os.listdir(Paths.PICKLE_DIR):
@@ -98,15 +169,19 @@ class PickleDataset(Dataset):
         # Lists to store DataFrames
         train_window = []
         for train_offset in range(self.train_size):
-            train_window.append(self.__getitem__(index + train_offset))
+            if(index + train_offset < self.size):
+                train_window.append(self.__getitem__(index + train_offset))
         test_window = []
         for test_offset in range(self.test_size):
-            test_window.append(self.__getitem__(index + self.train_size + test_offset))
+            if (index + self.train_size + test_offset < self.size):
+                test_window.append(self.__getitem__(index + self.train_size + test_offset))
 
-        return [
-            pd.concat(train_window, ignore_index=False).to_numpy(),
-            pd.concat(test_window, ignore_index=False).to_numpy(),
-        ]
+        if (len(test_window) > 0):
+            return [
+                pd.concat(train_window, ignore_index=False).to_numpy(),
+                pd.concat(test_window, ignore_index=False).to_numpy(),
+            ]
+        return [pd.concat(train_window, ignore_index=False).to_numpy(), pd.DataFrame.empty]
 
     def __get_saved_index(self, index) -> pd.DataFrame:
         """Get the dataframe that contains the provided index. Empty DF if index does not exist."""
@@ -154,21 +229,25 @@ class PickleDataset(Dataset):
         return loaded
 
 
-"""
+
 ###BENCHMARK CODE:::::::::::::::###
+"""
 from datetime import datetime
 from random import seed
 from random import randint
 
-pds = PickleDataset(train_size=5,test_size=2,max_saved_chunks=8)
+pds = PickleDataset(train_size=5,test_size=3,max_saved_chunks=1)
 seed(1)
 now = datetime.now()
 for i in range(200):
     rand_index = randint(0, pds.__len__())
-    pds.__sliding_window__(rand_index)
+    pds.sliding_window(rand_index)
 then = datetime.now()
 print("Time taken = ", then-now)
+
+# pds._PickleDataset__make_summed_pickles(True)
 """
+
 
 """
 ###BENCHMARK RESULTS:::::::::::::::###
