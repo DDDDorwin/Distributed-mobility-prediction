@@ -1,4 +1,7 @@
 import os
+import torch
+import math
+import numpy as np
 import pandas as pd
 from data.data import Dataset
 from typing import TypeVar
@@ -13,6 +16,7 @@ T = TypeVar("T")
 class PickleDataset(Dataset):
 
     is_loading = False
+    nFeatures = 0
 
     def __init__(self, train_size, test_size, max_saved_chunks):
         self.__get_size()
@@ -89,24 +93,67 @@ class PickleDataset(Dataset):
     # ITEM FETCHING
     # TODO: IMPLEMENT
     def __getitem__(self, index) -> pd.DataFrame:
-        """Returns a dataframe with one row containing the found item."""
+        """Returns a tensor with one row containing the found item."""
         chunk = self.__fetch_chunk(index)
-        return chunk.loc[[index]]
+        return torch.tensor(chunk.loc[[index]].values)
 
     def sliding_window(self, index):
         """Returns an array containing a train [0] and a test [1] set as numpy arrays, created from the index given."""
         # Lists to store DataFrames
         train_window = []
         for train_offset in range(self.train_size):
-            train_window.append(self.__getitem__(index + train_offset))
+            if(index + train_offset < self.size):
+                train_window.append(self.__getitem__(index + train_offset))
         test_window = []
         for test_offset in range(self.test_size):
-            test_window.append(self.__getitem__(index + self.train_size + test_offset))
+            if(index + self.train_size + test_offset < self.size):
+                test_window.append(self.__getitem__(index + self.train_size + test_offset))
 
-        return [
-            pd.concat(train_window, ignore_index=False).to_numpy(),
-            pd.concat(test_window, ignore_index=False).to_numpy(),
-        ]
+        if(len(test_window) > 0):
+            return [
+                pd.concat(train_window, ignore_index=False).to_numpy(),
+                pd.concat(test_window, ignore_index=False).to_numpy(),
+            ]
+        return [pd.concat(train_window, ignore_index=False).to_numpy(), pd.DataFrame.empty]
+    
+    def sliding_window_by_feature_2dCNN(self, index):
+        """Returns a tensor with the shape [[[a1,a2,a3...],[a4,a5...]],[[b1,b2,b3...],[b4,b5...]]...] where [a1, a2, a3] and [b1, b2, b3]
+          are feature columns from the dataset used for training, and [a4, a5] and [b4, b5] are feature columns used for testing.
+          
+          a1, b1 etc. are values of the rows 'index', and a2, b2 etc. are the values of the rows 'index + 1'.
+
+          Columns included, in the order they are included:
+          \ttime\n
+          \tsms_in\n
+          \tsms_out\n
+          \tcall_in\n
+          \tcall_out\n
+          \tinternet\n
+          """
+        all = []
+        for offset in range(self.train_size + self.test_size):
+            all.append(self.__getitem__(index + offset).drop(columns=[Keys.SQUARE_ID, Keys.COUNTRY_CODE], axis=0).values)
+
+        tensor = torch.tensor(np.array(all))
+        tensor = tensor.permute(0, 2, 1)
+        return torch.split(torch.rot90(tensor, k=1, dims=(1, 0)).T, 2)
+
+
+
+
+        
+    
+    def sliding_window_by_feature_ARIMA(self, index):
+        """Returns a tensor with the shape [[[a1,a2,a3...],[a4,a5...]],[[b1,b2,b3...],[b4,b5...]]] where [a1, a2, a3] and [b1, b2, b3]
+            are feature columns from the dataset used for training, and [a4, a5] and [b4, b5] are feature columns used for testing.
+          
+            a1, b1 etc. are values of the rows 'index', and a2, b2 etc. are the values of the rows 'index + 1'.
+
+            Specific columns descriptions:\n
+            \tValues starting with a = time\n
+            \tValues starting with b = internet
+          """
+        None
 
     def __get_saved_index(self, index) -> pd.DataFrame:
         """Get the dataframe that contains the provided index. Empty DF if index does not exist."""
@@ -154,21 +201,20 @@ class PickleDataset(Dataset):
         return loaded
 
 
-"""
 ###BENCHMARK CODE:::::::::::::::###
 from datetime import datetime
 from random import seed
 from random import randint
 
-pds = PickleDataset(train_size=5,test_size=2,max_saved_chunks=8)
+pds = PickleDataset(train_size=2,test_size=1,max_saved_chunks=16)
 seed(1)
 now = datetime.now()
 for i in range(200):
     rand_index = randint(0, pds.__len__())
-    pds.__sliding_window__(rand_index)
+    print(pds.__getitem__(rand_index))
 then = datetime.now()
 print("Time taken = ", then-now)
-"""
+
 
 """
 ###BENCHMARK RESULTS:::::::::::::::###
