@@ -92,12 +92,12 @@ class PickleDataset(Dataset):
 
     # ITEM FETCHING
     # TODO: IMPLEMENT
-    def __getitem__(self, index) -> pd.DataFrame:
+    def fetch_single(self, index) -> pd.DataFrame:
         """Returns a tensor with one row containing the found item."""
         chunk = self.__fetch_chunk(index)
         return torch.tensor(chunk.loc[[index]].values)
 
-    def sliding_window(self, index):
+    def __getitem__(self, index):
         """Returns an array containing a train [0] and a test [1] set as numpy arrays, created from the index given."""
         # Lists to store DataFrames
         train_window = []
