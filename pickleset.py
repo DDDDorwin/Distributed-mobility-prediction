@@ -105,14 +105,18 @@ class PickleDataset(Dataset):
             df = pd.read_csv(input_file, header=None, sep="\t", dtype=TableData.DTYPES)
             length = len(df)
             df = df.fillna(0)
-            df, norm_label, _ = pickle_normalization(df)
+            df = df.drop(TableData.INDICES[Keys.TIME_INTERVAL], axis=1)
+            df = df.drop(TableData.INDICES[Keys.COUNTRY_CODE], axis=1)
+            ids, cdr = df[TableData.INDICES[Keys.SQUARE_ID]], df.iloc[:, TableData.INDICES[Keys.SMS_IN]:]
+            normalized = pickle_normalization(df)
             # Add corresponding indexes to rows
-            df[Keys.INDEX] = [i for i in range(size, size + length)]
-            df = df.set_index(Keys.INDEX)
+            normalized[Keys.INDEX] = [i for i in range(size, size + length)]
+            # normalized.insert(0, Keys.SQUARE_ID, ids)
+            normalized = normalized.set_index(Keys.INDEX)
             # Fetches keys for dtypes, to use as names for headers
-            df.columns = TableData.DTYPES.keys()
+            normalized.columns = TableData.NORMALIZED_DTYPES.keys()
             # Make pickles with name: startIndex_endIndex.pkl
-            df.to_pickle(join(Paths.PICKLE_DIR, "%s_%s.pkl" % (size, size + length - 1)))
+            normalized.to_pickle(join(Paths.PICKLE_DIR, "%s_%s.pkl" % (size, size + length - 1)))
             # Increment size
             size += length
             print("Successfully pickled %s" % (input_file))
@@ -247,8 +251,9 @@ then = datetime.now()
 print("Time taken = ", then-now)
 """
 # pds = PickleDataset(train_size=5,test_size=3,max_saved_chunks=1)
-# pds._PickleDataset__make_summed_pickles(True)
-
+# pds._PickleDataset__make_normalized_pickles(True)
+# test = pd.read_pickle("/Users/mith/Desktop/Courses/Courses_Period_5/Project/data/pickles_normalized/0_4842624.pkl")
+# test.head()
 
 
 """

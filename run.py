@@ -34,8 +34,8 @@ def run():
         }
     )
 
-    # dataset = get_dataset(args)
-    dataset = PickleDataset(train_size=args.period, test_size=args.output_size, max_saved_chunks=1)
+    dataset = get_dataset(args)
+    # dataset = PickleDataset(train_size=args.period, test_size=args.output_size, max_saved_chunks=1)
 
     train_loader, eval_loader, test_loader = get_data_loaders(dataset, args.batch)
 

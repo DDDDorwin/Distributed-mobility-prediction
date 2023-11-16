@@ -30,7 +30,7 @@ class Paths(object):
     # directories
     DATA_DIR = pjoin("/Users/mith/Desktop/Courses/Courses_Period_5/Project/data")
     RAW_DIR = pjoin(DATA_DIR, "raw_1")
-    PICKLE_DIR = pjoin(DATA_DIR, "pickles")
+    PICKLE_DIR = pjoin(DATA_DIR, "pickles_normalized")
     PREPROCESSED_DIR = pjoin(DATA_DIR, "preprocessed")
     GROUPED_CC_DIR = pjoin(PREPROCESSED_DIR, "grouped_country_codes")
     MERGED_TO_SIZE_DIR = pjoin(PREPROCESSED_DIR, "merged_to_size")
@@ -83,6 +83,15 @@ class TableData(object):
         Keys.SQUARE_ID: "int16",
         Keys.TIME_INTERVAL: "int64",
         Keys.COUNTRY_CODE: "int8",
+        Keys.SMS_IN: "float64",
+        Keys.SMS_OUT: "float64",
+        Keys.CALL_IN: "float64",
+        Keys.CALL_OUT: "float64",
+        Keys.INTERNET: "float64",
+    }
+
+    NORMALIZED_DTYPES = {
+        Keys.SQUARE_ID: "int16",
         Keys.SMS_IN: "float64",
         Keys.SMS_OUT: "float64",
         Keys.CALL_IN: "float64",

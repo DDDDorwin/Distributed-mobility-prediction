@@ -14,6 +14,11 @@ def load_sum_data(data_path):
 
     return sum_data
 
+def load_data(data_path):
+    raw_data = pd.read_pickle(data_path, compression=None)
+    print(raw_data.head())
+
+    return raw_data
 
 def normalization(data):
     scaler = MinMaxScaler(feature_range=(0, 1))
@@ -25,9 +30,8 @@ def normalization(data):
 
 def pickle_normalization(data):
     scaler = MinMaxScaler(feature_range=(0, 1))
-    norm_data = scaler.fit_transform(data.values[:, 3:])
+    norm_data = scaler.fit_transform(data.values)
     df = pd.DataFrame(norm_data)
-    df[Keys.TIME_INTERVAL] = data.values[:, 1]
 
     return df
 
@@ -49,7 +53,7 @@ def split_dataset(data):
 
 
 def get_dataset(args):
-    data = load_sum_data(args.data)
+    data = load_data(args.data)
     norm_data, norm_label, _ = normalization(data)
 
     resize_data = resize_input_data(norm_data, norm_label, args.period, args.output_size)
