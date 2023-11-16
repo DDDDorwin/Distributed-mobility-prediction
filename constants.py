@@ -29,7 +29,7 @@ class Paths(object):
 
     # directories
     DATA_DIR = pjoin("/Users/mith/Desktop/Courses/Courses_Period_5/Project/data")
-    RAW_DIR = pjoin(DATA_DIR, "raw")
+    RAW_DIR = pjoin(DATA_DIR, "raw_1")
     PICKLE_DIR = pjoin(DATA_DIR, "pickles")
     PREPROCESSED_DIR = pjoin(DATA_DIR, "preprocessed")
     GROUPED_CC_DIR = pjoin(PREPROCESSED_DIR, "grouped_country_codes")

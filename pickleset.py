@@ -134,6 +134,7 @@ class PickleDataset(Dataset):
         for input_file in sorted(input_files):
             # Read "input file" as csv
             df = pd.read_pickle(input_file)
+            df = df.drop(Keys.TIME_INTERVAL, axis=1)
             length = len(df)
             # Add corresponding indexes to rows
             df[Keys.INDEX] = [i for i in range(size, size + length)]
@@ -244,9 +245,10 @@ for i in range(200):
     pds.sliding_window(rand_index)
 then = datetime.now()
 print("Time taken = ", then-now)
-
-# pds._PickleDataset__make_summed_pickles(True)
 """
+pds = PickleDataset(train_size=5,test_size=3,max_saved_chunks=1)
+pds._PickleDataset__make_summed_pickles(True)
+
 
 
 """
