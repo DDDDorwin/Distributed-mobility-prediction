@@ -6,7 +6,7 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import CosineAnnealingLR
 import numpy as np
 
-from models.models import LSTM
+from models.models import LSTM, OneDimensionalCNN
 from data.dataloader import get_data_loaders
 from eval import eval_main
 from test import test_main
@@ -31,8 +31,12 @@ def train(model, train_loader, optimizer, criterion, batch_size, device):
         loss.backward()
         optimizer.step()
 
+        if batch % 1000 == 0:
+            print("batch:" + str(batch))
+            print(f'\nDuration: {time.time() - start_time:.5f} seconds')
+            start_time = time.time()
     wandb.log({"train loss": running_loss})
-    print(f'\nDuration: {time.time() - start_time:.5f} seconds')
+
 
 
 def train_main(args, train_loader, eval_loader):
