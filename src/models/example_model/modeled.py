@@ -1,5 +1,2 @@
-import string
-
-
-def example_model(words: string):
-    return "We are returning " + words
+def example_model(words):
+    return "We are returning new models " + words

@@ -1,9 +1,9 @@
 import sys
-from models.example_model.modeled import example_model
+from models.example_model.modeled import example_model as models
 
 
 def main():
-    print(example_model(sys.argv[1]))
+    print(models(sys.argv[1]))
 
 
 main()
