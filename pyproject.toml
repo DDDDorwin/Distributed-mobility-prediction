@@ -24,8 +24,8 @@ no_implicit_reexport = true
 package-dir = "src"
 
 [project]
-name = "General_V_Specific_Learning"
-version = "0.1.0"
+name = "general-specific-learning"
+version = "1.0.0"
 description = "The lightweight PyTorch wrapper for ML researchers. Scale your models. Write less boilerplate."
 authors = [
     {name = "Salum Nassor", email = "salim.nassor.sn@gmail.com"},
@@ -39,11 +39,11 @@ dependencies = [
     "folium~=0.14.0",
     "geojson~=3.0.1",
     "numpy~=1.26.0",
-    "pandas>=1.1.5",
+    "pandas~=2.1.3",
     "pre-commit",
     "pytest~=7.4.0",
     "shapely~=2.0.1",
-    "torch>=2.1.0",
+    "torch~=2.1.0",
 ]
 requires-python = ">=3.9,<3.12"
 readme = "README.md"
@@ -72,7 +72,8 @@ classifiers = [
     "Topic :: Utilities",
 ]
 
-[project.optional-dependencies]
+[project.scripts]
+gvslearning = "main.__main__:main"
 
 [tool.pdm.dev-dependencies]
 lint = [
@@ -80,10 +81,10 @@ lint = [
     "black"
 ]
 test = [
-    "flake8>=4.0.0",
-    "mypy>=1.0.0",
-    "pytest-cov>=3.0",
-    "pytest>=7.0",
-    "tox>=4.0.0",
+    "flake8~=4.0.0",
+    "mypy~=1.0.0",
+    "pytest-cov~=3.0",
+    "pytest~=7.0",
+    "tox~=4.0.0",
 ]
 doc = ["mkdocs"]
