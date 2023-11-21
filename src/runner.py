@@ -1,3 +1,4 @@
 from data.preprocessing_scripts import *
 
-process_normalize(True)
+if __name__ == "__main__":
+    group_cc()

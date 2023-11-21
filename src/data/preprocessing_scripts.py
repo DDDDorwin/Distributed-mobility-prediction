@@ -1,4 +1,5 @@
-from processing import normalize
+from constants import *
+from .preprocessing import *
 
-def yilei_norm():
-    normalize(yileis, parameters)
+def group_cc():
+    eliminate_country_code(Paths.RAW_DIR, Paths.GROUPED_CC_DIR)

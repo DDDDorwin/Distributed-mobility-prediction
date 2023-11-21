@@ -70,24 +70,19 @@ class Keys(object):
     INTERNET = "internet"
 
 
+class META:
+    "Keys for the data directory meta files"
+
+    FILE_NAME = "meta.json"
+    DTYPES = "dtypes"
+
+
 class TableData(object):
     """Numpy/Pandas datatypes and other descriptors for columns in dataframes
 
     Values should be string names of pandas dtypes
     https://pandas.pydata.org/pandas-docs/stable/user_guide/basics.html#basics-dtypes
     """
-
-    # index of each column in the raw data set
-    INDICES = {
-        Keys.SQUARE_ID: 0,
-        Keys.TIME_INTERVAL: 1,
-        Keys.COUNTRY_CODE: 2,
-        Keys.SMS_IN: 3,
-        Keys.SMS_OUT: 4,
-        Keys.CALL_IN: 5,
-        Keys.CALL_OUT: 6,
-        Keys.INTERNET: 7,
-    }
 
     # raw data set
     DTYPES = {
