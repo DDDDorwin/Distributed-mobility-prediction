@@ -44,6 +44,47 @@ def normalize(input_dir, output_dir, destroy_old, normalize_cols: Iterable[str] 
     print("Finnished normalization")
 
 
+
+
+
+def normalize(input_dir: str, output_dir: str, destroy_old: bool = True, 
+              normalize_cols: Iterable[str] = [Keys.SMS_IN, Keys.SMS_OUT, Keys.CALL_IN, Keys.CALL_OUT, Keys.INTERNET],
+              norm_upper:float = 1, norm_lower:float = 0
+              ) -> None:
+    '''
+    Group all rows by square_id, and/or time_interval then
+    remove country codes when aggregating CDRs.
+    '''
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    if destroy_old:
+        del_f(output_dir)
+
+    meta_file = join(input_dir, META.FILE_NAME)
+    with open(meta_file, "r") as f:
+        meta = json.load(f)
+
+    max_val = 0
+
+    for f in [f for f in os.listdir(input_dir) if f != META.FILE_NAME]:
+        df = load_textfile(join(input_dir, f), dtypes=meta[META.DTYPES])
+        for col in range(len(normalize_cols)):
+            max_val = max(max_val, df[normalize_cols[col]].max())
+    
+    def norm(x):
+        return norm_lower + (x + norm_upper - norm_lower)/max_val
+    
+    for f in [f for f in os.listdir(input_dir) if f != META.FILE_NAME]:
+        df = load_textfile(join(input_dir, f), dtypes=meta[META.DTYPES])
+        df[normalize_cols] = df[normalize_cols].apply(norm)
+        save_textfile(join(output_dir, f), df)
+    save_metafile(output_dir, df)
+
+
+
+
 def groupby_agg(df: pd.DataFrame, groupby_cols: Iterable[str], agg_cols: Iterable[str], agg_method: str) -> pd.DataFrame:
     '''Pipe groupby and aggregate after filtering for existing columns.'''
 
