@@ -3,5 +3,5 @@ import constants
 
 
 if __name__ == "__main__":
-   group_cc()
-# normalalize_cols()
+    # group_cc()
+    # normalalize_cols()

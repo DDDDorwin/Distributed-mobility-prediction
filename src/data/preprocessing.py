@@ -12,40 +12,6 @@ def del_f(destroy_dir):
         if os.fsdecode(file).endswith(".txt"):
             os.remove(join(destroy_dir, file))
 
-def normalize(input_dir, output_dir, destroy_old, normalize_cols: Iterable[str] = [
-        'sms_in',
-        'sms_out',
-        'call_in',
-        'call_out',
-        'internet'
-        ]):
-    
-
-    if destroy_old:
-        del_f(output_dir)
-
-    input_files = [
-        join(input_dir, f)
-        for f in os.listdir(input_dir)
-        if f.endswith(".txt") or f.endswith(".tsv") or f.endswith(".csv")
-    ]
-
-    max_vals = [0] * len(normalize_cols)
-
-    for input_file in sorted(input_files):
-        df = pd.read_csv(input_file, header=None, sep="\t", dtype=TableData.DTYPES)
-        for col in range(len(normalize_cols)):
-            max_vals[col] = max(max_vals[col], df[normalize_cols[col]].max() )
-        print("Successfully normalized %s" % (input_file))
-    
-    for i in max_vals:
-        print(i)
-    
-    print("Finnished normalization")
-
-
-
-
 
 def normalize(input_dir: str, output_dir: str, destroy_old: bool = True, 
               normalize_cols: Iterable[str] = [Keys.SMS_IN, Keys.SMS_OUT, Keys.CALL_IN, Keys.CALL_OUT, Keys.INTERNET],
@@ -62,9 +28,7 @@ def normalize(input_dir: str, output_dir: str, destroy_old: bool = True,
     if destroy_old:
         del_f(output_dir)
 
-    meta_file = join(input_dir, META.FILE_NAME)
-    with open(meta_file, "r") as f:
-        meta = json.load(f)
+    meta = load_metafile(input_dir)
 
     max_val = 0
 
@@ -81,8 +45,6 @@ def normalize(input_dir: str, output_dir: str, destroy_old: bool = True,
         df[normalize_cols] = df[normalize_cols].apply(norm)
         save_textfile(join(output_dir, f), df)
     save_metafile(output_dir, df)
-
-
 
 
 def groupby_agg(df: pd.DataFrame, groupby_cols: Iterable[str], agg_cols: Iterable[str], agg_method: str) -> pd.DataFrame:
@@ -110,15 +72,13 @@ def eliminate_country_code(input_dir: str, output_dir: str, destroy_old: bool = 
     if destroy_old:
         del_f(output_dir)
 
-    meta_file = join(input_dir, META.FILE_NAME)
-    with open(meta_file, "r") as f:
-        meta = json.load(f)
+    meta = load_metafile(input_dir)
     
     groupby_cols = [Keys.SQUARE_ID, Keys.TIME_INTERVAL]
     agg_cols = [Keys.SMS_IN, Keys.SMS_OUT, Keys.CALL_IN, Keys.CALL_OUT, Keys.INTERNET]
     agg_method = 'sum'
 
-    for f in [f for f in os.listdir(input_dir)[:3] if f != META.FILE_NAME]:
+    for f in [f for f in os.listdir(input_dir) if f != META.FILE_NAME]:
         df = load_textfile(join(input_dir, f), dtypes=meta[META.DTYPES])
         df = groupby_agg(df, groupby_cols, agg_cols, agg_method)
         save_textfile(join(output_dir, f), df)
@@ -148,6 +108,22 @@ def save_textfile(output_file: str, df: pd.DataFrame):
     print(f"saved {output_file}")
 
 
+def load_metafile(dir: str):
+    """
+    Load the metafile of a data set directory.
+    Provides a fallback with default values if the file
+    does not exist.
+    """
+    
+    meta_file = join(dir, META.FILE_NAME)
+    if os.path.exists(meta_file):
+        with open(meta_file, "r") as f:
+            meta = json.load(f)
+    else:
+        meta = {META.DTYPES: TableData.DTYPES}
+    return meta
+
 def save_metafile(output_dir: str, df: pd.DataFrame):
+    """Generate a metafile for a data set directory."""
     with open(join(output_dir, META.FILE_NAME), "w") as f:
         json.dump({META.DTYPES: df.dtypes.apply(lambda x: x.name).to_dict()}, f)
