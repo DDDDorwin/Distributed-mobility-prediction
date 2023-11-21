@@ -5,7 +5,7 @@ from typing import TypeVar
 # Not sure about the imported package below, check with Savvas
 from datasets import Dataset
 
-from constants import Paths, Keys, TableData
+from src.constants import Paths, Keys, TableData
 from os.path import join
 
 
