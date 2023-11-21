@@ -1,3 +1,4 @@
-from data.preprocessing_scripts import *
+from data.preprocessing import *
+import constants
 
-process_normalize(True)
+normalize(constants.Paths.RAW_DIR, constants.Paths.NORM_DIR, True)
