@@ -1,4 +1,5 @@
 from data.preprocessing import *
 import constants
 
-normalize(constants.Paths.RAW_DIR, constants.Paths.NORM_DIR, True)
+if __name__ == "__main__":
+    group_cc()
