@@ -6,3 +6,6 @@ def group_cc():
 
 def normalalize_cols():
     normalize(Paths.RAW_DIR, Paths.NORM_DIR, True)
+
+def group_square_id():
+    eliminate_square_id(Paths.RAW_DIR, Paths.GENERAL_DIR)

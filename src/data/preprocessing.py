@@ -86,6 +86,32 @@ def eliminate_country_code(input_dir: str, output_dir: str, destroy_old: bool = 
     save_metafile(output_dir, df)
 
 
+def eliminate_square_id(input_dir: str, output_dir: str, destroy_old: bool = True) -> None:
+    '''
+    Group all rows by time_interval and/or country_code then
+    remove square ids when aggregating CDRs.
+    '''
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    if destroy_old:
+        del_f(output_dir)
+
+    meta = load_metafile(input_dir)
+    
+    groupby_cols = [Keys.TIME_INTERVAL, Keys.COUNTRY_CODE]
+    agg_cols = [Keys.SMS_IN, Keys.SMS_OUT, Keys.CALL_IN, Keys.CALL_OUT, Keys.INTERNET]
+    agg_method = 'sum'
+
+    for f in [f for f in os.listdir(input_dir) if f != META.FILE_NAME]:
+        df = load_textfile(join(input_dir, f), dtypes=meta[META.DTYPES])
+        df = groupby_agg(df, groupby_cols, agg_cols, agg_method)
+        save_textfile(join(output_dir, f), df)
+
+    save_metafile(output_dir, df)
+
+
 def load_textfile(input_file: str, dtypes: Dict[str, str]):
     '''
     Load tsv from an input file and put it into a dataframe.

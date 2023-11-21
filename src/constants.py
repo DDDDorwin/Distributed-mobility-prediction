@@ -34,10 +34,8 @@ class Paths(object):
     RAW_DIR = pjoin(DATA_DIR, "raw")
     
     NORM_DIR = pjoin(DATA_DIR, "norm_raw")
-    SUM_DIR = pjoin(DATA_DIR, "sum_raw")
-
-    NORMSUM_DIR = pjoin(DATA_DIR, "normsum_raw")
     PICKLE_DIR = pjoin(DATA_DIR, "pickles")
+    GENERAL_DIR = pjoin(DATA_DIR, "general")
     PREPROCESSED_DIR = pjoin(DATA_DIR, "preprocessed")
     GROUPED_CC_DIR = pjoin(PREPROCESSED_DIR, "grouped_country_codes")
     MERGED_TO_SIZE_DIR = pjoin(PREPROCESSED_DIR, "merged_to_size")
