@@ -5,7 +5,7 @@ import os
 
 import pytest
 
-from constants import Paths
+from utils.constants import Paths
 from src.pickleset.pickleset import PickleDataset
 from random import seed
 from random import randint

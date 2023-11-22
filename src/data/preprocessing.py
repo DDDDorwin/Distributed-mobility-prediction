@@ -3,7 +3,7 @@ import torch
 import json
 import pandas as pd
 from typing import TypeVar, Iterable, Dict
-from constants import *
+from utils.constants import *
 from os.path import join
 
 

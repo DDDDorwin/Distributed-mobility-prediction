@@ -14,7 +14,7 @@ from constants import *
 
 or
 
-from constant import Keys
+from utils import Keys
 
 etc. Then use them in your code as e.g.
 
