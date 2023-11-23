@@ -13,7 +13,7 @@ def del_f(destroy_dir):
             os.remove(join(destroy_dir, file))
 
 
-def normalize(input_dir: str, output_dir: str, destroy_old: bool = True, 
+def normalize(input_dir: str = Paths.RAW_DIR, output_dir: str = Paths.NORM_DIR, destroy_old: bool = True, 
               normalize_cols: Iterable[str] = [Keys.SMS_IN, Keys.SMS_OUT, Keys.CALL_IN, Keys.CALL_OUT, Keys.INTERNET],
               norm_upper:float = 1, norm_lower:float = 0
               ) -> None:
@@ -60,7 +60,7 @@ def groupby_agg(df: pd.DataFrame, groupby_cols: Iterable[str], agg_cols: Iterabl
              .agg({k: agg_method for k in agg_cols}) \
              .reset_index()
 
-def eliminate_country_code(input_dir: str, output_dir: str, destroy_old: bool = True) -> None:
+def eliminate_country_code(input_dir: str = Paths.RAW_DIR, output_dir: str = Paths.GROUPED_CC_DIR, destroy_old: bool = True) -> None:
     '''
     Group all rows by square_id, and/or time_interval then
     remove country codes when aggregating CDRs.
@@ -86,7 +86,7 @@ def eliminate_country_code(input_dir: str, output_dir: str, destroy_old: bool = 
     save_metafile(output_dir, df)
 
 
-def eliminate_square_id(input_dir: str, output_dir: str, destroy_old: bool = True) -> None:
+def eliminate_square_id(input_dir: str = Paths.RAW_DIR, output_dir: str = Paths.GENERAL_DIR, destroy_old: bool = True) -> None:
     '''
     Group all rows by time_interval and/or country_code then
     remove square ids when aggregating CDRs.
@@ -112,7 +112,7 @@ def eliminate_square_id(input_dir: str, output_dir: str, destroy_old: bool = Tru
 
     save_metafile(output_dir, df)
 
-def replace_null(input_dir: str, output_dir: str, destroy_old: bool = True, null_replace:int = 0):
+def replace_null(input_dir: str = Paths.RAW_DIR, output_dir: str = Paths.FILLED_WITH_ZEROES_DIR, destroy_old: bool = True, null_replace:int = 0):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
