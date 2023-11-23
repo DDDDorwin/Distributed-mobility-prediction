@@ -28,13 +28,14 @@ class Paths(object):
     """File and directory paths on uppmax"""
 
     # directories
-    #DATA_DIR = pjoin("proj", "uppmax2023-2-33", "nobackup", "data")
+    DATA_DIR = pjoin("proj", "uppmax2023-2-33", "nobackup", "data")
     # DATA_DIR = "/home/final/projects/data/"
-    DATA_DIR = "/Users/savvas/Desktop/PCS/Project_CS_UserVsSpecific/data"
+    # DATA_DIR = "/Users/savvas/Desktop/PCS/Project_CS_UserVsSpecific/data"
     RAW_DIR = pjoin(DATA_DIR, "raw")
     
     NORM_DIR = pjoin(DATA_DIR, "norm_raw")
     PICKLE_DIR = pjoin(DATA_DIR, "pickles")
+    FILLED_WITH_ZEROES_DIR = pjoin(DATA_DIR, "filled_with_zeroes")
     GENERAL_DIR = pjoin(DATA_DIR, "general")
     PREPROCESSED_DIR = pjoin(DATA_DIR, "preprocessed")
     GROUPED_CC_DIR = pjoin(PREPROCESSED_DIR, "grouped_country_codes")

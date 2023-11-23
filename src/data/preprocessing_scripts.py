@@ -9,3 +9,6 @@ def normalalize_cols():
 
 def group_square_id():
     eliminate_square_id(Paths.RAW_DIR, Paths.GENERAL_DIR)
+
+def replace_nan_with_zeroes():
+    replace_null()

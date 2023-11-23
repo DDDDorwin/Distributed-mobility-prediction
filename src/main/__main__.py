@@ -5,6 +5,6 @@ from data.preprocessing_scripts import *
 
 def main():
     # print(models(sys.argv[1]))
-    group_cc()
+    replace_nan_with_zeroes()
 
 main()

@@ -123,7 +123,7 @@ def replace_null(input_dir: str, output_dir: str, destroy_old: bool = True, null
 
     for f in [f for f in os.listdir(input_dir) if f != META.FILE_NAME]:
         df = load_textfile(join(input_dir, f), dtypes=meta[META.DTYPES])
-        df.fillna(null_replace)
+        df = df.fillna(null_replace)
         save_textfile(join(output_dir, f), df)
     
     save_metafile(output_dir, df)
