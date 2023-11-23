@@ -100,6 +100,7 @@ def eliminate_square_id(input_dir: str, output_dir: str, destroy_old: bool = Tru
 
     meta = load_metafile(input_dir)
     
+    
     groupby_cols = [Keys.TIME_INTERVAL, Keys.COUNTRY_CODE]
     agg_cols = [Keys.SMS_IN, Keys.SMS_OUT, Keys.CALL_IN, Keys.CALL_OUT, Keys.INTERNET]
     agg_method = 'sum'
@@ -111,6 +112,21 @@ def eliminate_square_id(input_dir: str, output_dir: str, destroy_old: bool = Tru
 
     save_metafile(output_dir, df)
 
+def replace_null(input_dir: str, output_dir: str, destroy_old: bool = True, null_replace:int = 0):
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    if destroy_old:
+        del_f(output_dir)
+
+    meta = load_metafile(input_dir)
+
+    for f in [f for f in os.listdir(input_dir) if f != META.FILE_NAME]:
+        df = load_textfile(join(input_dir, f), dtypes=meta[META.DTYPES])
+        df.fillna(null_replace)
+        save_textfile(join(output_dir, f), df)
+    
+    save_metafile(output_dir, df)
 
 def load_textfile(input_file: str, dtypes: Dict[str, str]):
     '''
@@ -127,7 +143,6 @@ def load_textfile(input_file: str, dtypes: Dict[str, str]):
     df.columns = list(dtypes.keys())
 
     return df
-
 
 def save_textfile(output_file: str, df: pd.DataFrame):
     df.to_csv(output_file, sep='\t', header = False, index = False)
