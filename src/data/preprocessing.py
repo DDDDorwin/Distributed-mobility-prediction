@@ -2,7 +2,7 @@ import os
 import torch
 import json
 import pandas as pd
-from typing import TypeVar, Iterable, Dict
+from typing import TypeVar, Iterable, Dict, List
 from utils.constants import *
 from os.path import join
 
@@ -14,7 +14,7 @@ def del_f(destroy_dir):
 
 
 def normalize(input_dir: str = Paths.RAW_DIR, output_dir: str = Paths.NORM_DIR, destroy_old: bool = True, 
-              normalize_cols: Iterable[str] = [Keys.SMS_IN, Keys.SMS_OUT, Keys.CALL_IN, Keys.CALL_OUT, Keys.INTERNET],
+              normalize_cols: List[str] = [Keys.SMS_IN, Keys.SMS_OUT, Keys.CALL_IN, Keys.CALL_OUT, Keys.INTERNET],
               norm_upper:float = 1, norm_lower:float = 0
               ) -> None:
     '''
