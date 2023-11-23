@@ -16,5 +16,5 @@ def replace_nan_with_zeroes():
 def group_and_normalize():
     replace_null()
     eliminate_country_code(input_dir=Paths.FILLED_WITH_ZEROES_DIR)
-    eliminate_square_id(input_dir=Paths.Paths.GROUPED_CC_DIR)
+    eliminate_square_id(input_dir=Paths.GROUPED_CC_DIR)
     normalize(input_dir=Paths.GENERAL_DIR, output_dir=Paths.PREPROCESSED_DIR)
