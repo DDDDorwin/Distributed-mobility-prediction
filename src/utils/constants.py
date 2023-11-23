@@ -29,8 +29,14 @@ class Paths(object):
 
     # directories
     DATA_DIR = pjoin("proj", "uppmax2023-2-33", "nobackup", "data")
+    # DATA_DIR = "/home/final/projects/data/"
+    # DATA_DIR = "/Users/savvas/Desktop/PCS/Project_CS_UserVsSpecific/data"
     RAW_DIR = pjoin(DATA_DIR, "raw")
+    
+    NORM_DIR = pjoin(DATA_DIR, "norm_raw")
     PICKLE_DIR = pjoin(DATA_DIR, "pickles")
+    FILLED_WITH_ZEROES_DIR = pjoin(DATA_DIR, "filled_with_zeroes")
+    GENERAL_DIR = pjoin(DATA_DIR, "general")
     PREPROCESSED_DIR = pjoin(DATA_DIR, "preprocessed")
     GROUPED_CC_DIR = pjoin(PREPROCESSED_DIR, "grouped_country_codes")
     MERGED_TO_SIZE_DIR = pjoin(PREPROCESSED_DIR, "merged_to_size")
@@ -64,24 +70,19 @@ class Keys(object):
     INTERNET = "internet"
 
 
+class META:
+    "Keys for the data directory meta files"
+
+    FILE_NAME = "meta.json"
+    DTYPES = "dtypes"
+
+
 class TableData(object):
     """Numpy/Pandas datatypes and other descriptors for columns in dataframes
 
     Values should be string names of pandas dtypes
     https://pandas.pydata.org/pandas-docs/stable/user_guide/basics.html#basics-dtypes
     """
-
-    # index of each column in the raw data set
-    INDICES = {
-        Keys.SQUARE_ID: 0,
-        Keys.TIME_INTERVAL: 1,
-        Keys.COUNTRY_CODE: 2,
-        Keys.SMS_IN: 3,
-        Keys.SMS_OUT: 4,
-        Keys.CALL_IN: 5,
-        Keys.CALL_OUT: 6,
-        Keys.INTERNET: 7,
-    }
 
     # raw data set
     DTYPES = {
