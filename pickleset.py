@@ -108,9 +108,11 @@ class PickleDataset(Dataset):
             df = df.drop(TableData.INDICES[Keys.TIME_INTERVAL], axis=1)
             df = df.drop(TableData.INDICES[Keys.COUNTRY_CODE], axis=1)
             ids, cdr = df[TableData.INDICES[Keys.SQUARE_ID]], df.iloc[:, TableData.INDICES[Keys.SMS_IN]:]
+            ids.name = Keys.SQUARE_ID
             normalized = pickle_normalization(df)
             # Add corresponding indexes to rows
             normalized[Keys.INDEX] = [i for i in range(size, size + length)]
+            normalized = pd.concat([ids, normalized], axis=1)
             # normalized.insert(0, Keys.SQUARE_ID, ids)
             normalized = normalized.set_index(Keys.INDEX)
             # Fetches keys for dtypes, to use as names for headers
@@ -167,7 +169,6 @@ class PickleDataset(Dataset):
     def __getitem__(self, index) -> pd.DataFrame:
         """Returns a dataframe with one row containing the found item."""
         chunk = self.__fetch_chunk(index)
-        return chunk.loc[[index]]
 
     def sliding_window(self, index):
         """Returns an array containing a train [0] and a test [1] set as numpy arrays, created from the index given."""
@@ -235,6 +236,7 @@ class PickleDataset(Dataset):
 
 
 
+
 ###BENCHMARK CODE:::::::::::::::###
 """
 from datetime import datetime
@@ -253,7 +255,7 @@ print("Time taken = ", then-now)
 # pds = PickleDataset(train_size=5,test_size=3,max_saved_chunks=1)
 # pds._PickleDataset__make_normalized_pickles(True)
 # test = pd.read_pickle("/Users/mith/Desktop/Courses/Courses_Period_5/Project/data/pickles_normalized/0_4842624.pkl")
-# test.head()
+# print(test.head())
 
 
 """

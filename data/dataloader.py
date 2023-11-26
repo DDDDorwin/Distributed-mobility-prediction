@@ -10,7 +10,7 @@ def get_data_loaders(data, batch_size):
     eval_set = Subset(data, range(train_size, eval_size))
     test_set = Subset(data, range(eval_size, test_size))
 
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, drop_last=True)
+    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=False, drop_last=True)
     eval_loader = DataLoader(eval_set, batch_size=batch_size, shuffle=False, drop_last=True)
     test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, drop_last=True)
 

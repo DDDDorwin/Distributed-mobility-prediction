@@ -1,4 +1,4 @@
-from constants import Keys
+from constants import Keys, TableData
 import pandas as pd
 import torch
 from sklearn.preprocessing import MinMaxScaler
@@ -30,7 +30,7 @@ def normalization(data):
 
 def pickle_normalization(data):
     scaler = MinMaxScaler(feature_range=(0, 1))
-    norm_data = scaler.fit_transform(data.values)
+    norm_data = scaler.fit_transform(data.values[:, 1:])
     df = pd.DataFrame(norm_data)
 
     return df
@@ -54,9 +54,9 @@ def split_dataset(data):
 
 def get_dataset(args):
     data = load_data(args.data)
-    norm_data, norm_label, _ = normalization(data)
+    # norm_data, norm_label, _ = normalization(data)
 
-    resize_data = resize_input_data(norm_data, norm_label, args.period, args.output_size)
+    resize_data = resize_input_data(data, data[Keys.INTERNET], args.period, args.output_size)
 
     dataset = SequenceDataset(resize_data)
 
