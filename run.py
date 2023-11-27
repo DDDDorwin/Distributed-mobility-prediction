@@ -1,7 +1,9 @@
 import argparse
+import torch
 import wandb
 
 from utils.util import get_dataset
+from utils.wandb_plot import plot_test_data
 from data.dataloader import get_data_loaders
 from data.data import resize_input_data, SequenceDataset
 from pickleset import PickleDataset
@@ -39,10 +41,13 @@ def run():
 
     train_loader, eval_loader, test_loader = get_data_loaders(dataset, args.batch)
 
-    model = train_main(args, train_loader, eval_loader)
+    # model = train_main(args, train_loader, eval_loader)
 
+    model = torch.load("./models/model/best.pt")
     print("test")
     test_pred = test_main(model, test_loader, args)
+    plot_test_data(args, test_pred)
+
 
     wandb.finish()
 
