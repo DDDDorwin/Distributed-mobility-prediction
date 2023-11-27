@@ -86,8 +86,9 @@ class PickleDataset(Dataset):
 
     # ITEM FETCHING
     def __getitem__(self, index):
-        raise NotImplementedError("Subclasses of Dataset should implement __getitem__.")
-       
+        """Returns a dataframe with one row containing the found item."""
+        chunk = self.__fetch_chunk(index)
+        return chunk.loc[[index]]
 
     def sliding_window(self, index):
         """Returns an array containing a train [0] and a test [1] set as numpy arrays, created from the index given."""
@@ -152,7 +153,7 @@ class PickleDataset(Dataset):
 
 class Pickle2dCNN(PickleDataset):
     def __init__(self, train_size, test_size, max_saved_chunks):    
-        super.__init__(train_size, test_size, max_saved_chunks)
+        super().__init__(train_size, test_size, max_saved_chunks)
 
     def __getitem__(self, index):
         """Returns a tensor with the shape [[[a1,a2,a3...],[a4,a5...]],[[b1,b2,b3...],[b4,b5...]]...] where [a1, a2, a3] and [b1, b2, b3]
@@ -170,15 +171,15 @@ class Pickle2dCNN(PickleDataset):
         """
         all = []
         for offset in range(self.train_size + self.test_size):
-            all.append(self.__getitem__(index + offset).drop(columns=[Keys.SQUARE_ID, Keys.COUNTRY_CODE], axis=0).values)
+            all.append(super().__getitem__(index + offset).drop(columns=[Keys.SQUARE_ID, Keys.COUNTRY_CODE], axis=0).values)
 
         tensor = torch.tensor(np.array(all))
         tensor = tensor.permute(0, 2, 1)
-        return torch.split(torch.rot90(tensor, k=1, dims=(1, 0)).T, 2)
+        return torch.split(torch.rot90(tensor, k=1, dims=(1, 0)).mT, 2)
     
 class PickleARIMA(PickleDataset):
     def __init__(self, train_size, test_size, max_saved_chunks):    
-        super.__init__(train_size, test_size, max_saved_chunks)
+        super().__init__(train_size, test_size, max_saved_chunks)
 
     def __getitem__(self, index):
         """Returns a tensor with the shape [[[a1,a2,a3...],[a4,a5...]],[[b1,b2,b3...],[b4,b5...]]] where [a1, a2, a3] and [b1, b2, b3]
