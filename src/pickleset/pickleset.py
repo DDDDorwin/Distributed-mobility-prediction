@@ -160,22 +160,19 @@ class Pickle2dCNN(PickleDataset):
         are feature columns from the dataset used for training, and [a4, a5] and [b4, b5] are feature columns used for testing.
         
         a1, b1 etc. are values of the rows 'index', and a2, b2 etc. are the values of the rows 'index + 1'.
-
-        Columns included, in the order they are included:
-        \ttime\n
-        \tsms_in\n
-        \tsms_out\n
-        \tcall_in\n
-        \tcall_out\n
-        \tinternet\n
         """
         all = []
         for offset in range(self.train_size + self.test_size):
-            all.append(super().__getitem__(index + offset).drop(columns=[Keys.SQUARE_ID, Keys.COUNTRY_CODE], axis=0).values)
+            all.append(super().__getitem__(index + offset).values)
 
         tensor = torch.tensor(np.array(all))
-        tensor = tensor.permute(0, 2, 1)
-        return torch.split(torch.rot90(tensor, k=1, dims=(1, 0)).mT, 2)
+        #tensor = tensor.permute(0, 2, 1)
+        #tensor = torch.rot90(tensor, k=1, dims=(1, 0)).mT
+        t1 = torch.rot90(tensor[0:self.train_size, :], k=1, dims=(1, 0)).mT
+        t2 = torch.rot90(tensor[self.train_size:self.train_size + self.test_size, :], k=1, dims=(1, 0)).mT
+
+
+        return [t1, t2]
     
 class PickleARIMA(PickleDataset):
     def __init__(self, train_size, test_size, max_saved_chunks):    
