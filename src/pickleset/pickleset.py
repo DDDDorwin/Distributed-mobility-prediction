@@ -90,21 +90,6 @@ class PickleDataset(Dataset):
         chunk = self.__fetch_chunk(index)
         return chunk.loc[[index]]
 
-    def sliding_window(self, index):
-        """Returns an array containing a train [0] and a test [1] set as numpy arrays, created from the index given."""
-        # Lists to store DataFrames
-        train_window = []
-        for train_offset in range(self.train_size):
-            train_window.append(self.__getitem__(index + train_offset))
-        test_window = []
-        for test_offset in range(self.test_size):
-            test_window.append(self.__getitem__(index + self.train_size + test_offset))
-
-        return [
-            pd.concat(train_window, ignore_index=False).to_numpy(),
-            pd.concat(test_window, ignore_index=False).to_numpy(),
-        ]
-
     def __get_saved_index(self, index) -> pd.DataFrame:
         """Get the dataframe that contains the provided index. Empty DF if index does not exist."""
         for df in self.__loaded_chunks:
@@ -166,8 +151,6 @@ class Pickle2dCNN(PickleDataset):
             all.append(super().__getitem__(index + offset).values)
 
         tensor = torch.tensor(np.array(all))
-        #tensor = tensor.permute(0, 2, 1)
-        #tensor = torch.rot90(tensor, k=1, dims=(1, 0)).mT
         t1 = torch.rot90(tensor[0:self.train_size, :], k=1, dims=(1, 0)).mT
         t2 = torch.rot90(tensor[self.train_size:self.train_size + self.test_size, :], k=1, dims=(1, 0)).mT
 
