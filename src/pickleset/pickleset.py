@@ -1,17 +1,12 @@
 import os
 import pandas as pd
+import numpy as np
+import torch
+
 from typing import TypeVar
-
-# Not sure about the imported package below, check with Savvas
-from datasets import Dataset
-
+from torch.utils.data import Dataset
 from utils.constants import Paths, Keys, TableData
 from os.path import join
-
-
-T_co = TypeVar("T_co", covariant=True)
-T = TypeVar("T")
-
 
 class PickleDataset(Dataset):
 
@@ -90,11 +85,9 @@ class PickleDataset(Dataset):
         self.__update_size(0)
 
     # ITEM FETCHING
-    # TODO: IMPLEMENT
-    def __getitem__(self, index) -> pd.DataFrame:
-        """Returns a dataframe with one row containing the found item."""
-        chunk = self.__fetch_chunk(index)
-        return chunk.loc[[index]]
+    def __getitem__(self, index):
+        raise NotImplementedError("Subclasses of Dataset should implement __getitem__.")
+       
 
     def sliding_window(self, index):
         """Returns an array containing a train [0] and a test [1] set as numpy arrays, created from the index given."""
@@ -157,37 +150,44 @@ class PickleDataset(Dataset):
         return loaded
 
 
-"""
-###BENCHMARK CODE:::::::::::::::###
-from datetime import datetime
-from random import seed
-from random import randint
+class Pickle2dCNN(PickleDataset):
+    def __init__(self, train_size, test_size, max_saved_chunks):    
+        super.__init__(train_size, test_size, max_saved_chunks)
 
-pds = PickleDataset(train_size=5,test_size=2,max_saved_chunks=8)
-seed(1)
-now = datetime.now()
-for i in range(200):
-    rand_index = randint(0, pds.__len__())
-    pds.__sliding_window__(rand_index)
-then = datetime.now()
-print("Time taken = ", then-now)
-"""
+    def __getitem__(self, index):
+        """Returns a tensor with the shape [[[a1,a2,a3...],[a4,a5...]],[[b1,b2,b3...],[b4,b5...]]...] where [a1, a2, a3] and [b1, b2, b3]
+        are feature columns from the dataset used for training, and [a4, a5] and [b4, b5] are feature columns used for testing.
+        
+        a1, b1 etc. are values of the rows 'index', and a2, b2 etc. are the values of the rows 'index + 1'.
 
-"""
-###BENCHMARK RESULTS:::::::::::::::###
+        Columns included, in the order they are included:
+        \ttime\n
+        \tsms_in\n
+        \tsms_out\n
+        \tcall_in\n
+        \tcall_out\n
+        \tinternet\n
+        """
+        all = []
+        for offset in range(self.train_size + self.test_size):
+            all.append(self.__getitem__(index + offset).drop(columns=[Keys.SQUARE_ID, Keys.COUNTRY_CODE], axis=0).values)
 
-GET ITEM
+        tensor = torch.tensor(np.array(all))
+        tensor = tensor.permute(0, 2, 1)
+        return torch.split(torch.rot90(tensor, k=1, dims=(1, 0)).T, 2)
+    
+class PickleARIMA(PickleDataset):
+    def __init__(self, train_size, test_size, max_saved_chunks):    
+        super.__init__(train_size, test_size, max_saved_chunks)
 
-BENCHMARKING @200 iterations of __getitem__(), random indexes, 16 pickles, total 86,351,806 rows
-nCHUNKS,    RAM USED (peak),    RUN TIME (s)
-1           0.64GB              41.387061
-2           1.10GB              38.822287
-4           1.89GB              35.919033
-8           3.63GB              24.747721
-10          4.88GB              18.945788
-12          5.91GB              14.359443
-14          6.30GB              09.824801
-16          8.07GB              04.012896
+    def __getitem__(self, index):
+        """Returns a tensor with the shape [[[a1,a2,a3...],[a4,a5...]],[[b1,b2,b3...],[b4,b5...]]] where [a1, a2, a3] and [b1, b2, b3]
+            are feature columns from the dataset used for training, and [a4, a5] and [b4, b5] are feature columns used for testing.
+          
+            a1, b1 etc. are values of the rows 'index', and a2, b2 etc. are the values of the rows 'index + 1'.
 
-
-"""
+            Specific columns descriptions:\n
+            \tValues starting with a = time\n
+            \tValues starting with b = internet
+          """
+        None
