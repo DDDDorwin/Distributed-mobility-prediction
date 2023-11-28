@@ -11,7 +11,7 @@ def main():
     from random import seed
     from random import randint
 
-    pds = Pickle2dCNN(train_size=5,test_size=2,max_saved_chunks=2)
+    pds = Pickle2dCNN(train_size=9,test_size=2,max_saved_chunks=2)
     seed(1)
     now = datetime.now()
     rand_index = randint(0, pds.__len__())
