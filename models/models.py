@@ -73,7 +73,7 @@ class LSTM(nn.Module):
         self.embedding_cout = nn.Linear(in_features=input_size, out_features=embedding_size)
         self.embedding_internet = nn.Linear(in_features=input_size, out_features=embedding_size)
 
-        self.lstm = nn.LSTM(input_size*embedding_size, hidden_size, num_layers, batch_first=True)
+        self.lstm = nn.LSTM(6*embedding_size, hidden_size, num_layers, batch_first=True)
         self.activation = nn.ReLU()
         self.fc1 = nn.Linear(in_features=hidden_size, out_features=1)
         self.fc2 = nn.Linear(in_features=input_size, out_features=1)

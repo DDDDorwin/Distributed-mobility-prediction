@@ -41,9 +41,9 @@ def run():
 
     train_loader, eval_loader, test_loader = get_data_loaders(dataset, args.batch)
 
-    # model = train_main(args, train_loader, eval_loader)
+    model = train_main(args, train_loader, eval_loader)
 
-    model = torch.load("./models/model/best.pt")
+    # model = torch.load("./models/model/best.pt")
     print("test")
     test_pred = test_main(model, test_loader, args)
     plot_test_data(args, test_pred)
