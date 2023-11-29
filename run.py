@@ -2,6 +2,7 @@ import argparse
 import wandb
 
 from utils.util import get_dataset
+from utils.wandb_plot import plot_test_data
 from data.dataloader import get_data_loaders
 from data.data import resize_input_data, SequenceDataset
 from new_train import train_main
@@ -41,6 +42,8 @@ def run():
 
     print("test")
     test_pred = test_main(model, test_loader, args)
+
+    plot_test_data(args, test_pred)
 
     wandb.finish()
 
