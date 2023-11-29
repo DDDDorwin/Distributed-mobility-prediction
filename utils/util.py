@@ -30,7 +30,7 @@ def normalization(data):
 
 def pickle_normalization(data):
     scaler = MinMaxScaler(feature_range=(0, 1))
-    norm_data = scaler.fit_transform(data.values[:, 1:])
+    norm_data = scaler.fit_transform(data.values)
     df = pd.DataFrame(norm_data)
 
     return df

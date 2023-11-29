@@ -102,19 +102,29 @@ class PickleDataset(Dataset):
         size = 0
         for input_file in sorted(input_files):
             # Read "input file" as csv
-            df = pd.read_csv(input_file, header=None, sep="\t", dtype=TableData.DTYPES)
+            df = pd.read_csv(input_file, header=None, sep="\t", names=TableData.DTYPES.keys(), dtype=TableData.DTYPES)
             length = len(df)
+            df['start_time'] = pd.to_datetime(df[Keys.TIME_INTERVAL], unit='ms', utc=True).dt.tz_convert(
+                'CET').dt.tz_localize(None)
             df = df.fillna(0)
-            df = df.drop(TableData.INDICES[Keys.TIME_INTERVAL], axis=1)
-            df = df.drop(TableData.INDICES[Keys.COUNTRY_CODE], axis=1)
-            ids, cdr = df[TableData.INDICES[Keys.SQUARE_ID]], df.iloc[:, TableData.INDICES[Keys.SMS_IN]:]
-            ids.name = Keys.SQUARE_ID
+            df = df.groupby([Keys.SQUARE_ID, pd.Grouper(key='start_time', freq='10Min')]).sum()
+            df = df.drop(Keys.TIME_INTERVAL, axis=1)
+            df = df.drop(Keys.COUNTRY_CODE, axis=1)
+            ids, cdr = pd.DataFrame(df.index.get_level_values(Keys.SQUARE_ID).to_series().values),\
+                       df.iloc[:, TableData.INDICES[Keys.SMS_IN]:]
+            # ids.name = Keys.SQUARE_ID
+            # ids.index = [i for i in range(len(ids))]
             normalized = pickle_normalization(df)
+            # normalized[Keys.INDEX] = ids
+            length = len(normalized)
             # Add corresponding indexes to rows
             normalized[Keys.INDEX] = [i for i in range(size, size + length)]
-            normalized = pd.concat([ids, normalized], axis=1)
-            # normalized.insert(0, Keys.SQUARE_ID, ids)
+
+            # normalized = pd.concat([ids, normalized], axis=1)
+            # normalized.insert(5, Keys.SQUARE_ID, ids)
             normalized = normalized.set_index(Keys.INDEX)
+            # normalized[Keys.SQUARE_ID] = ids
+            normalized = pd.concat([ids, normalized], axis=1)
             # Fetches keys for dtypes, to use as names for headers
             normalized.columns = TableData.NORMALIZED_DTYPES.keys()
             # Make pickles with name: startIndex_endIndex.pkl
@@ -254,8 +264,8 @@ print("Time taken = ", then-now)
 """
 # pds = PickleDataset(train_size=5,test_size=3,max_saved_chunks=1)
 # pds._PickleDataset__make_normalized_pickles(True)
-# test = pd.read_pickle("/Users/mith/Desktop/Courses/Courses_Period_5/Project/data/pickles_normalized/0_4842624.pkl")
-# print(test.head())
+test = pd.read_pickle("/Users/mith/Desktop/Courses/Courses_Period_5/Project/data/pickles_normalized/0_1439981.pkl")
+print(test.head())
 
 
 """
