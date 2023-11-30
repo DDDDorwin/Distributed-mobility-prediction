@@ -2,7 +2,8 @@ import os
 import torch
 import json
 import pandas as pd
-from typing import TypeVar, Iterable, Dict, List
+import numpy as np
+from typing import TypeVar, Iterable, Dict, List, Any
 from utils.constants import *
 from os.path import join
 
@@ -128,7 +129,63 @@ def replace_null(input_dir: str = Paths.RAW_DIR, output_dir: str = Paths.FILLED_
     
     save_metafile(output_dir, df)
 
-def load_textfile(input_file: str, dtypes: Dict[str, str]):
+def filter_rows(input_dir: str = Paths.RAW_DIR, output_dir: str = Paths.FILTERED_DIR, columns_values: Dict[str, List[Any]] = {}, exclusive: bool = True, destroy_old: bool = True):
+    """Filter a data set so that only rows that have a specified value for a specified column are retained.
+
+    Params:
+    input_dir: str - directory of input data set
+    output_dir: str - directory of output data set
+    columns_values: Dict[str, List[Any]] - dict of columns names for keys and filter values as lists for values
+    exclusive: bool - true: row needs to satisfy all filters, false: row needs to satisfy any filter
+    destroy_old: bool - remove output_dir if it exists
+    """
+
+    if len(columns_values) == 0:
+        raise ValueError("Empty filter conditions")
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    if destroy_old:
+        del_f(output_dir)
+
+    meta = load_metafile(input_dir)
+
+    concat = np.logical_and.reduce if exclusive else np.logical_or.reduce
+
+    for f in [f for f in os.listdir(input_dir) if f != META.FILE_NAME]:
+        df = load_textfile(join(input_dir, f), dtypes=meta[META.DTYPES])
+        # Filter rows based on the conditions specified in the dictionary
+        conditions = [df[column].isin(values) for column, values in columns_values.items()]
+        df = df[concat(conditions)]
+        save_textfile(join(output_dir, f), df)
+    
+    save_metafile(output_dir, df)
+    
+
+def convert_timestamp(input_dir: str = Paths.RAW_DIR, output_dir: str = Paths.DATETIME_DIR, destroy_old: bool = True):
+    """Convert timestamp to datetime."""
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    if destroy_old:
+        del_f(output_dir)
+
+    meta = load_metafile(input_dir)
+
+    if Keys.TIME_INTERVAL not in meta[META.DTYPES]:
+        raise ValueError(f"Cannot convert timestamp because there is no {Keys.TIME_INTERVAL} column")
+
+    for f in [f for f in os.listdir(input_dir) if f != META.FILE_NAME]:
+        df = load_textfile(join(input_dir, f), dtypes=meta[META.DTYPES])
+        df[Keys.TIME_INTERVAL] = pd.to_datetime(df[Keys.TIME_INTERVAL], unit='ms', utc=True).dt.tz_convert('CET').dt.tz_localize(None)
+        save_textfile(join(output_dir, f), df)
+    
+    save_metafile(output_dir, df)
+
+
+def load_textfile(input_file: str, dtypes: Dict[str, str]) -> pd.DataFrame:
     '''
     Load tsv from an input file and put it into a dataframe.
     Takes a long time and a lot of memory.
@@ -149,7 +206,7 @@ def save_textfile(output_file: str, df: pd.DataFrame):
     print(f"saved {output_file}")
 
 
-def load_metafile(dir: str):
+def load_metafile(dir: str) -> Dict[str, Dict[str, str]]:
     """
     Load the metafile of a data set directory.
     Provides a fallback with default values if the file
