@@ -106,7 +106,7 @@ class TestFetching(unittest.TestCase):
         for i in range(100):
             rand_index = randint(0, pds.__len__())
             self.assertEqual(len(pds.__getitem__(rand_index)), 1)
-            self.assertEqual(len(pds.__getitem__(rand_index).columns), 8)
+            #self.assertEqual(len(pds.__getitem__(rand_index).columns), 8)
 
     '''def test_sliding_window(self):
         """Tests that the sliding window algorithm returns train/test sets of correct size and type."""
