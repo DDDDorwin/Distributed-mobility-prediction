@@ -10,7 +10,7 @@ seed(1)
 now = datetime.now()
 for i in range(200):
     rand_index = randint(0, pds.__len__())
-    pds.sliding_window(rand_index)
+    pds.__getitem__(rand_index)
 then = datetime.now()
 print("Time taken = ", then - now)
 
