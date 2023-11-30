@@ -1,23 +1,17 @@
 import os
 import pandas as pd
-from typing import TypeVar
+import numpy as np
+import torch
 
-# Not sure about the imported package below, check with Savvas
-from datasets import Dataset
-
-from utils.constants import Paths, Keys, TableData
+from torch.utils.data import Dataset
+from utils.constants import Paths, Keys
 from os.path import join
-
-
-T_co = TypeVar("T_co", covariant=True)
-T = TypeVar("T")
-
 
 class PickleDataset(Dataset):
 
-    is_loading = False
-
-    def __init__(self, train_size, test_size, max_saved_chunks):
+    def __init__(self, train_size, test_size, max_saved_chunks, raw_directory:str = Paths.RAW_DIR, pickle_dir:str = Paths.PICKLE_DIR):
+        self.raw_dir = raw_directory
+        self.p_dir = pickle_dir
         self.__get_size()
         if max_saved_chunks < 1:
             max_saved_chunks = 1
@@ -31,7 +25,7 @@ class PickleDataset(Dataset):
     # SIZE RELATED FUNCTIONS
     def __update_size(self, size):
         """Update size in SIZE_DATA.txt and update self.size"""
-        f = open(join(Paths.PICKLE_DIR, "SIZE_DATA.txt"), "w+")
+        f = open(join(self.p_dir, "SIZE_DATA.txt"), "w+")
         f.write("%d" % size)
         f.close()
         self.size = size
@@ -39,8 +33,8 @@ class PickleDataset(Dataset):
     def __get_size(self):
         """Fetch the current size from SIZE_DATA.txt and set to self.size"""
         # If SIZE_DATA.txt exists, get size and set to self.size
-        if not os.stat(join(Paths.PICKLE_DIR, "SIZE_DATA.txt")).st_size == 0:
-            f = open(join(Paths.PICKLE_DIR, "SIZE_DATA.txt"), "r")
+        if not os.stat(join(self.p_dir, "SIZE_DATA.txt")).st_size == 0:
+            f = open(join(self.p_dir, "SIZE_DATA.txt"), "r")
             self.size = int(f.readline())
             f.close()
         # If there is no file SIZE_DATA.txt, we create one and set size to 0
@@ -61,22 +55,20 @@ class PickleDataset(Dataset):
         # For all data files ending with .txt, .tsv or .csv
         # reformat them into pickles, adding corresponding headers in the process
         input_files = [
-            join(Paths.RAW_DIR, f)
-            for f in os.listdir(Paths.RAW_DIR)
+            join(self.raw_dir, f)
+            for f in os.listdir(self.raw_dir)
             if f.endswith(".txt") or f.endswith(".tsv") or f.endswith(".csv")
         ]
         size = 0
         for input_file in sorted(input_files):
             # Read "input file" as csv
-            df = pd.read_csv(input_file, header=None, sep="\t", dtype=TableData.DTYPES)
+            df = pd.read_csv(input_file, header=None, sep="\t")
             length = len(df)
             # Add corresponding indexes to rows
             df[Keys.INDEX] = [i for i in range(size, size + length)]
             df = df.set_index(Keys.INDEX)
-            # Fetches keys for dtypes, to use as names for headers
-            df.columns = TableData.DTYPES.keys()
             # Make pickles with name: startIndex_endIndex.pkl
-            df.to_pickle(join(Paths.PICKLE_DIR, "%s_%s.pkl" % (size, size + length - 1)))
+            df.to_pickle(join(self.p_dir, "%s_%s.pkl" % (size, size + length - 1)))
             # Increment size
             size += length
             print("Successfully pickled %s" % (input_file))
@@ -84,32 +76,16 @@ class PickleDataset(Dataset):
 
     def __del_db(self):
         """Deletes all pickles from pickles directory"""
-        for file in os.listdir(Paths.PICKLE_DIR):
+        for file in os.listdir(self.p_dir):
             if os.fsdecode(file).endswith(".pkl"):
-                os.remove(join(Paths.PICKLE_DIR, file))
+                os.remove(join(self.p_dir, file))
         self.__update_size(0)
 
     # ITEM FETCHING
-    # TODO: IMPLEMENT
-    def __getitem__(self, index) -> pd.DataFrame:
+    def __getitem__(self, index):
         """Returns a dataframe with one row containing the found item."""
         chunk = self.__fetch_chunk(index)
         return chunk.loc[[index]]
-
-    def sliding_window(self, index):
-        """Returns an array containing a train [0] and a test [1] set as numpy arrays, created from the index given."""
-        # Lists to store DataFrames
-        train_window = []
-        for train_offset in range(self.train_size):
-            train_window.append(self.__getitem__(index + train_offset))
-        test_window = []
-        for test_offset in range(self.test_size):
-            test_window.append(self.__getitem__(index + self.train_size + test_offset))
-
-        return [
-            pd.concat(train_window, ignore_index=False).to_numpy(),
-            pd.concat(test_window, ignore_index=False).to_numpy(),
-        ]
 
     def __get_saved_index(self, index) -> pd.DataFrame:
         """Get the dataframe that contains the provided index. Empty DF if index does not exist."""
@@ -144,50 +120,51 @@ class PickleDataset(Dataset):
         loaded = pd.DataFrame()
         print("Index was not found in loaded, fetching...")
         # Get missing pickle file in directory
-        pickles = [f for f in os.listdir(Paths.PICKLE_DIR) if f.endswith(".pkl")]
+        pickles = [f for f in os.listdir(self.p_dir) if f.endswith(".pkl")]
         for p in pickles:
             indexes = p.replace(".pkl", "").split("_", 1)
             # Check if file contains data in range
             if int(indexes[1]) >= index and int(indexes[0]) <= index:
                 # Append to return dataframe
-                loaded = pd.read_pickle(join(Paths.PICKLE_DIR, p))
+                loaded = pd.read_pickle(join(self.p_dir, p))
                 print("Index contained in pickle: %s" % (p))
 
         self.__add_chunk_to_saved(loaded, index)
         return loaded
 
 
-"""
-###BENCHMARK CODE:::::::::::::::###
-from datetime import datetime
-from random import seed
-from random import randint
+class Pickle2dCNN(PickleDataset):
+    def __init__(self, train_size, test_size, max_saved_chunks, raw_directory:str = Paths.RAW_DIR, pickle_dir:str = Paths.PICKLE_DIR):    
+        super().__init__(train_size, test_size, max_saved_chunks, raw_directory, pickle_dir)
 
-pds = PickleDataset(train_size=5,test_size=2,max_saved_chunks=8)
-seed(1)
-now = datetime.now()
-for i in range(200):
-    rand_index = randint(0, pds.__len__())
-    pds.__sliding_window__(rand_index)
-then = datetime.now()
-print("Time taken = ", then-now)
-"""
+    def __getitem__(self, index):
+        """Returns a tensor with the shape [[[a1,a2,a3...],[a4,a5...]],[[b1,b2,b3...],[b4,b5...]]...] where [a1, a2, a3] and [b1, b2, b3]
+        are feature columns from the dataset used for training, and [a4, a5] and [b4, b5] are feature columns used for testing.
+        
+        a1, b1 etc. are values of the rows 'index', and a2, b2 etc. are the values of the rows 'index + 1'.
+        """
+        all = []
+        for offset in range(self.train_size + self.test_size):
+            all.append(super().__getitem__(index + offset).values)
 
-"""
-###BENCHMARK RESULTS:::::::::::::::###
+        tensor = torch.tensor(np.array(all))
+        t1 = torch.rot90(tensor[0:self.train_size, :], k=1, dims=(1, 0)).mT
+        t2 = torch.rot90(tensor[self.train_size:self.train_size + self.test_size, :], k=1, dims=(1, 0)).mT
 
-GET ITEM
+        return [t1, t2]
+    
+class PickleARIMA(PickleDataset):
+    def __init__(self, train_size, test_size, max_saved_chunks, raw_directory:str = Paths.RAW_DIR, pickle_dir:str = Paths.PICKLE_DIR):    
+        super().__init__(train_size, test_size, max_saved_chunks, raw_directory, pickle_dir)
 
-BENCHMARKING @200 iterations of __getitem__(), random indexes, 16 pickles, total 86,351,806 rows
-nCHUNKS,    RAM USED (peak),    RUN TIME (s)
-1           0.64GB              41.387061
-2           1.10GB              38.822287
-4           1.89GB              35.919033
-8           3.63GB              24.747721
-10          4.88GB              18.945788
-12          5.91GB              14.359443
-14          6.30GB              09.824801
-16          8.07GB              04.012896
+    def __getitem__(self, index):
+        """Returns a tensor with the shape [[[a1,a2,a3...],[a4,a5...]],[[b1,b2,b3...],[b4,b5...]]] where [a1, a2, a3] and [b1, b2, b3]
+            are feature columns from the dataset used for training, and [a4, a5] and [b4, b5] are feature columns used for testing.
+          
+            a1, b1 etc. are values of the rows 'index', and a2, b2 etc. are the values of the rows 'index + 1'.
 
-
-"""
+            Specific columns descriptions:\n
+            \tValues starting with a = time\n
+            \tValues starting with b = internet
+          """
+        None
