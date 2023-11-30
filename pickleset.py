@@ -107,6 +107,7 @@ class PickleDataset(Dataset):
             df['start_time'] = pd.to_datetime(df[Keys.TIME_INTERVAL], unit='ms', utc=True).dt.tz_convert(
                 'CET').dt.tz_localize(None)
             df = df.fillna(0)
+            # df = df.groupby([pd.Grouper(key='start_time', freq='10Min'), Keys.SQUARE_ID]).sum()
             df = df.groupby([Keys.SQUARE_ID, pd.Grouper(key='start_time', freq='10Min')]).sum()
             df = df.drop(Keys.TIME_INTERVAL, axis=1)
             df = df.drop(Keys.COUNTRY_CODE, axis=1)
@@ -262,8 +263,8 @@ for i in range(200):
 then = datetime.now()
 print("Time taken = ", then-now)
 """
-pds = PickleDataset(train_size=5,test_size=3,max_saved_chunks=1)
-pds._PickleDataset__make_normalized_pickles(True)
+# pds = PickleDataset(train_size=5,test_size=3,max_saved_chunks=1)
+# pds._PickleDataset__make_normalized_pickles(True)
 # test = pd.read_pickle("/Users/mith/Desktop/Courses/Courses_Period_5/Project/data/pickles_normalized/0_1439981.pkl")
 # print(test.head())
 

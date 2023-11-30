@@ -20,11 +20,16 @@ def resize_input_data(x, y, input_size, prediction_size):
     length = len(x)
     x = x.to_numpy()
     y = y.to_numpy()
-    for i in range(length - input_size):
-        window = x[i: i + input_size, :]
-        pred = y[i + input_size: i + input_size + prediction_size]
+    for j in range(1, 10001):
+        for i in range(length - input_size):
+            if i + input_size + prediction_size == 1439982:
+                print("hello")
+            if x[i + input_size + prediction_size, 0] != j:
+                continue
+            window = x[i: i + input_size, :]
+            pred = y[i + input_size: i + input_size + prediction_size]
 
-        output.append((window, pred))
+            output.append((window, pred))
 
     return output
 
