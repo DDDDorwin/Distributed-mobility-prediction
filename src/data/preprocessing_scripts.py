@@ -18,3 +18,11 @@ def group_and_normalize():
     eliminate_country_code(input_dir=Paths.FILLED_WITH_ZEROES_DIR)
     eliminate_square_id(input_dir=Paths.GROUPED_CC_DIR)
     normalize(input_dir=Paths.GENERAL_DIR, output_dir=Paths.PREPROCESSED_DIR)
+
+def filter_square_ids():
+    # example: 100 values between 1 .. 10000 
+    selected_values = [int(1 + i * 101) for i in range(100)]    
+    filter_rows(columns_values={Keys.SQUARE_ID: selected_values})
+
+def timestamp_to_datetime():
+    convert_timestamp()

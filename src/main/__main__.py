@@ -5,6 +5,10 @@ from data.preprocessing_scripts import *
 
 def main():
     # print(models(sys.argv[1]))
-    replace_nan_with_zeroes()
+    # replace_nan_with_zeroes()
+    # filter_square_ids()
+    #
+    pass
 
-main()
+if __name__ == "__main__":
+    main()
