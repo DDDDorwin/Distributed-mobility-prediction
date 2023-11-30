@@ -6,7 +6,7 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import CosineAnnealingLR
 import numpy as np
 
-from models.models import LSTM
+from models.models import BasicConv2D
 from data.dataloader import get_data_loaders
 from eval import eval_main
 from test import test_main
@@ -39,7 +39,7 @@ def train_main(args, train_loader, eval_loader):
     lrs = []
     losses = []
     best_val_loss = float('inf')
-    model = LSTM(5, 30, 2, batch_first=True, batch_size=args.batch).double()
+    model = BasicConv2D(24,2,6,6).double()
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
     scheduler = CosineAnnealingLR(optimizer, T_max=args.epoch)
