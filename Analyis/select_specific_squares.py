@@ -57,7 +57,7 @@ def summarize_activity():
     df.to_pickle(PKL_FILE, compression=None)
 
 
-def plot_distribution():
+def plot_distribution(log=False):
     """Make histogram of activity distribution"""
     
     # Assuming df is your DataFrame with columns sid and activity
@@ -65,11 +65,12 @@ def plot_distribution():
 
     # Plot histogram with a logarithmic y-axis scale
     plt.hist(df[ACTIVITY], bins=50, edgecolor='black')
-    plt.yscale('log')  # Set y-axis scale to logarithmic
+    if log:
+        plt.yscale('log')  # Set y-axis scale to logarithmic
 
     # Add labels and title
     plt.xlabel('Sum of all CDRs per Square', fontsize=22)
-    plt.ylabel('Frequency (log scale)', fontsize=22)
+    plt.ylabel(f'Frequency{" (log scale)" if log else ""}', fontsize=22)
     plt.title('Histogram of sum of CDRs per Square', fontsize=22)
 
     # Show the plot
@@ -279,7 +280,8 @@ def plot_selection(selection: List[int], method: str):
 
 if __name__ == "__main__":
     summarize_activity()
-    plot_distribution()
+    plot_distribution(log=False)
+    plot_distribution(log=True)
 
     median_selections = pick_medians()
     plot_selection(median_selections, "selected by medians")
