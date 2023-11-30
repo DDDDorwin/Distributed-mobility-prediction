@@ -169,6 +169,87 @@ def pick_location(n = 100):
 # [1, 11, 21, 31, 41, 51, 61, 71, 81, 91, 1001, 1011, 1021, 1031, 1041, 1051, 1061, 1071, 1081, 1091, 2001, 2011, 2021, 2031, 2041, 2051, 2061, 2071, 2081, 2091, 3001, 3011, 3021, 3031, 3041, 3051, 3061, 3071, 3081, 3091, 4001, 4011, 4021, 4031, 4041, 4051, 4061, 4071, 4081, 4091, 5001, 5011, 5021, 5031, 5041, 5051, 5061, 5071, 5081, 5091, 6001, 6011, 6021, 6031, 6041, 6051, 6061, 6071, 6081, 6091, 7001, 7011, 7021, 7031, 7041, 7051, 7061, 7071, 7081, 7091, 8001, 8011, 8021, 8031, 8041, 8051, 8061, 8071, 8081, 8091, 9001, 9011, 9021, 9031, 9041, 9051, 9061, 9071, 9081, 9091]
 
 
+def pick_most_unique(n=100) -> List[int]:
+    """Select n square IDs with the most unique activity values"""
+
+    # Assuming df is your DataFrame with columns squareid and activity
+    df: pd.DataFrame = pd.read_pickle(PKL_FILE, compression=None)
+
+    # Get sid with the lowest and highest activity
+    sid_lowest_activity = df.loc[df[ACTIVITY].idxmin(), SQUARE_ID]
+    sid_highest_activity = df.loc[df[ACTIVITY].idxmax(), SQUARE_ID]
+    print("SID with the lowest activity:", sid_lowest_activity)
+    print("SID with the highest activity:", sid_highest_activity)
+
+    # Calculate the pairwise distances between activity values
+    activity_values = df[ACTIVITY].values
+    num_squares = len(activity_values)
+
+    distances = np.zeros((num_squares, num_squares))
+
+    for i in range(num_squares):
+        for j in range(i + 1, num_squares):
+            distances[i, j] = distances[j, i] = abs(activity_values[i] - activity_values[j])
+
+    # Sum the distances for each square ID to get a measure of uniqueness
+    uniqueness_scores = distances.sum(axis=1)
+
+    # Get the indices of the top n unique square IDs
+    top_n_indices = uniqueness_scores.argsort()[-n:][::-1]
+
+    # Extract the corresponding square IDs
+    top_n_square_ids = df.iloc[top_n_indices][SQUARE_ID].tolist()
+
+    # Display the corresponding SQUARE_ID values for the uniquely spaced activity values
+    print("SID values corresponding to uniquely spaced activity values:")
+    print(top_n_square_ids)
+    print("#squares:", len(top_n_square_ids))
+
+    return top_n_square_ids
+
+# from pick_most_unique(n=100)
+# [5161, 5059, 5061, 5258, 5159, 4855, 4856, 5259, 5261, 5162, 5262, 4956, 4459, 6064, 5163, 5255, 4857, 4961, 5955, 4755, 5257, 4955, 5855, 6065, 5156, 4761, 6062, 5965, 6063, 4959, 4457, 6058, 5957, 5158, 4654, 4754, 4861, 5963, 5256, 4957, 5260, 5254, 5160, 4762, 4854, 6066, 4655, 5458, 4456, 4958, 5062, 5358, 5155, 4758, 5060, 5857, 4653, 4962, 6067, 4756, 6165, 4759, 6164, 5359, 5758, 5567, 6167, 4462, 5063, 5056, 4559, 6163, 5068, 4968, 4760, 5962, 4948, 5157, 4460, 5854, 5263, 5966, 5956, 4757, 5361, 6162, 5964, 4960, 5967, 4954, 6056, 5856, 4860, 5154, 5566, 4648, 4656, 5952, 5859, 5055]
+
+
+def pick_intervals( n: int = 100) -> List[int]:
+    """Select n square IDs, one from each bin of activity values"""
+
+    # Assuming df is your DataFrame with columns squareid and activity
+    df: pd.DataFrame = pd.read_pickle(PKL_FILE, compression=None)
+
+    # Get sid with the lowest and highest activity
+    sid_lowest_activity = df.loc[df[ACTIVITY].idxmin(), SQUARE_ID]
+    sid_highest_activity = df.loc[df[ACTIVITY].idxmax(), SQUARE_ID]
+    print("SID with the lowest activity:", sid_lowest_activity)
+    print("SID with the highest activity:", sid_highest_activity)
+
+    nbins = n
+    nbins = 165 # found heuristically
+
+    selected_squares = []
+    while len(selected_squares) < 100:
+        # Divide the activity values into n bins
+        df['activity_bin'] = pd.cut(df[ACTIVITY], bins=nbins, labels=False)
+
+        # Group by the bins and select one square ID from each bin
+        selected_squares = df.groupby('activity_bin').apply(lambda group: group.sample(1))[[SQUARE_ID]]
+        selected_squares = list(map(int, selected_squares[SQUARE_ID].tolist()))
+
+        nbins += 1
+    
+    print("bins required:", nbins)
+
+    # Display the corresponding SQUARE_ID values for the uniquely spaced activity values
+    print("SID values corresponding to selection from equally spaced intervalls:")
+    print(selected_squares)
+    print("#squares:", len(selected_squares))
+
+    return selected_squares
+
+# from pick_interval(n=100)
+# [5402, 6420, 8398, 7996, 8939, 2989, 8520, 9958, 2733, 1656, 2935, 9171, 4047, 1152, 5091, 5041, 3535, 6868, 7056, 4163, 7522, 6745, 6664, 5550, 7059, 5343, 5563, 6572, 5872, 4863, 4258, 6762, 7163, 5871, 6250, 4444, 6249, 5764, 5661, 5660, 5270, 5149, 6069, 4547, 5861, 5757, 4156, 5073, 6061, 6059, 6268, 6267, 5248, 5659, 4458, 5958, 4859, 5148, 5055, 5952, 5566, 5154, 5856, 6162, 5157, 6163, 4759, 4962, 4758, 5155, 5458, 4655, 4762, 5260, 5256, 4861, 5957, 4457, 4959, 6062, 4761, 6065, 5855, 4955, 4755, 5955, 4857, 5163, 6064, 4459, 4956, 5261, 5259, 4856, 4855, 5159, 5258, 5061, 5059, 5161]
+
+
 def plot_selection(selection: List[int], method: str):
     """Plot the activity of some selected squares"""
 
@@ -191,7 +272,7 @@ def plot_selection(selection: List[int], method: str):
     plt.xlabel('Selected Squares (too crowded)', fontsize=22)
     plt.ylabel('Sum of CDRs per Square', fontsize=22)
     # plt.title('Sum of CDRs for Squares selected as medians', fontsize=22)
-    plt.title(f'Sum of CDRs for Squares {}', fontsize=22)
+    plt.title(f'Sum of CDRs for Squares {method}', fontsize=22)
     plt.xticks([])
     plt.show()
 
@@ -199,9 +280,18 @@ def plot_selection(selection: List[int], method: str):
 if __name__ == "__main__":
     summarize_activity()
     plot_distribution()
+
     median_selections = pick_medians()
     plot_selection(median_selections, "selected by medians")
+
     linear_selections = pick_linear()
     plot_selection(linear_selections, "selected by linear distribution")
+
     location_selections = pick_location()
     plot_selection(location_selections, "selected by physical location")
+
+    most_unqiue_selections = pick_most_unique()
+    plot_selection(most_unqiue_selections, "selected most unique values")
+
+    bin_selections = pick_intervals()
+    plot_selection(bin_selections, "selected from equally sized intervals")
