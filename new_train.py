@@ -45,7 +45,7 @@ def train_main(args, train_loader, eval_loader):
     best_val_loss = float('inf')
 
     # define model
-    model = LSTM(5, 128, 2, batch_first=True, batch_size=args.batch, embedding_size=16).double()
+    model = LSTM(args.period, 128, 2, batch_first=True, batch_size=args.batch, embedding_size=16).double()
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
     scheduler = CosineAnnealingLR(optimizer, T_max=args.epoch)
