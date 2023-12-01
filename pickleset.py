@@ -263,8 +263,8 @@ for i in range(200):
 then = datetime.now()
 print("Time taken = ", then-now)
 """
-# pds = PickleDataset(train_size=5,test_size=3,max_saved_chunks=1)
-# pds._PickleDataset__make_normalized_pickles(True)
+pds = PickleDataset(train_size=5,test_size=3,max_saved_chunks=1)
+pds._PickleDataset__make_normalized_pickles(True)
 # test = pd.read_pickle("/Users/mith/Desktop/Courses/Courses_Period_5/Project/data/pickles_normalized/0_1439981.pkl")
 # print(test.head())
 
