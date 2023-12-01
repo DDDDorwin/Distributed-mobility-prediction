@@ -47,7 +47,7 @@ def run():
     print("test")
     model = torch.load("./models/model/best.pt")
     test_pred = test_main(model, test_loader, args)
-    plot_test_data(args, test_pred)
+    plot_test_data(args, test_pred, test_loader)
 
 
     wandb.finish()

@@ -73,31 +73,31 @@ class LSTM(nn.Module):
         self.embedding_cout = nn.Linear(in_features=input_size, out_features=embedding_size)
         self.embedding_internet = nn.Linear(in_features=input_size, out_features=embedding_size)
 
-        self.lstm = nn.LSTM(6*embedding_size, hidden_size, num_layers, batch_first=True)
+        self.lstm = nn.LSTM(4, hidden_size, num_layers, batch_first=True)
         self.activation = nn.ReLU()
         self.fc1 = nn.Linear(in_features=hidden_size, out_features=1)
         self.fc2 = nn.Linear(in_features=input_size, out_features=1)
 
     def forward(self, x):
         embedding_output = []
-        sid = self.embedding_sin(x[:, :, 0])
-        sin = self.embedding_sin(x[:, :, 1])
-        sout = self.embedding_sin(x[:, :, 2])
-        cin = self.embedding_sin(x[:, :, 3])
-        cout = self.embedding_sin(x[:, :, 4])
-        internet = self.embedding_sin(x[:, :, 5])
-
-        concat = torch.cat((sid, sin, sout, cin, cout, internet), dim=1)
+        # sid = self.embedding_sin(x[:, :, 0])
+        # sin = self.embedding_sin(x[:, :, 1])
+        # sout = self.embedding_sin(x[:, :, 2])
+        # cin = self.embedding_sin(x[:, :, 3])
+        # cout = self.embedding_sin(x[:, :, 4])
+        # internet = self.embedding_sin(x[:, :, 5])
+        #
+        # concat = torch.cat((sid, sin, sout, cin, cout), dim=1)
 
 
         # out = self.embedding(x.view(-1))
-        h_0 = torch.randn(self.num_layers, self.hidden_size, dtype=torch.float64)
-        c_0 = torch.randn(self.num_layers, self.hidden_size, dtype=torch.float64)
+        h_0 = torch.randn(self.num_layers, self.batch_size, self.hidden_size, dtype=torch.float64)
+        c_0 = torch.randn(self.num_layers, self.batch_size, self.hidden_size, dtype=torch.float64)
 
 
-        lstm_output, _ = self.lstm(concat, (h_0, c_0))
+        lstm_output, _ = self.lstm(x, (h_0, c_0))
         # ac = self.activation(lstm_output)
-        output = self.fc1(lstm_output)
+        output = self.fc1(lstm_output[:, -1, :])
 
         return output
 
