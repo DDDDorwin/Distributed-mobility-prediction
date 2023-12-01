@@ -107,12 +107,14 @@ class PickleDataset(Dataset):
             df['start_time'] = pd.to_datetime(df[Keys.TIME_INTERVAL], unit='ms', utc=True).dt.tz_convert(
                 'CET').dt.tz_localize(None)
             df = df.fillna(0)
-            # df = df.groupby([pd.Grouper(key='start_time', freq='10Min'), Keys.SQUARE_ID]).sum()
-            df = df.groupby([Keys.SQUARE_ID, pd.Grouper(key='start_time', freq='10Min')]).sum()
+            df = df.groupby([pd.Grouper(key='start_time', freq='10Min')]).sum()
+            # df = df.groupby([Keys.SQUARE_ID, pd.Grouper(key='start_time', freq='10Min')]).agg()
             df = df.drop(Keys.TIME_INTERVAL, axis=1)
             df = df.drop(Keys.COUNTRY_CODE, axis=1)
-            ids, cdr = pd.DataFrame(df.index.get_level_values(Keys.SQUARE_ID).to_series().values),\
-                       df.iloc[:, TableData.INDICES[Keys.SMS_IN]:]
+            for i in df.columns:
+                df[i] = df[i]/10000
+            # ids, cdr = pd.DataFrame(df.index.get_level_values(Keys.SQUARE_ID).to_series().values),\
+            #            df.iloc[:, TableData.INDICES[Keys.SMS_IN]:]
             # ids.name = Keys.SQUARE_ID
             # ids.index = [i for i in range(len(ids))]
             normalized = pickle_normalization(df)
@@ -125,7 +127,7 @@ class PickleDataset(Dataset):
             # normalized.insert(5, Keys.SQUARE_ID, ids)
             normalized = normalized.set_index(Keys.INDEX)
             # normalized[Keys.SQUARE_ID] = ids
-            normalized = pd.concat([ids, normalized], axis=1)
+            # normalized = pd.concat([ids, normalized], axis=1)
             # Fetches keys for dtypes, to use as names for headers
             normalized.columns = TableData.NORMALIZED_DTYPES.keys()
             # Make pickles with name: startIndex_endIndex.pkl
