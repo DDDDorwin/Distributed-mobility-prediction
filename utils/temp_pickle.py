@@ -21,21 +21,18 @@ def make_general_pickle():
         Keys.CALL_OUT: "float32",
         Keys.INTERNET: "float32",
     }
-    input_file = r"D:\project\python\project_cs\data\combined_data.csv"
-    # df = pd.read_csv(input_file, header=None, sep="\t", names=TableData.DTYPES.keys(), dtype=TableData.DTYPES)
-    # df = pd.read_csv(input_file, header=None, names=TableData.DTYPES.keys())
 
     data_files = os.listdir(r"D:\project\python\project_cs\data\raw")
     input_files = [f
-        for f in os.listdir(r"D:\project\python\project_cs\data\test")
+        for f in os.listdir(r"D:\project\python\project_cs\data\validate")
         if f.endswith(".txt")
     ]
     columns = ['square_id', 'time_interval', 'country_code', 'sms_in',
                'sms_out', 'call_in', 'call_out', 'internet_traffic']
     # Read the data and concat them
     df = pd.DataFrame()
-    for file in data_files:
-        read = pd.read_csv(r"D:\project\python\project_cs\data\test/" + file, sep='\t', header=None, names=columns, parse_dates=True, dtype=DTYPES)
+    for file in input_files:
+        read = pd.read_csv(r"D:\project\python\project_cs\data\validate/" + file, sep='\t', header=None, names=columns, parse_dates=True, dtype=DTYPES)
         # read = pd.read_csv(r"D:\project\python\project_cs\data\raw\/" + file, sep='\t', header=None, names=columns,
         #                    parse_dates=True)
         df = pd.concat([df, read], ignore_index=True)
@@ -67,10 +64,10 @@ def make_general_pickle():
     # Fetches keys for dtypes, to use as names for headers
     normalized.columns = TableData.NORMALIZED_DTYPES.keys()
     # Make pickles with name: startIndex_endIndex.pkl
-    normalized.to_pickle(r"D:\project\python\project_cs\data\mean.pkl")
+    normalized.to_pickle(r"D:\project\python\project_cs\data\validate.pkl")
     # Increment size
     size += length
-    print("Successfully pickled %s" % (input_file))
+    print("Successfully pickled")
 
 
 if __name__=='__main__':

@@ -14,11 +14,13 @@ def load_sum_data(data_path):
 
     return sum_data
 
+
 def load_data(data_path):
     raw_data = pd.read_pickle(data_path, compression=None)
     print(raw_data.head())
 
     return raw_data
+
 
 def normalization(data):
     scaler = MinMaxScaler(feature_range=(0, 1))
@@ -27,6 +29,7 @@ def normalization(data):
     norm_y = scaler_y.fit_transform(data.values[:, -1].reshape(-1, 1))
 
     return norm_data, norm_y, scaler_y
+
 
 def pickle_normalization(data):
     scaler = MinMaxScaler(feature_range=(0, 1))
@@ -54,13 +57,20 @@ def split_dataset(data):
 
 def get_dataset(args):
     data = load_data(args.data)
+    # TODO: replace temp path
+    validate_data = load_data(r"D:\project\python\project_cs\data\validate.pkl")
+    test_data = load_data(r"D:\project\python\project_cs\data\test.pkl")
     # norm_data, norm_label, _ = normalization(data)
 
     resize_data = resize_input_data(data, data[Keys.INTERNET], args.period, args.output_size)
+    validate_resize_data = resize_input_data(validate_data, validate_data[Keys.INTERNET], args.period, args.output_size)
+    test_resize_data = resize_input_data(test_data, test_data[Keys.INTERNET], args.period, args.output_size)
 
     dataset = SequenceDataset(resize_data)
+    validate_dataset = SequenceDataset(validate_resize_data)
+    test_dataset = SequenceDataset(test_resize_data)
 
-    return dataset
+    return dataset, validate_dataset, test_dataset
 
 
 def save_model(model, path):

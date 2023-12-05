@@ -36,10 +36,11 @@ def run():
         }
     )
 
-    dataset = get_dataset(args)
+    dataset, validate_dateset, test_dataset = get_dataset(args)
+    datasets = [dataset, validate_dateset, test_dataset]
     # dataset = PickleDataset(train_size=args.period, test_size=args.output_size, max_saved_chunks=1)
 
-    train_loader, eval_loader, test_loader = get_data_loaders(dataset, args.batch)
+    train_loader, eval_loader, test_loader = get_data_loaders(datasets, args.batch)
 
     model = train_main(args, train_loader, eval_loader)
 
