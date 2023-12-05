@@ -8,8 +8,20 @@ from os.path import join
 
 def make_general_pickle():
     size = 0
-    input_file = r"D:\project\python\project_cs\data\raw_merged.tsv"
-    df = pd.read_csv(input_file, header=None, sep="\t", names=TableData.DTYPES.keys(), dtype=TableData.DTYPES)
+    df = pd.DataFrame()
+    input_file = r"D:\project\python\project_cs\data\combined_data.csv"
+    # df = pd.read_csv(input_file, header=None, sep="\t", names=TableData.DTYPES.keys(), dtype=TableData.DTYPES)
+    # df = pd.read_csv(input_file, header=None, names=TableData.DTYPES.keys())
+
+    data_files = os.listdir(r"D:\project\python\project_cs\data\raw/")
+    columns = ['Square_id', 'Time_interval', 'Country_code', 'SMS_in',
+               'SMS_out', 'Call_in', 'Call_out', 'Internet_traffic']
+    # Read the data and concat them
+    df = pd.DataFrame()
+    for file in data_files:
+        read = pd.read_csv(r"D:\project\python\project_cs\data\raw/" + file, sep='\t', header=None, names=columns, parse_dates=True)
+        df = pd.concat([df, read], ignore_index=True)
+
     length = len(df)
     df['start_time'] = pd.to_datetime(df[Keys.TIME_INTERVAL], unit='ms', utc=True).dt.tz_convert(
         'CET').dt.tz_localize(None)
