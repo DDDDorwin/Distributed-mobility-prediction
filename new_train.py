@@ -6,7 +6,7 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import CosineAnnealingLR
 import numpy as np
 
-from models.models import LSTM, OneDimensionalCNN
+from models.models import LSTM, OneDimensionalCNN, lstm_embedding
 from data.dataloader import get_data_loaders
 from eval import eval_main
 from test import test_main

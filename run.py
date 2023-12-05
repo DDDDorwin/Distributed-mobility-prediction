@@ -3,7 +3,7 @@ import torch
 import wandb
 
 from utils.util import get_dataset
-from utils.wandb_plot import plot_test_data
+from utils.wandb_plot import plot_test_data, plot_true_data
 from data.dataloader import get_data_loaders
 from data.data import resize_input_data, SequenceDataset
 from pickleset import PickleDataset
@@ -48,6 +48,7 @@ def run():
     model = torch.load("./models/model/best.pt")
     test_pred = test_main(model, test_loader, args)
     plot_test_data(args, test_pred, test_loader)
+    # plot_true_data(test_loader)
 
 
     wandb.finish()
