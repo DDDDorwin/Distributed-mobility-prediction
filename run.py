@@ -42,7 +42,7 @@ def run():
 
     train_loader, eval_loader, test_loader = get_data_loaders(datasets, args.batch)
 
-    model = train_main(args, train_loader, eval_loader)
+    # model = train_main(args, train_loader, eval_loader)
 
     # model = torch.load("./models/model/best.pt")
     print("test")

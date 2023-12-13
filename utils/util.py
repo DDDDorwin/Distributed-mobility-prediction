@@ -58,8 +58,8 @@ def split_dataset(data):
 def get_dataset(args):
     data = load_data(args.data)
     # TODO: replace temp path
-    validate_data = load_data(r"D:\project\python\project_cs\data\validate.pkl")
-    test_data = load_data(r"D:\project\python\project_cs\data\test.pkl")
+    validate_data = load_data(r"D:\project\python\project_cs\data\grid_1\validate.pkl")
+    test_data = load_data(r"D:\project\python\project_cs\data\grid_1\test.pkl")
     # norm_data, norm_label, _ = normalization(data)
 
     resize_data = resize_input_data(data, data[Keys.INTERNET], args.period, args.output_size)
