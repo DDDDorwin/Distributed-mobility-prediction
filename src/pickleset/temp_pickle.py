@@ -2,12 +2,12 @@ import os
 
 import pandas as pd
 from src.utils.util import pickle_normalization
-from constants import Keys, TableData
+from src.utils.constants import Keys, TableData
 
 
 def make_general_pickle():
     size = 0
-    df = pd.DataFrame()
+
     DTYPES = {
         Keys.SQUARE_ID: "int16",
         Keys.TIME_INTERVAL: "int64",
