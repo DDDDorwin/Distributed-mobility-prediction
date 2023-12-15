@@ -44,6 +44,9 @@ dependencies = [
     "pytest~=7.4.0",
     "shapely~=2.0.1",
     "torch~=2.1.0",
+    "pyyaml",
+    "wandb",
+    "scikit-learn",
 ]
 requires-python = ">=3.9,<3.12"
 readme = "README.md"
@@ -73,7 +76,7 @@ classifiers = [
 ]
 
 [project.scripts]
-gvslearning = "main.__main__:main"
+gvslearning = "gvslearning.main.run:run"
 
 [tool.pdm.dev-dependencies]
 lint = [

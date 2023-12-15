@@ -4,12 +4,19 @@ import numpy as np
 import torch
 
 from torch.utils.data import Dataset
-from utils.constants import Paths, Keys
+from gvslearning.utils.constants import Paths, Keys
 from os.path import join
 
-class PickleDataset(Dataset):
 
-    def __init__(self, train_size, test_size, max_saved_chunks, raw_directory:str = Paths.RAW_DIR, pickle_dir:str = Paths.PICKLE_DIR):
+class PickleDataset(Dataset):
+    def __init__(
+        self,
+        train_size,
+        test_size,
+        max_saved_chunks,
+        raw_directory: str = Paths.RAW_DIR,
+        pickle_dir: str = Paths.PICKLE_DIR,
+    ):
         self.raw_dir = raw_directory
         self.p_dir = pickle_dir
         self.__get_size()
@@ -134,37 +141,55 @@ class PickleDataset(Dataset):
 
 
 class Pickle2dCNN(PickleDataset):
-    def __init__(self, train_size, test_size, max_saved_chunks, raw_directory:str = Paths.RAW_DIR, pickle_dir:str = Paths.PICKLE_DIR):    
+    def __init__(
+        self,
+        train_size,
+        test_size,
+        max_saved_chunks,
+        raw_directory: str = Paths.RAW_DIR,
+        pickle_dir: str = Paths.PICKLE_DIR,
+    ):
         super().__init__(train_size, test_size, max_saved_chunks, raw_directory, pickle_dir)
 
     def __getitem__(self, index):
-        """Returns a tensor with the shape [[[a1,a2,a3...],[a4,a5...]],[[b1,b2,b3...],[b4,b5...]]...] where [a1, a2, a3] and [b1, b2, b3]
-        are feature columns from the dataset used for training, and [a4, a5] and [b4, b5] are feature columns used for testing.
-        
+        """Returns a tensor with the shape
+        [[[a1,a2,a3...],[a4,a5...]],[[b1,b2,b3...],[b4,b5...]]...] where [a1, a2, a3] and [b1, b2, b3]
+        are feature columns from the dataset used for training,
+        and [a4, a5] and [b4, b5] are feature columns used for testing.
+
         a1, b1 etc. are values of the rows 'index', and a2, b2 etc. are the values of the rows 'index + 1'.
         """
         all = []
         for offset in range(self.train_size + self.test_size):
             all.append(super().__getitem__(index + offset).values)
-
         tensor = torch.tensor(np.array(all))
-        t1 = torch.rot90(tensor[0:self.train_size, :], k=1, dims=(1, 0)).mT
-        t2 = torch.rot90(tensor[self.train_size:self.train_size + self.test_size, :], k=1, dims=(1, 0)).mT
+        t1 = torch.rot90(tensor[0 : self.train_size, :], k=1, dims=(1, 0)).mT
+        t2 = torch.rot90(tensor[self.train_size : self.train_size + self.test_size, :], k=1, dims=(1, 0)).mT
 
         return [t1, t2]
-    
+
+
 class PickleARIMA(PickleDataset):
-    def __init__(self, train_size, test_size, max_saved_chunks, raw_directory:str = Paths.RAW_DIR, pickle_dir:str = Paths.PICKLE_DIR):    
+    def __init__(
+        self,
+        train_size,
+        test_size,
+        max_saved_chunks,
+        raw_directory: str = Paths.RAW_DIR,
+        pickle_dir: str = Paths.PICKLE_DIR,
+    ):
         super().__init__(train_size, test_size, max_saved_chunks, raw_directory, pickle_dir)
 
     def __getitem__(self, index):
-        """Returns a tensor with the shape [[[a1,a2,a3...],[a4,a5...]],[[b1,b2,b3...],[b4,b5...]]] where [a1, a2, a3] and [b1, b2, b3]
-            are feature columns from the dataset used for training, and [a4, a5] and [b4, b5] are feature columns used for testing.
-          
-            a1, b1 etc. are values of the rows 'index', and a2, b2 etc. are the values of the rows 'index + 1'.
+        """Returns a tensor with the shape [[[a1,a2,a3...],[a4,a5...]],[[b1,b2,b3...],[b4,b5...]]]
+        where [a1, a2, a3] and [b1, b2, b3]
+        are feature columns from the dataset used for training,
+        and [a4, a5] and [b4, b5] are feature columns used for testing.
 
-            Specific columns descriptions:\n
-            \tValues starting with a = time\n
-            \tValues starting with b = internet
-          """
+        a1, b1 etc. are values of the rows 'index', and a2, b2 etc. are the values of the rows 'index + 1'.
+
+        Specific columns descriptions:\n
+        \tValues starting with a = time\n
+        \tValues starting with b = internet
+        """
         None

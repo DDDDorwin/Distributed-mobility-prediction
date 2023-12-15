@@ -1,4 +1,3 @@
-import pandas as pd
 from torch.utils.data import Dataset
 import torch
 
@@ -21,10 +20,10 @@ def resize_input_data(x, y, input_size, prediction_size):
     x = x.to_numpy()
     y = y.to_numpy()
     for i in range(length - input_size):
-        window = x[i: i + input_size, :]
-        pred = y[i + input_size: i + input_size + prediction_size]
+        window = x[i : i + input_size, :]
+        pred = y[i + input_size : i + input_size + prediction_size]
         output.append((window, pred))
-                # print(i + input_size + prediction_size)
+        # print(i + input_size + prediction_size)
 
     return output
 
@@ -55,5 +54,3 @@ class SequenceDataset(Dataset):
         sample = self.data[idx]
         return torch.from_numpy(sample[0]), torch.from_numpy(sample[1])
         # return torch.Tensor(sample[0]), torch.Tensor(sample[1])
-
-

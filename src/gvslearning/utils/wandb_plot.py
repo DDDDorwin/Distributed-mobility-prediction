@@ -1,7 +1,7 @@
 import wandb
 import torch
 import pandas as pd
-from src.utils.constants import Keys
+from gvslearning.utils.constants import Keys
 
 
 def plot_test_data(pred, test_loader):
@@ -13,11 +13,12 @@ def plot_test_data(pred, test_loader):
     df = pd.DataFrame(pred)
     # df['ground_truth'] = true_data
     df[Keys.INDEX] = [i for i in range(len(pred))]
-    df.columns = ['data', Keys.INDEX]
+    df.columns = ["data", Keys.INDEX]
     # columns = [Keys.INTERNET, Keys.INDEX]
     # test_table = wandb.Table(data=pred)
 
     wandb.log({"data": df})
+
 
 def plot_true_data(test_loader):
     true_data = []
@@ -26,7 +27,7 @@ def plot_true_data(test_loader):
     true_data = torch.cat(true_data).numpy().reshape(-1, 1)
     df = pd.DataFrame(true_data)
     df[Keys.INDEX] = [i for i in range(len(true_data))]
-    df.columns = ['data', Keys.INDEX]
+    df.columns = ["data", Keys.INDEX]
     # columns = [Keys.INTERNET, Keys.INDEX]
     # test_table = wandb.Table(data=pred)
 

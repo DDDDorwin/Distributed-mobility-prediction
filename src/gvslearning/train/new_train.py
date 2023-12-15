@@ -5,9 +5,9 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
-from src.models.models import lstm_embedding
-from src.eval.eval import eval_main
-from src.utils.util import save_model
+from gvslearning.models.models import lstm_embedding
+from gvslearning.eval.eval import eval_main
+from gvslearning.utils.util import save_model
 
 
 def train(model, train_loader, optimizer, criterion, batch_size, device):
@@ -30,10 +30,9 @@ def train(model, train_loader, optimizer, criterion, batch_size, device):
 
         if batch % 1000 == 0:
             print("batch:" + str(batch))
-            print(f'\nDuration: {time.time() - start_time:.5f} seconds')
+            print(f"\nDuration: {time.time() - start_time:.5f} seconds")
             start_time = time.time()
     wandb.log({"train loss": running_loss})
-
 
 
 def train_main(args, train_loader, eval_loader):
@@ -41,11 +40,13 @@ def train_main(args, train_loader, eval_loader):
     losses = []
     if not os.path.exists("./src/models/model"):
         os.mkdir("./src/models/model")
-    best_val_loss = float('inf')
+    best_val_loss = float("inf")
 
     # define model
     # model = LSTM(args.period, 16, 2, batch_first=True, batch_size=args["batch-size"], embedding_size=16).double()
-    model = lstm_embedding(args["period"], 128, 2, batch_first=False, batch_size=args["batch-size"], embedding_size=16).double()
+    model = lstm_embedding(
+        args["period"], 128, 2, batch_first=False, batch_size=args["batch-size"], embedding_size=16
+    ).double()
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=args["learning-rate"])
     scheduler = CosineAnnealingLR(optimizer, T_max=args["epoch"])

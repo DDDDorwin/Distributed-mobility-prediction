@@ -1,10 +1,10 @@
-from src.utils.constants import Keys, TableData
+from gvslearning.utils.constants import Keys
 import pandas as pd
 import torch
 from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import Subset
 
-from src.data.data import SequenceDataset, resize_input_data
+from gvslearning.data.data import SequenceDataset, resize_input_data
 
 
 def load_sum_data(data_path):
@@ -62,7 +62,9 @@ def get_dataset(args):
     # norm_data, norm_label, _ = normalization(data)
 
     resize_data = resize_input_data(train_data, train_data[Keys.INTERNET], args["period"], args["output-size"])
-    validate_resize_data = resize_input_data(validate_data, validate_data[Keys.INTERNET], args["period"], args["output-size"])
+    validate_resize_data = resize_input_data(
+        validate_data, validate_data[Keys.INTERNET], args["period"], args["output-size"]
+    )
     test_resize_data = resize_input_data(test_data, test_data[Keys.INTERNET], args["period"], args["output-size"])
 
     dataset = SequenceDataset(resize_data)
