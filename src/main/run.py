@@ -1,6 +1,7 @@
 import argparse
 import torch
 import wandb
+import yaml
 import os
 
 from src.train.new_train import train_main
@@ -11,26 +12,17 @@ from src.test.test import test_main
 
 
 def run():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--epoch', type=int, default=10, help='epochs for training, it will be 10 if not specified.')
-    parser.add_argument('--lr', type=float, default=1e-3, help='learning rate, 0.001 by default')
-    parser.add_argument('--data', type=str, help='path of input data')
-    parser.add_argument('--device', type=str, default='cpu', help='path of input data')
-    parser.add_argument('--period', type=int, default=6, help='numbers of data points used for training: 6 as one '
-                                                              'hour, 240 as one day')
-    parser.add_argument('--output_size', type=int, default=1, help='numbers of prediction')
-    parser.add_argument('--batch', type=int, default=1, help='batch size, 1 by default as it is time series prediction')
-
-    args = parser.parse_args()
+    with open("./src/main/hyp.yaml", 'r') as stream:
+        args = yaml.safe_load(stream)
 
     wandb.init(
         project="Project_CS",
         config={
-            "learning-rate": args.lr,
+            "learning-rate": args["learning-rate"],
             "architecture": "LSTM",
             "dataset": "Milan",
-            "epochs": args.epoch,
-            "batch": args.batch,
+            "epochs": args["epoch"],
+            "batch": args["batch-size"],
         }
     )
 
@@ -38,15 +30,15 @@ def run():
     datasets = [dataset, validate_dateset, test_dataset]
     # dataset = PickleDataset(train_size=args.period, test_size=args.output_size, max_saved_chunks=1)
 
-    train_loader, eval_loader, test_loader = get_data_loaders(datasets, args.batch)
+    train_loader, eval_loader, test_loader = get_data_loaders(datasets, args["batch-size"])
 
     model = train_main(args, train_loader, eval_loader)
 
-    # model = torch.load("./models/model/best.pt")
+    model = torch.load("./src/models/model/best.pt")
     print("test")
-    # model = torch.load("./models/model/best.pt")
+
     test_pred = test_main(model, test_loader, args)
-    plot_test_data(args, test_pred, test_loader)
+    plot_test_data(test_pred, test_loader)
     # plot_true_data(test_loader)
 
 

@@ -56,15 +56,14 @@ def split_dataset(data):
 
 
 def get_dataset(args):
-    data = load_data(args.data)
-    # TODO: replace temp path
-    validate_data = load_data(r"D:\project\python\project_cs\data\grid_1\validate.pkl")
-    test_data = load_data(r"D:\project\python\project_cs\data\grid_1\test.pkl")
+    train_data = load_data(args["data"]["train-data"])
+    validate_data = load_data(args["data"]["eval-data"])
+    test_data = load_data(args["data"]["test-data"])
     # norm_data, norm_label, _ = normalization(data)
 
-    resize_data = resize_input_data(data, data[Keys.INTERNET], args.period, args.output_size)
-    validate_resize_data = resize_input_data(validate_data, validate_data[Keys.INTERNET], args.period, args.output_size)
-    test_resize_data = resize_input_data(test_data, test_data[Keys.INTERNET], args.period, args.output_size)
+    resize_data = resize_input_data(train_data, train_data[Keys.INTERNET], args["period"], args["output-size"])
+    validate_resize_data = resize_input_data(validate_data, validate_data[Keys.INTERNET], args["period"], args["output-size"])
+    test_resize_data = resize_input_data(test_data, test_data[Keys.INTERNET], args["period"], args["output-size"])
 
     dataset = SequenceDataset(resize_data)
     validate_dataset = SequenceDataset(validate_resize_data)

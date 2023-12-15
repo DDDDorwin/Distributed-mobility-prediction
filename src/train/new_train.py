@@ -44,21 +44,21 @@ def train_main(args, train_loader, eval_loader):
     best_val_loss = float('inf')
 
     # define model
-    # model = LSTM(args.period, 16, 2, batch_first=True, batch_size=args.batch, embedding_size=16).double()
-    model = lstm_embedding(args.period, 128, 2, batch_first=False, batch_size=args.batch, embedding_size=16).double()
+    # model = LSTM(args.period, 16, 2, batch_first=True, batch_size=args["batch-size"], embedding_size=16).double()
+    model = lstm_embedding(args["period"], 128, 2, batch_first=False, batch_size=args["batch-size"], embedding_size=16).double()
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=args.lr)
-    scheduler = CosineAnnealingLR(optimizer, T_max=args.epoch)
+    optimizer = optim.Adam(model.parameters(), lr=args["learning-rate"])
+    scheduler = CosineAnnealingLR(optimizer, T_max=args["epoch"])
 
     print("start training")
-    for epoch in range(args.epoch):
-        train(model, train_loader, optimizer, criterion, args.batch, args.device)
+    for epoch in range(args["epoch"]):
+        train(model, train_loader, optimizer, criterion, args["batch-size"], args["device"])
         scheduler.step()
         wandb.log({"learning rate": optimizer.param_groups[0]["lr"]})
         lrs.append(optimizer.param_groups[0]["lr"])
 
         # validation
-        val_loss = eval_main(model, eval_loader, criterion, args.device)
+        val_loss = eval_main(model, eval_loader, criterion, args["device"])
 
         # early stopping
         if val_loss < best_val_loss:

@@ -30,6 +30,6 @@ def test(model, test_loader, device, preds):
 
 def test_main(model, test_loader, args):
     preds = []
-    test(model, test_loader, args.device, preds)
+    test(model, test_loader, args["device"], preds)
 
     return preds

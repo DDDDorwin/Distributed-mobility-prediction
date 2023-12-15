@@ -1,0 +1,25 @@
+data:
+  train-data:
+    D:\project\python\project_cs\data\train.pkl
+  eval-data:
+    D:\project\python\project_cs\data\validate.pkl
+  test-data:
+    D:\project\python\project_cs\data\test.pkl
+
+epoch:
+  10
+
+learning-rate:
+  0.0001
+
+batch-size:
+  8
+
+device:
+  cpu
+
+period:
+  6
+
+output-size:
+  1

@@ -4,7 +4,7 @@ import pandas as pd
 from src.utils.constants import Keys
 
 
-def plot_test_data(args, pred, test_loader):
+def plot_test_data(pred, test_loader):
     true_data = []
     for x, y in test_loader:
         true_data.append(y)
