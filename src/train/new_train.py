@@ -1,16 +1,12 @@
 import time
 import wandb
-import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import CosineAnnealingLR
-import numpy as np
 
-from models.models import LSTM, OneDimensionalCNN, lstm_embedding
-from data.dataloader import get_data_loaders
-from eval import eval_main
-from test import test_main
-from utils.util import save_model, load_model
+from src.models.models import lstm_embedding
+from src.eval.eval import eval_main
+from src.utils.util import save_model
 
 
 def train(model, train_loader, optimizer, criterion, batch_size, device):
@@ -42,6 +38,7 @@ def train(model, train_loader, optimizer, criterion, batch_size, device):
 def train_main(args, train_loader, eval_loader):
     lrs = []
     losses = []
+    save_dir = ''
     best_val_loss = float('inf')
 
     # define model
@@ -64,8 +61,8 @@ def train_main(args, train_loader, eval_loader):
         # early stopping
         if val_loss < best_val_loss:
             best_val_loss = val_loss
-            save_model(model, "./models/model/best.pt")
+            save_model(model, "./src/models/model/best.pt")
 
-    save_model(model, "./models/model/last.pt")
+    save_model(model, "./src/models/model/last.pt")
 
     return model

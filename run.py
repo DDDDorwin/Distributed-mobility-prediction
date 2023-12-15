@@ -2,14 +2,10 @@ import argparse
 import torch
 import wandb
 
-from utils.util import get_dataset
-from utils.wandb_plot import plot_test_data, plot_true_data
+from src.utils.util import get_dataset
+from src.utils.wandb_plot import plot_test_data
 from data.dataloader import get_data_loaders
-from data.data import resize_input_data, SequenceDataset
-from pickleset import PickleDataset
-from new_train import train_main
-from test import test_main
-from eval import eval_main
+from src.test.test import test_main
 
 
 def run():

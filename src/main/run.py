@@ -1,15 +1,13 @@
 import argparse
 import torch
 import wandb
+import os
 
-from utils.util import get_dataset
-from utils.wandb_plot import plot_test_data, plot_true_data
+from src.train.new_train import train_main
+from src.utils.util import get_dataset
+from src.utils.wandb_plot import plot_test_data
 from src.data.dataloader import get_data_loaders
-from src.data.data import resize_input_data, SequenceDataset
-from pickleset import PickleDataset
-from new_train import train_main
-from test import test_main
-from eval import eval_main
+from src.test.test import test_main
 
 
 def run():
@@ -42,11 +40,11 @@ def run():
 
     train_loader, eval_loader, test_loader = get_data_loaders(datasets, args.batch)
 
-    # model = train_main(args, train_loader, eval_loader)
+    model = train_main(args, train_loader, eval_loader)
 
     # model = torch.load("./models/model/best.pt")
     print("test")
-    model = torch.load("./models/model/best.pt")
+    # model = torch.load("./models/model/best.pt")
     test_pred = test_main(model, test_loader, args)
     plot_test_data(args, test_pred, test_loader)
     # plot_true_data(test_loader)

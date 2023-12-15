@@ -1,10 +1,10 @@
-from constants import Keys, TableData
+from src.utils.constants import Keys, TableData
 import pandas as pd
 import torch
 from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import Subset
 
-from data.data import SequenceDataset, resize_input_data
+from src.data.data import SequenceDataset, resize_input_data
 
 
 def load_sum_data(data_path):

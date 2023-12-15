@@ -2,15 +2,13 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import CosineAnnealingLR
-from torch.utils.data import random_split, DataLoader, Subset
-import numpy as np
+from torch.utils.data import DataLoader, Subset
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 import time
 import argparse
-from preprocessing import load_pickle, Paths, Keys
-from models.models import OneDimensionalCNN, LSTM
+from preprocessing import load_pickle, Keys
+from src.models.models import LSTM
 from data.data import SequenceDataset, resize_input_data, make_test_set
 from utils.plot import plot_test_graph, plot_loss, plot_lr
 
