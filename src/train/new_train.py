@@ -1,3 +1,4 @@
+import os.path
 import time
 import wandb
 import torch.nn as nn
@@ -38,7 +39,8 @@ def train(model, train_loader, optimizer, criterion, batch_size, device):
 def train_main(args, train_loader, eval_loader):
     lrs = []
     losses = []
-    save_dir = ''
+    if not os.path.exists("./src/models/model"):
+        os.mkdir("./src/models/model")
     best_val_loss = float('inf')
 
     # define model
