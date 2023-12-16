@@ -11,7 +11,7 @@ from gvslearning.utils.wandb_plot import plot_test_data
 
 def run():
     print("****  Running gvslearning model ****")
-    with open("./src/main/hyp.yaml", "r") as stream:
+    with open("./src/gvslearning/main/hyp.yaml", "r") as stream:
         args = yaml.safe_load(stream)
 
     wandb.init(
