@@ -4,8 +4,9 @@ import numpy as np
 import torch
 
 from torch.utils.data import Dataset
-from gvslearning.utils.constants import Paths, Keys
 from os.path import join
+
+from gvslearning.utils.constants import Paths, Keys
 
 
 class PickleDataset(Dataset):
