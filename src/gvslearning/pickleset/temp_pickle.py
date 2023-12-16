@@ -1,8 +1,8 @@
 import os
 
 import pandas as pd
-from src.utils.util import pickle_normalization
-from src.utils.constants import Keys, TableData
+from gvslearning.utils.util import pickle_normalization
+from gvslearning.utils.constants import Keys, TableData
 
 
 def make_general_pickle():
@@ -19,31 +19,43 @@ def make_general_pickle():
         Keys.INTERNET: "float32",
     }
 
-    input_files = [f
-        for f in os.listdir(r"D:\project\python\project_cs\data\raw")
-        if f.endswith(".txt")
+    input_files = [f for f in os.listdir(r"D:\project\python\project_cs\data\raw") if f.endswith(".txt")]
+    columns = [
+        "square_id",
+        "time_interval",
+        "country_code",
+        "sms_in",
+        "sms_out",
+        "call_in",
+        "call_out",
+        "internet_traffic",
     ]
-    columns = ['square_id', 'time_interval', 'country_code', 'sms_in',
-               'sms_out', 'call_in', 'call_out', 'internet_traffic']
     # Read the data and concat them
     df = pd.DataFrame()
     for file in input_files:
-        read = pd.read_csv(r"D:\project\python\project_cs\data\raw/" + file, sep='\t', header=None, names=columns, parse_dates=True, dtype=DTYPES)
+        read = pd.read_csv(
+            r"D:\project\python\project_cs\data\raw/" + file,
+            sep="\t",
+            header=None,
+            names=columns,
+            parse_dates=True,
+            dtype=DTYPES,
+        )
         # read = pd.read_csv(r"D:\project\python\project_cs\data\raw\/" + file, sep='\t', header=None, names=columns,
         #                    parse_dates=True)
         df = pd.concat([df, read], ignore_index=True)
-        print("reading "+file)
+        print("reading " + file)
 
     length = len(df)
 
-
     # df = df.fillna(0)
-    df['start_time'] = pd.to_datetime(df[Keys.TIME_INTERVAL], unit='ms', utc=True).dt.tz_convert(
-        'CET').dt.tz_localize(None)
+    df["start_time"] = (
+        pd.to_datetime(df[Keys.TIME_INTERVAL], unit="ms", utc=True).dt.tz_convert("CET").dt.tz_localize(None)
+    )
 
     df = df.groupby(Keys.SQUARE_ID)
     df = df.get_group(2)
-    df = df.groupby([pd.Grouper(key='start_time', freq='10Min')]).sum()
+    df = df.groupby([pd.Grouper(key="start_time", freq="10Min")]).sum()
 
     df = df.drop(Keys.TIME_INTERVAL, axis=1)
     df = df.drop(Keys.COUNTRY_CODE, axis=1)
@@ -68,6 +80,7 @@ def make_general_pickle():
     size += length
     print("Successfully pickled")
 
+
 def make_validate_pickle():
     size = 0
     df = pd.DataFrame()
@@ -82,31 +95,43 @@ def make_validate_pickle():
         Keys.INTERNET: "float32",
     }
 
-    input_files = [f
-        for f in os.listdir(r"D:\project\python\project_cs\data\validate")
-        if f.endswith(".txt")
+    input_files = [f for f in os.listdir(r"D:\project\python\project_cs\data\validate") if f.endswith(".txt")]
+    columns = [
+        "square_id",
+        "time_interval",
+        "country_code",
+        "sms_in",
+        "sms_out",
+        "call_in",
+        "call_out",
+        "internet_traffic",
     ]
-    columns = ['square_id', 'time_interval', 'country_code', 'sms_in',
-               'sms_out', 'call_in', 'call_out', 'internet_traffic']
     # Read the data and concat them
     df = pd.DataFrame()
     for file in input_files:
-        read = pd.read_csv(r"D:\project\python\project_cs\data\validate/" + file, sep='\t', header=None, names=columns, parse_dates=True, dtype=DTYPES)
+        read = pd.read_csv(
+            r"D:\project\python\project_cs\data\validate/" + file,
+            sep="\t",
+            header=None,
+            names=columns,
+            parse_dates=True,
+            dtype=DTYPES,
+        )
         # read = pd.read_csv(r"D:\project\python\project_cs\data\raw\/" + file, sep='\t', header=None, names=columns,
         #                    parse_dates=True)
         df = pd.concat([df, read], ignore_index=True)
-        print("reading "+file)
+        print("reading " + file)
 
     length = len(df)
 
-
     # df = df.fillna(0)
-    df['start_time'] = pd.to_datetime(df[Keys.TIME_INTERVAL], unit='ms', utc=True).dt.tz_convert(
-        'CET').dt.tz_localize(None)
+    df["start_time"] = (
+        pd.to_datetime(df[Keys.TIME_INTERVAL], unit="ms", utc=True).dt.tz_convert("CET").dt.tz_localize(None)
+    )
 
     df = df.groupby(Keys.SQUARE_ID)
     df = df.get_group(2)
-    df = df.groupby([pd.Grouper(key='start_time', freq='10Min')]).sum()
+    df = df.groupby([pd.Grouper(key="start_time", freq="10Min")]).sum()
 
     df = df.drop(Keys.TIME_INTERVAL, axis=1)
     df = df.drop(Keys.COUNTRY_CODE, axis=1)
@@ -131,6 +156,7 @@ def make_validate_pickle():
     size += length
     print("Successfully pickled")
 
+
 def make_test_pickle():
     size = 0
     df = pd.DataFrame()
@@ -146,30 +172,42 @@ def make_test_pickle():
     }
 
     data_files = os.listdir(r"D:\project\python\project_cs\data\raw")
-    input_files = [f
-        for f in os.listdir(r"D:\project\python\project_cs\data\test")
-        if f.endswith(".txt")
+    input_files = [f for f in os.listdir(r"D:\project\python\project_cs\data\test") if f.endswith(".txt")]
+    columns = [
+        "square_id",
+        "time_interval",
+        "country_code",
+        "sms_in",
+        "sms_out",
+        "call_in",
+        "call_out",
+        "internet_traffic",
     ]
-    columns = ['square_id', 'time_interval', 'country_code', 'sms_in',
-               'sms_out', 'call_in', 'call_out', 'internet_traffic']
     # Read the data and concat them
     df = pd.DataFrame()
     for file in input_files:
-        read = pd.read_csv(r"D:\project\python\project_cs\data\test/" + file, sep='\t', header=None, names=columns, parse_dates=True, dtype=DTYPES)
+        read = pd.read_csv(
+            r"D:\project\python\project_cs\data\test/" + file,
+            sep="\t",
+            header=None,
+            names=columns,
+            parse_dates=True,
+            dtype=DTYPES,
+        )
         # read = pd.read_csv(r"D:\project\python\project_cs\data\raw\/" + file, sep='\t', header=None, names=columns,
         #                    parse_dates=True)
         df = pd.concat([df, read], ignore_index=True)
-        print("reading "+file)
+        print("reading " + file)
 
     length = len(df)
 
-
     # df = df.fillna(0)
-    df['start_time'] = pd.to_datetime(df[Keys.TIME_INTERVAL], unit='ms', utc=True).dt.tz_convert(
-        'CET').dt.tz_localize(None)
+    df["start_time"] = (
+        pd.to_datetime(df[Keys.TIME_INTERVAL], unit="ms", utc=True).dt.tz_convert("CET").dt.tz_localize(None)
+    )
     # df = df.groupby(Keys.SQUARE_ID)
     # df = df.get_group(2)
-    df = df.groupby([pd.Grouper(key='start_time', freq='10Min')]).sum()
+    df = df.groupby([pd.Grouper(key="start_time", freq="10Min")]).sum()
 
     # df = df.groupby([Keys.SQUARE_ID, pd.Grouper(key='start_time', freq='10Min')]).agg()
     df = df.drop(Keys.TIME_INTERVAL, axis=1)
@@ -197,7 +235,7 @@ def make_test_pickle():
     print("Successfully pickled")
 
 
-if __name__=='__main__':
+if __name__ == "__main__":
     # make_general_pickle()
     # make_validate_pickle()
     make_test_pickle()

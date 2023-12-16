@@ -3,7 +3,7 @@ from datetime import datetime
 from random import seed
 from random import randint
 
-from pickleset.pickleset import PickleDataset
+from gvslearning.pickleset.pickleset import PickleDataset
 
 pds = PickleDataset(train_size=5, test_size=2, max_saved_chunks=8)
 seed(1)

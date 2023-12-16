@@ -1,6 +1,7 @@
 import torch
 import wandb
 
+
 def validate(model, val_loader, criterion, device):
     model.eval()
     current_val_loss = 0.0
@@ -23,7 +24,7 @@ def validate(model, val_loader, criterion, device):
     mse = running_mse / len(val_loader)
 
     print(f"MAE value: {mae:.5f}, MSE value: {mse:.5f}")
-    print(f'Loss: {loss.item():10.8f}')
+    print(f"Loss: {loss.item():10.8f}")
     wandb.log({"eval loss": loss.item()})
     return loss
 

@@ -4,8 +4,8 @@ import geojson
 from pandas import DataFrame
 import pandas as pd
 
-from utils.constants import Keys
-from src.visualization.GeoHeatMap import GeoHeatMapClass
+from gvslearning.utils import Keys
+from gvslearning.visualization import GeoHeatMapClass
 from pandas import Timestamp
 from datetime import datetime, date
 

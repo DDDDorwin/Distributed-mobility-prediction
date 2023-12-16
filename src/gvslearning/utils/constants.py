@@ -32,7 +32,7 @@ class Paths(object):
     # DATA_DIR = "/home/final/projects/data/"
     # DATA_DIR = "/Users/savvas/Desktop/PCS/Project_CS_UserVsSpecific/data"
     RAW_DIR = pjoin(DATA_DIR, "raw")
-    
+
     NORM_DIR = pjoin(DATA_DIR, "norm_raw")
     PICKLE_DIR = pjoin(DATA_DIR, "pickles")
     FILLED_WITH_ZEROES_DIR = pjoin(DATA_DIR, "filled_with_zeroes")
