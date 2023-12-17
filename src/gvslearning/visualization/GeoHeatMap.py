@@ -6,7 +6,7 @@ from folium.plugins import HeatMapWithTime
 from pandas import DataFrame
 from shapely.geometry import Polygon
 
-from utils.constants import Keys
+from gvslearning.utils.constants import Keys
 
 
 class GeoHeatMapClass:
