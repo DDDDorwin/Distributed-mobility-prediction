@@ -38,8 +38,8 @@ def train(model, train_loader, optimizer, criterion, batch_size, device):
 def train_main(args, train_loader, eval_loader):
     lrs = []
     losses = []
-    if not os.path.exists("./src/models/model"):
-        os.mkdir("./src/models/model")
+    # if not os.path.exists("./src/models/model"):
+    #     os.mkdir("./src/models/model")
     best_val_loss = float("inf")
 
     # define model
@@ -64,8 +64,8 @@ def train_main(args, train_loader, eval_loader):
         # early stopping
         if val_loss < best_val_loss:
             best_val_loss = val_loss
-            save_model(model, "./src/models/model/best.pt")
+            # save_model(model, "./src/models/model/best.pt")
 
-    save_model(model, "./src/models/model/last.pt")
+    # save_model(model, "./src/models/model/last.pt")
 
     return model

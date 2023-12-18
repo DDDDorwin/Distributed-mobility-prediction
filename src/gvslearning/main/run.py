@@ -36,7 +36,7 @@ def run():
 
     model = train_main(args, train_loader, eval_loader)
 
-    model = torch.load("./src/models/model/best.pt")
+    # model = torch.load("./src/models/model/best.pt")
     print("test")
 
     test_pred = test_main(model, test_loader, args)
