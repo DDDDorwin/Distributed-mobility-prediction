@@ -44,10 +44,10 @@ def train_main(args, train_loader, eval_loader):
 
     # define model
     # model = LSTM(args.period, 16, 2, batch_first=True, batch_size=args["batch-size"], embedding_size=16).double()
-    # model = lstm_embedding(
-    #     args["period"], 128, 2, batch_first=False, batch_size=args["batch-size"], embedding_size=16
-    # ).double()
-    model = BasicConv2D(24, 2, 5, 6).double()
+    model = lstm_embedding(
+        args["period"], 128, 2, batch_first=False, batch_size=args["batch-size"], embedding_size=16
+    ).double()
+    # model = BasicConv2D(24, 2, 6, 6).double()
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=args["learning-rate"])
     scheduler = CosineAnnealingLR(optimizer, T_max=args["epoch"])

@@ -68,18 +68,18 @@ def get_dataset(args):
     
     test_resize_data = resize_input_data(test_data, test_data[Keys.INTERNET], args["period"], args["output-size"])
 
-    data_train_wide = resize_data.reshape((len(resize_data), args["period"], 5, 1))
-    data_train_test_wide = resize_data.reshape((len(resize_data), args["period"], 5, 1))
+    # data_train_wide = torch.tensor(resize_data).reshape((len(resize_data), args["period"], 5, 1))
+    # data_train_test_wide = resize_data.reshape((len(resize_data), args["period"], 5, 1))
+    #
+    # data_validate_wide = torch.tensor(validate_resize_data).reshape((len(validate_resize_data), args["period"], 5, 1))
+    # data_validate_test_wide = resize_data.reshape((len(validate_resize_data), args["period"], 5, 1))
+    #
+    # data_test_wide = torch.tensor(test_resize_data).reshape((len(test_resize_data), args["period"], 5, 1))
+    # data_test_wide = resize_data.reshape((len(test_resize_data), args["period"], 5, 1))
 
-    data_validate_wide = resize_data.reshape((len(validate_resize_data), args["period"], 5, 1))
-    data_validate_test_wide = resize_data.reshape((len(validate_resize_data), args["period"], 5, 1))
-
-    data_test_wide = resize_data.reshape((len(test_resize_data), args["period"], 5, 1))
-    data_test_wide = resize_data.reshape((len(test_resize_data), args["period"], 5, 1))
-
-    dataset = SequenceDataset(data_train_wide)
-    validate_dataset = SequenceDataset(data_validate_wide)
-    test_dataset = SequenceDataset(data_test_wide)
+    dataset = SequenceDataset(resize_data)
+    validate_dataset = SequenceDataset(validate_resize_data)
+    test_dataset = SequenceDataset(test_resize_data)
 
     return dataset, validate_dataset, test_dataset
 

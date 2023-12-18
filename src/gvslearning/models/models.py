@@ -26,6 +26,7 @@ class OneDimensionalCNN(nn.Module):
         )
 
     def forward(self, x):
+
         output = self.model(x)
         return output
 
@@ -126,7 +127,7 @@ class BasicConv2D(nn.Module):
         super(BasicConv2D, self).__init__()
 
         # Conv2D layer
-        self.conv1 = nn.Conv2d(in_channels=n_features, out_channels=n_filters, kernel_size=(1, fsize), padding='same')
+        self.conv1 = nn.Conv2d(in_channels=n_features, out_channels=n_filters, kernel_size=(2, fsize), padding='same')
         # Calculate the flattened size after Conv2D
         self.flattened_size = n_filters * window_size * 1
         # Dense layers
@@ -135,6 +136,7 @@ class BasicConv2D(nn.Module):
         self.fc3 = nn.Linear(100, 1)
 
     def forward(self, x):
+        x = x.reshape(x.shape[0], x.shape[1], x.shape[2], 1)
         x = torch.relu(self.conv1(x))
         x = x.view(-1, self.flattened_size)  # Flatten
         x = torch.relu(self.fc1(x))
