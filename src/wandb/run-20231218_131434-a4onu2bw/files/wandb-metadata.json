@@ -1,0 +1,52 @@
+{
+    "os": "Windows-10-10.0.22000-SP0",
+    "python": "3.11.5",
+    "heartbeatAt": "2023-12-18T12:14:35.977452",
+    "startedAt": "2023-12-18T12:14:34.267972",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "-m __main__",
+    "codePathLocal": null,
+    "git": {
+        "remote": "https://github.com/Mithzyl/Project_CS_UserVsSpecific.git",
+        "commit": "24603d2a6b8b35e4609062b5e98e60bc6806fb85"
+    },
+    "email": "dorwinzheng@outlook.com",
+    "root": "D:/AAA/Projectcs/CODE/Project_CS_UserVsSpecific",
+    "host": "DDDDDorwin",
+    "username": "dorwi",
+    "executable": "C:\\Users\\dorwi\\.conda\\envs\\Project_CS\\python.exe",
+    "cpu_count": 8,
+    "cpu_count_logical": 16,
+    "cpu_freq": {
+        "current": 3201.0,
+        "min": 0.0,
+        "max": 3201.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 3201.0,
+            "min": 0.0,
+            "max": 3201.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 274.71581649780273,
+            "used": 100.53495025634766
+        }
+    },
+    "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "gpu_count": 1,
+    "gpu_devices": [
+        {
+            "name": "NVIDIA GeForce RTX 3050 Laptop GPU",
+            "memory_total": 4294967296
+        }
+    ],
+    "memory": {
+        "total": 15.855525970458984
+    }
+}

@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
-from gvslearning.models.models import lstm_embedding
+from gvslearning.models.models import lstm_embedding, BasicConv2D
 from gvslearning.eval.eval import eval_main
 from gvslearning.utils.util import save_model
 
@@ -38,15 +38,16 @@ def train(model, train_loader, optimizer, criterion, batch_size, device):
 def train_main(args, train_loader, eval_loader):
     lrs = []
     losses = []
-    if not os.path.exists("./src/models/model"):
-        os.mkdir("./src/models/model")
+    # if not os.path.exists("./src/models/model"):
+    #     os.mkdir("./src/models/model")
     best_val_loss = float("inf")
 
     # define model
     # model = LSTM(args.period, 16, 2, batch_first=True, batch_size=args["batch-size"], embedding_size=16).double()
-    model = lstm_embedding(
-        args["period"], 128, 2, batch_first=False, batch_size=args["batch-size"], embedding_size=16
-    ).double()
+    # model = lstm_embedding(
+    #     args["period"], 128, 2, batch_first=False, batch_size=args["batch-size"], embedding_size=16
+    # ).double()
+    model = BasicConv2D(24, 2, 5, 6).double()
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=args["learning-rate"])
     scheduler = CosineAnnealingLR(optimizer, T_max=args["epoch"])
@@ -64,8 +65,8 @@ def train_main(args, train_loader, eval_loader):
         # early stopping
         if val_loss < best_val_loss:
             best_val_loss = val_loss
-            save_model(model, "./src/models/model/best.pt")
+            # save_model(model, "./src/models/model/best.pt")
 
-    save_model(model, "./src/models/model/last.pt")
+    # save_model(model, "./src/models/model/last.pt")
 
     return model
