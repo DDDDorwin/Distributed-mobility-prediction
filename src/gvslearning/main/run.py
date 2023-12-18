@@ -1,3 +1,5 @@
+import os
+
 import torch
 import wandb
 import yaml
@@ -11,6 +13,8 @@ from gvslearning.utils.wandb_plot import plot_test_data
 
 def run():
     print("****  Running gvslearning model ****")
+    config_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), "hyp.yaml")
+    print(config_file)
     with open("./src/gvslearning/main/hyp.yaml", "r") as stream:
         args = yaml.safe_load(stream)
 
