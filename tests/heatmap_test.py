@@ -4,10 +4,12 @@ import geojson
 from pandas import DataFrame
 import pandas as pd
 
-from gvslearning.utils import Keys
-from gvslearning.visualization import GeoHeatMapClass
+
 from pandas import Timestamp
 from datetime import datetime, date
+
+from gvslearning.utils.constants import Keys
+from gvslearning.visualization.GeoHeatMap import GeoHeatMapClass
 
 
 class TestGeoHeatMapClass(unittest.TestCase):

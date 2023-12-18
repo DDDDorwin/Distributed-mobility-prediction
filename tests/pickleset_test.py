@@ -4,11 +4,12 @@ import os
 
 import pytest
 
-from gvslearning.utils import Paths
-from gvslearning.pickleset import PickleDataset
 from random import seed
 from random import randint
 from os.path import join
+
+from gvslearning.pickleset.pickleset import PickleDataset
+from gvslearning.utils.constants import Paths
 
 """
 This file contains tests to ensure function of the pickleset dataset.
