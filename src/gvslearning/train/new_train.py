@@ -46,7 +46,7 @@ def train_main(args, train_loader, eval_loader):
     best_val_loss = float("inf")
 
     # define model
-    model = BasicConv2D(24, 2, 6, 6)
+    model = BasicConv2D(24, 2, 6, 6).double()
 
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=args["learning-rate"])
