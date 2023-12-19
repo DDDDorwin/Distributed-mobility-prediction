@@ -8,6 +8,7 @@ from gvslearning.data.dataloader import get_data_loaders
 from gvslearning.test.test import test_main
 from gvslearning.train.new_train import train_main
 from gvslearning.utils.util import get_dataset
+from gvslearning.utils.constants import Paths
 from gvslearning.utils.wandb_plot import plot_test_data
 
 
@@ -36,7 +37,7 @@ def run():
 
     model = train_main(args, train_loader, eval_loader)
 
-    # model = torch.load("./src/models/model/best.pt")
+    model = torch.load(os.path.join(Paths.MODEL_DIR, "best.pt"))
     print("test")
 
     test_pred = test_main(model, test_loader, args)

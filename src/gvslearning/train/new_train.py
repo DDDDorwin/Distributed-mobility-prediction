@@ -7,6 +7,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 
 from gvslearning.models.models import lstm_embedding
 from gvslearning.eval.eval import eval_main
+from gvslearning.utils.constants import Paths
 from gvslearning.utils.util import save_model
 
 
@@ -38,8 +39,10 @@ def train(model, train_loader, optimizer, criterion, batch_size, device):
 def train_main(args, train_loader, eval_loader):
     lrs = []
     losses = []
-    # if not os.path.exists("./src/models/model"):
-    #     os.mkdir("./src/models/model")
+
+    # create folder to save models
+    if not os.path.exists(Paths.MODEL_DIR):
+        os.mkdir(Paths.MODEL_DIR)
     best_val_loss = float("inf")
 
     # define model
@@ -64,8 +67,8 @@ def train_main(args, train_loader, eval_loader):
         # early stopping
         if val_loss < best_val_loss:
             best_val_loss = val_loss
-            # save_model(model, "./src/models/model/best.pt")
+            save_model(model, os.path.join(Paths.MODEL_DIR, "best.pt"))
 
-    # save_model(model, "./src/models/model/last.pt")
+    save_model(model, os.path.join(Paths.MODEL_DIR, "last.pt"))
 
     return model
