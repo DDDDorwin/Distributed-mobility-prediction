@@ -46,14 +46,14 @@ def train_main(args, train_loader, eval_loader):
     best_val_loss = float("inf")
 
     # define model
+    model = BasicConv2D(24, 2, 6, 6)
 
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(nomodel.parameters(), lr=args["learning-rate"])
+    optimizer = optim.Adam(model.parameters(), lr=args["learning-rate"])
     scheduler = CosineAnnealingLR(optimizer, T_max=args["epoch"])
 
     print("start training")
     for epoch in range(args["epoch"]):
-        print("no model")
         train(model, train_loader, optimizer, criterion, args["batch-size"], args["device"])
         scheduler.step()
         wandb.log({"learning rate": optimizer.param_groups[0]["lr"]})
