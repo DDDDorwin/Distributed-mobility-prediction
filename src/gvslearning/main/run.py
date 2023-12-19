@@ -42,7 +42,7 @@ def run():
 
     test_pred = test_main(model, test_loader, args)
     plot_test_data(test_pred, test_loader)
-    # plot_true_data(test_loader)
+    plot_true_data(test_loader)
 
     wandb.finish()
 
