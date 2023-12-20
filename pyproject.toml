@@ -45,6 +45,10 @@ dependencies = [
     "shapely~=2.0.1",
     "torch~=2.1.0",
     "matplotlib>=3.8.2",
+    "pyyaml",
+    "wandb",
+    "scikit-learn",
+    "types-PyYAML"
 ]
 requires-python = ">=3.9,<3.12"
 readme = "README.md"
@@ -74,7 +78,7 @@ classifiers = [
 ]
 
 [project.scripts]
-gvslearning = "main.__main__:main"
+gvslearning = "gvslearning.main.run:run"
 
 [tool.pdm.dev-dependencies]
 lint = [
@@ -87,5 +91,6 @@ test = [
     "pytest-cov~=3.0",
     "pytest~=7.0",
     "tox~=4.0.0",
+    "types-PyYAML"
 ]
 doc = ["mkdocs"]

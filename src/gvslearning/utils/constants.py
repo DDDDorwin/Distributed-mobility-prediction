@@ -22,6 +22,7 @@ Keys.SQUARE_ID
 """
 
 from os.path import join as pjoin
+import os
 
 
 class Paths(object):
@@ -32,7 +33,7 @@ class Paths(object):
     # DATA_DIR = "/home/final/projects/data/"
     # DATA_DIR = "/Users/savvas/Desktop/PCS/Project_CS_UserVsSpecific/data"
     RAW_DIR = pjoin(DATA_DIR, "raw")
-    
+
     NORM_DIR = pjoin(DATA_DIR, "norm_raw")
     PICKLE_DIR = pjoin(DATA_DIR, "pickles")
     FILLED_WITH_ZEROES_DIR = pjoin(DATA_DIR, "filled_with_zeroes")
@@ -52,6 +53,11 @@ class Paths(object):
 
     # test
     TEST_DIR = pjoin("./test")
+
+    CONSTANT_DIR = pjoin(os.path.abspath(os.path.dirname(__file__)))
+
+    # model dir
+    MODEL_DIR = pjoin(os.path.dirname(CONSTANT_DIR), "models", "model")
 
 
 class Keys(object):
