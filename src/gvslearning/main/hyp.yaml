@@ -1,10 +1,10 @@
 data:
   train-data:
-    D:\project\python\project_cs\data\train.pkl
+    D:\AAA\Projectcs\Dataset\train.pkl
   eval-data:
-    D:\project\python\project_cs\data\validate.pkl
+    D:\AAA\Projectcs\Dataset\validate.pkl
   test-data:
-    D:\project\python\project_cs\data\test.pkl
+    D:\AAA\Projectcs\Dataset\test.pkl
 
 epoch:
   10
