@@ -1,6 +1,5 @@
 name: Tests
 
-
 on:
   - push
   - pull_request
@@ -19,7 +18,11 @@ jobs:
       uses: actions/setup-python@v2
       with:
           python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
+    - name: Setup PDM
+      uses: pdm-project/setup-pdm@v3
+    - name: Install dependencies with PDM
+      run: pdm install
+    - name: Install tox and tox-gh-actions with pip
       run: |
         python -m pip install --upgrade pip
         pip install tox tox-gh-actions
