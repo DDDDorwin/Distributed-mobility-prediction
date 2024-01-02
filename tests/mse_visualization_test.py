@@ -2,7 +2,7 @@
 import os
 import unittest
 
-from visualization.mse import create_mse_json, plot_mse_from_json
+from gvslearning.visualization.mse import MseVisualization as msevis
 
 
 class TestMSEPlot(unittest.TestCase):
@@ -13,12 +13,12 @@ class TestMSEPlot(unittest.TestCase):
     def test_only_one_model(self):
         mse_values_model2 = [0.2, 0.18, 0.15, 0.13, 0.11]
         epochs_model2 = [1, 2, 3, 4, 5]
-        create_mse_json(
+        msevis.create_mse_json(
             os.path.join(self.rootPath, "assets/jsons/evaluation_metrics/mse/model2.json"),
             mse_values_model2,
             epochs_model2,
         )
-        plot_mse_from_json(
+        msevis.plot_mse_from_json(
             os.path.join(self.rootPath, "assets/jsons/evaluation_metrics/mse/"),
             os.path.join(self.rootPath, "assets/images/evaluation_metrics/mse.png"),
         )
@@ -28,23 +28,23 @@ class TestMSEPlot(unittest.TestCase):
         mse_values_model2 = [0.2, 0.18, 0.15, 0.13, 0.11]
         epochs_model1 = [1, 2, 3, 4, 5]
         epochs_model2 = [1, 2, 3, 4, 5]
-        create_mse_json(
+        msevis.create_mse_json(
             os.path.join(self.rootPath, "assets/jsons/evaluation_metrics/mse/model1.json"),
             mse_values_model1,
             epochs_model1,
         )
-        create_mse_json(
+        msevis.create_mse_json(
             os.path.join(self.rootPath, "assets/jsons/evaluation_metrics/mse/model2.json"),
             mse_values_model2,
             epochs_model2,
         )
-        plot_mse_from_json(
+        msevis.plot_mse_from_json(
             os.path.join(self.rootPath, "assets/jsons/evaluation_metrics/mse/"),
             os.path.join(self.rootPath, "assets/images/evaluation_metrics/mse.png"),
         )
 
     def test_no_jsons(self):
-        plot_mse_from_json(os.path.join(self.rootPath, "assets/jsons/evaluation_metrics/mse/"))
+        msevis.plot_mse_from_json(os.path.join(self.rootPath, "assets/jsons/evaluation_metrics/mse/"))
 
     def tearDown(self):
         if os.path.exists("../assets/jsons/evaluation_metrics/mse/model1.json"):
