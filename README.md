@@ -6,18 +6,12 @@ Project CS  Group User. Vs Specific
 
 ### Project Setup
 Install pdm package manager with ``pip install pdm``
-Clone the project and run ``pdm install`` to install project dependancies
+Clone the project and run ``pdm install`` to install project dependancies and install the project as an edittabe package.
 
 ### Adding new packages
 To add a new package or dependency run ``pdm add <package>``
 
 ### Running the project
-Pull the project and setup the project as described above.
-Then install the project as a package to your python environment
-Make sure you have 'pipx installed' you are in the project root directory and run
-
-``$ pipx install -e .``
-
 **Note:** If you change the file project.toml you will need to run ``$ pdm sync`` before running the above command.
 
 This will make the package available to your python environment. And this package will be editable. Anytime you edit
