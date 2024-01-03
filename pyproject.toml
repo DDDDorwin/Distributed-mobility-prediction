@@ -3,7 +3,7 @@ requires = ["pdm-backend"]
 build-backend = "pdm.backend"
 
 [tool.pytest.ini_options]
-addopts = ["--cov=src"]
+addopts = ["--cov=gvslearning"]
 testpaths = ["tests"]
 
 [tool.mypy]
