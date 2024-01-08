@@ -28,8 +28,9 @@ def plot_true_data(test_loader, args):
         true_data.append(y)
     true_data = torch.cat(true_data).numpy().reshape(-1, 1)
     df = pd.DataFrame(true_data)
-    date = get_date(args["data"]["test-date"])[0]
-    df[Keys.INDEX] = date
+    date = get_date(args["data"]["test-date"])
+    # df['ground_truth'] = true_data
+    df[Keys.INDEX] = date.values[:856]
     df.columns = ["data", "date"]
     # columns = [Keys.INTERNET, Keys.INDEX]
     # test_table = wandb.Table(data=pred)
