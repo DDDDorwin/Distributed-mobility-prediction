@@ -81,3 +81,8 @@ def save_model(model, path):
 def load_model(path):
     model = torch.load(path)
     return model
+
+def get_date(path):
+    date = pd.read_pickle(path)
+
+    return date

@@ -57,6 +57,7 @@ def make_general_pickle():
     df = df.get_group(2)
     df = df.groupby([pd.Grouper(key="start_time", freq="10Min")]).sum()
 
+
     df = df.drop(Keys.TIME_INTERVAL, axis=1)
     df = df.drop(Keys.COUNTRY_CODE, axis=1)
     df[Keys.SQUARE_ID] = 2
@@ -212,7 +213,9 @@ def make_test_pickle():
     # df = df.groupby([Keys.SQUARE_ID, pd.Grouper(key='start_time', freq='10Min')]).agg()
     df = df.drop(Keys.TIME_INTERVAL, axis=1)
     df = df.drop(Keys.COUNTRY_CODE, axis=1)
-    df[Keys.SQUARE_ID] = 2
+    date = df.index.to_series()
+    date.to_pickle(r"D:\project\python\project_cs\data\test_date.pkl")
+    # df[Keys.SQUARE_ID] = 2
     # ids.name = Keys.SQUARE_ID
     # ids.index = [i for i in range(len(ids))]
     normalized = pickle_normalization(df)
