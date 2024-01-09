@@ -13,7 +13,6 @@ import pmdarima as pm
 from sklearn.model_selection import train_test_split
 from datetime import datetime
 import seaborn as sns
-from sklearn.metrics import r2_score
 import matplotlib.dates as mdates
 import pickle
 
@@ -21,8 +20,8 @@ import pickle
 """Runtime configuration of Matplotlib"""
 plt.rcParams['font.sans-serif'] = ['Arial']
 plt.rcParams['axes.unicode_minus'] = False
-plt.rcParams['savefig.dpi'] = 200  # Image pixel density
-plt.rcParams['figure.dpi'] = 200  # Resolution for on-screen display
+plt.rcParams['savefig.dpi'] = 200  """ Image pixel density"""
+plt.rcParams['figure.dpi'] = 200  """Resolution for on-screen display"""
 
 """Function to check the stationarity of the data, to determinne the value of d in ARIMA(p,d,q)."""
 def test_stationarity(data):
@@ -98,8 +97,6 @@ def decide_PQ(y_Train,x_Train):
     
         try:
             model = sm.tsa.SARIMAX(endog=y_Train,exog=x_Train, order=(p, d, q),
-                               #enforce_stationarity=False,
-                               #enforce_invertibility=False,
                               )
             results = model.fit()
             results_bic.loc['AR{}'.format(p), 'MA{}'.format(q)] = results.bic
@@ -115,7 +112,7 @@ def decide_PQ(y_Train,x_Train):
                  fmt='.2f', 
                  annot_kws = {'size':20}
                  );
-    #ax.set_title('BIC');
+    
     plt.xticks(fontsize=20)
     plt.yticks(fontsize=20)
     plt.savefig(r'Pictures/BIC.png')
@@ -132,24 +129,25 @@ def pred(y_train, x_train):
 def plot_actual_vs_predicted(actual, predicted, title='Actual vs Predicted', xlabel='index', ylabel='Data'):
 
     plt.figure(figsize=(15, 7))
-    plt.plot(actual, label='Actual', color='blue', alpha=0.6)  # Plot the actual values
-    plt.plot(predicted, label='Predicted', color='red', linestyle='--', alpha=0.7)  # Plot the predicted values
+    plt.plot(actual, label='Actual', color='blue', alpha=0.6) 
+    plt.plot(predicted, label='Predicted', color='red', linestyle='--', alpha=0.7) 
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    plt.legend()  # Show the legend
-    plt.grid(True)  # Show grid
-    plt.tight_layout()  # Fit the plot neatly
+    plt.legend()  
+    plt.grid(True)  
+    plt.tight_layout() 
     plt.savefig(r'Pictures/actualvspredicted.png')
     plt.show()
+    
 def mse(actual, predicted):
     return mean_squared_error(actual, predicted)
 
 if __name__ == '__main__':
-    """Open the pickle file 'grouped_datetime.pickle' and store its content in a DataFrame"""
+    """Loading the data"""
     with open('/Users/shrey_98/Project_CS_UserVsSpecific/grouped_datetime.pkl', 'rb') as file:
         df = pickle.load(file)
-    """
+    """ 
     test_stationarity(df['internet'])
     ACF_PACF(df['internet'])
     scatter_plot(df['internet'])
@@ -158,18 +156,16 @@ if __name__ == '__main__':
     df.drop(['sms_in','sms_out','call_in','call_out'],axis=1,inplace=True)
     scaler = StandardScaler()
     df['internet'] = scaler.fit_transform(df[['internet']])
-    """Split the data into x_train,x_test,y_train,y_test"""
+    """Split the data into x_train,x_test,y_train,y_test and inverse transform the data to get the original values"""
     x_train,x_test,y_train,y_test = train_test_split(df[['internet']],df[['internet']],test_size=0.2,random_state=0,shuffle=False)
     decide_PQ(x_train,y_train)
     model_fit = pred(y_train, x_train)
     predictions = model_fit.predict(start=y_train.index[0], end=y_train.index[-1])
     predictions_2d = predictions.to_numpy().reshape(-1, 1) 
     y_train_2d = y_train.to_numpy().reshape(-1, 1)  
-    """Now perform the inverse transform"""
     predictions = scaler.inverse_transform(predictions_2d)
     y_train = scaler.inverse_transform(y_train_2d)
     plot_actual_vs_predicted(y_train[:,0], predictions[:,0])
-   # print(r2_score(y_train[:,0],predictions[:,0]))
     print(sqrt(mean_squared_error(y_train[:, 0], predictions[:, 0])))
     
 
