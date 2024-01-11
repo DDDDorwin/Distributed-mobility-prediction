@@ -1,13 +1,16 @@
 data:
   train-data:
-    D:\AAA\Projectcs\Dataset\train.pkl
+    D:\project\python\project_cs\data\train.pkl
   eval-data:
-    D:\AAA\Projectcs\Dataset\validate.pkl
+    D:\project\python\project_cs\data\validate.pkl
   test-data:
-    D:\AAA\Projectcs\Dataset\test.pkl
+    D:\project\python\project_cs\data\test.pkl
+  test-date:
+    D:\project\python\project_cs\data\test_date.pkl
+
 
 epoch:
-  10
+  1
 
 learning-rate:
   0.0001
