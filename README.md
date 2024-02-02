@@ -1,8 +1,17 @@
 ![Tests](https://github.com/Mithzyl/Project_CS_UserVsSpecific/actions/workflows/tests.yml/badge.svg)
 
-# Project_CS_UserVsSpecific
-Project CS  Group User. Vs Specific
+# User Equipment Mobility Prediction
+## Overview
 
+This project addresses the challenge of predicting user equipment (UE) mobility in telecommunication networks using Call Detail Record (CDR) data. By analyzing multiple feature time-series data, the project develops both general and specific models to accurately forecast the movements of users, enhancing network efficiency and user experience.
+
+## Project Description
+
+Telecommunication networks generate vast amounts of CDR data that record user activity and movements. This project leverages this data to predict UE mobility, aiming to optimize network resource allocation, improve service delivery, and anticipate network load in different areas. The project is divided into three main models:
+
+- **2D-CNN**
+- **LSTM**
+- **ARIMA**
 
 ### Project Setup
 Install pdm package manager with ``pip install pdm``
