@@ -52,3 +52,5 @@ To import other modules in the project you can simply use the ``from gvslearning
 Each file in the ```src/``` is a module. So if you want to import the ``src/model/modeled.py`` file in the
 ``src/main/__main__.py`` directory you can simply use the ``from model.modeled import example_model`` syntax.
 **See example in the ``src/main/__main__.py`` file**
+
+Thanks for all my teammate.
